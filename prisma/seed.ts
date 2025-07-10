@@ -1,189 +1,228 @@
-import { PrismaClient } from "@prisma/client";
-import { connectToPrismaPostgres } from "@/lib/prisma";
+import {
+  PrismaClient,
+  WasteType,
+  WasteBinStatus,
+  RewardCategory,
+  AchievementRarity,
+  ReportType,
+  ReportPriority,
+  UserRole,
+  Prisma,
+} from "@prisma/client"
+import QRCode from "qrcode"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
+
+async function generateQRCode(binId: string): Promise<string> {
+  try {
+    return await QRCode.toDataURL(`waste-bin:${binId}`)
+  } catch (error) {
+    console.error("Error generating QR code:", error)
+    return `qr-${binId}`
+  }
+}
 
 async function main() {
-  console.log("🌱 Seeding Prisma Postgres database...");
+  console.log("🌱 Seeding database...")
 
-  // Connect to Prisma Postgres
-  await connectToPrismaPostgres();
-
-  // Create superadmin user with Better Auth compatible structure
-  const superadmin = await prisma.user.upsert({
-    where: { email: "superadmin@recycly.com" },
-    update: {},
-    create: {
-      email: "superadmin@recycly.com",
-      name: "Super Admin",
-      emailVerified: new Date(),
-      role: "SUPERADMIN",
-      points: 1000,
-      level: 10,
-      accounts: {
-        create: {
-          accountId: "superadmin-account",
-          providerId: "credential",
-          password:
-            "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsxq/3Haa", // superadmin123
-        },
+  // Create demo users for each role
+  const demoUsers = await Promise.all([
+    // Super Admin
+    prisma.user.create({
+      data: {
+        email: "superadmin@wasteapp.com",
+        name: "Super Administrator",
+        role: UserRole.SUPER_ADMIN,
+        points: 5000,
+        level: 10,
+        avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=superadmin",
       },
-    },
-  });
-
-  // Create admin user
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@recycly.com" },
-    update: {},
-    create: {
-      email: "admin@recycly.com",
-      name: "Admin User",
-      emailVerified: new Date(),
-      role: "ADMIN",
-      points: 500,
-      level: 5,
-      accounts: {
-        create: {
-          accountId: "admin-account",
-          providerId: "credential",
-          password:
-            "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsxq/3Haa", // admin123
-        },
+    }),
+    // Admin
+    prisma.user.create({
+      data: {
+        email: "admin@wasteapp.com",
+        name: "System Administrator",
+        role: UserRole.ADMIN,
+        points: 2500,
+        level: 7,
+        avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
       },
-    },
-  });
-
-  // Create waste manager user
-  const wasteManager = await prisma.user.upsert({
-    where: { email: "wastemanager@recycly.com" },
-    update: {},
-    create: {
-      email: "wastemanager@recycly.com",
-      name: "Waste Manager",
-      emailVerified: new Date(),
-      role: "WASTE_MANAGER",
-      points: 200,
-      level: 2,
-      accounts: {
-        create: {
-          accountId: "wastemanager-account",
-          providerId: "credential",
-          password:
-            "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsxq/3Haa", // wastemanager123
-        },
+    }),
+    // Waste Manager
+    prisma.user.create({
+      data: {
+        email: "manager@wasteapp.com",
+        name: "Waste Operations Manager",
+        role: UserRole.WASTE_MANAGER,
+        points: 1500,
+        level: 5,
+        avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=manager",
       },
-    },
-  });
-
-  // Create regular user
-  const user = await prisma.user.upsert({
-    where: { email: "user@recycly.com" },
-    update: {},
-    create: {
-      email: "user@recycly.com",
-      name: "Regular User",
-      emailVerified: new Date(),
-      role: "USER",
-      points: 50,
-      level: 1,
-      accounts: {
-        create: {
-          accountId: "user-account",
-          providerId: "credential",
-          password:
-            "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsxq/3Haa", // user123
-        },
+    }),
+    // Regular User
+    prisma.user.create({
+      data: {
+        email: "user@wasteapp.com",
+        name: "Regular User",
+        role: UserRole.USER,
+        points: 150,
+        level: 2,
+        avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=user",
       },
-    },
-  });
+    }),
+    // Additional regular users
+    prisma.user.create({
+      data: {
+        email: "alice@example.com",
+        name: "Alice Johnson",
+        role: UserRole.USER,
+        points: 300,
+        level: 3,
+        avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=alice",
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "bob@example.com",
+        name: "Bob Smith",
+        role: UserRole.USER,
+        points: 75,
+        level: 1,
+        avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=bob",
+      },
+    }),
+  ])
 
-  // Create sample waste bins with optimized coordinates for Prisma Postgres
+  console.log("✅ Created demo users with roles")
+
+  // Get users by role for proper type safety
+  const superAdmin = demoUsers.find((user) => user.role === UserRole.SUPER_ADMIN)!
+  const admin = demoUsers.find((user) => user.role === UserRole.ADMIN)!
+  const wasteManager = demoUsers.find((user) => user.role === UserRole.WASTE_MANAGER)!
+  const regularUsers = demoUsers.filter((user) => user.role === UserRole.USER)
+
+  // Create waste bins with proper Decimal handling
   const wasteBins = await Promise.all([
     prisma.wasteBin.create({
       data: {
         name: "Central Park Recycling",
-        type: "RECYCLING",
-        latitude: 40.7829,
-        longitude: -73.9654,
-        qrCode: "QR_CENTRAL_PARK_001",
-        address: "Central Park, New York, NY",
+        type: WasteType.RECYCLING,
+        latitude: new Prisma.Decimal("40.7829"),
+        longitude: new Prisma.Decimal("-73.9654"),
+        qrCode: await generateQRCode("bin-1"),
+        status: WasteBinStatus.ACTIVE,
+        capacity: 80,
+        address: "123 Central Park West, New York, NY",
         description: "Recycling bin located near the main entrance",
+        managedBy: wasteManager.id,
       },
     }),
     prisma.wasteBin.create({
       data: {
         name: "Downtown Compost",
-        type: "COMPOST",
-        latitude: 40.7589,
-        longitude: -73.9851,
-        qrCode: "QR_DOWNTOWN_002",
-        address: "Downtown Manhattan, NY",
+        type: WasteType.COMPOST,
+        latitude: new Prisma.Decimal("40.7589"),
+        longitude: new Prisma.Decimal("-73.9851"),
+        qrCode: await generateQRCode("bin-2"),
+        status: WasteBinStatus.ACTIVE,
+        capacity: 60,
+        address: "456 Broadway, New York, NY",
         description: "Compost bin for organic waste",
+        managedBy: wasteManager.id,
       },
     }),
     prisma.wasteBin.create({
       data: {
-        name: "Electronics Disposal Center",
-        type: "ELECTRONIC",
-        latitude: 40.7505,
-        longitude: -73.9934,
-        qrCode: "QR_ELECTRONICS_003",
-        address: "Tech District, NY",
-        description: "Specialized bin for electronic waste",
+        name: "Electronics Drop-off",
+        type: WasteType.ELECTRONIC,
+        latitude: new Prisma.Decimal("40.7505"),
+        longitude: new Prisma.Decimal("-73.9934"),
+        qrCode: await generateQRCode("bin-3"),
+        status: WasteBinStatus.ACTIVE,
+        capacity: 90,
+        address: "789 Tech Street, New York, NY",
+        description: "Safe disposal for electronic waste",
+        managedBy: wasteManager.id,
       },
     }),
-  ]);
+    prisma.wasteBin.create({
+      data: {
+        name: "Glass Collection Point",
+        type: WasteType.GLASS,
+        latitude: new Prisma.Decimal("40.7614"),
+        longitude: new Prisma.Decimal("-73.9776"),
+        qrCode: await generateQRCode("bin-4"),
+        status: WasteBinStatus.FULL,
+        capacity: 100,
+        address: "321 Glass Avenue, New York, NY",
+        description: "Specialized glass recycling facility",
+        managedBy: wasteManager.id,
+      },
+    }),
+  ])
 
-  // Create sample rewards
+  console.log("✅ Created waste bins with manager assignments")
+
+  // Create rewards
   const rewards = await Promise.all([
     prisma.reward.create({
       data: {
-        name: "$5 Coffee Voucher",
-        description: "Enjoy a free coffee at participating cafes",
-        pointsRequired: 100,
-        category: "VOUCHER",
-        stock: 50,
-        partnerName: "Green Coffee Co.",
+        name: "Coffee Shop Discount",
+        description: "20% off your next coffee purchase",
+        pointsRequired: 50,
+        category: RewardCategory.DISCOUNT,
+        stock: 100,
+        partnerName: "Green Bean Coffee",
+        terms: "Valid for 30 days from redemption",
+        createdBy: admin.id,
       },
     }),
     prisma.reward.create({
       data: {
-        name: "10% Discount on Eco Products",
-        description: "Get 10% off on all eco-friendly products",
+        name: "Eco-Friendly Water Bottle",
+        description: "Reusable stainless steel water bottle",
         pointsRequired: 200,
-        category: "DISCOUNT",
-        partnerName: "EcoStore",
+        category: RewardCategory.PRODUCT,
+        stock: 50,
+        partnerName: "EcoGoods",
+        terms: "Free shipping included",
+        createdBy: admin.id,
       },
     }),
     prisma.reward.create({
       data: {
         name: "Tree Planting Donation",
         description: "Plant a tree in your name",
-        pointsRequired: 500,
-        category: "DONATION",
+        pointsRequired: 100,
+        category: RewardCategory.DONATION,
         partnerName: "Green Earth Foundation",
+        terms: "Certificate of planting will be emailed",
+        createdBy: admin.id,
       },
     }),
-  ]);
+  ])
 
-  // Create sample achievements
+  console.log("✅ Created rewards")
+
+  // Create achievements
   const achievements = await Promise.all([
     prisma.achievement.create({
       data: {
-        name: "First Disposal",
+        name: "First Steps",
         description: "Complete your first waste disposal",
         condition: { type: "disposal_count", value: 1 },
         points: 10,
-        rarity: "COMMON",
+        rarity: AchievementRarity.COMMON,
       },
     }),
     prisma.achievement.create({
       data: {
         name: "Recycling Champion",
-        description: "Dispose 50 recycling items",
+        description: "Dispose of 50 recycling items",
         condition: { type: "recycling_count", value: 50 },
         points: 100,
-        rarity: "RARE",
+        rarity: AchievementRarity.RARE,
       },
     }),
     prisma.achievement.create({
@@ -192,30 +231,125 @@ async function main() {
         description: "Reach 1000 points",
         condition: { type: "points_total", value: 1000 },
         points: 200,
-        rarity: "EPIC",
+        rarity: AchievementRarity.EPIC,
       },
     }),
-  ]);
+    prisma.achievement.create({
+      data: {
+        name: "Waste Management Expert",
+        description: "Complete 100 waste disposals",
+        condition: { type: "disposal_count", value: 100 },
+        points: 500,
+        rarity: AchievementRarity.LEGENDARY,
+      },
+    }),
+  ])
 
-  console.log("✅ Prisma Postgres database seeded successfully!");
-  console.log("👤 Users created:");
-  console.log(`   - Superadmin: ${superadmin.email} (password: superadmin123)`);
-  console.log(`   - Admin: ${admin.email} (password: admin123)`);
-  console.log(
-    `   - Waste Manager: ${wasteManager.email} (password: wastemanager123)`
-  );
-  console.log(`   - User: ${user.email} (password: user123)`);
-  console.log(`🗑️  Created ${wasteBins.length} waste bins`);
-  console.log(`🎁 Created ${rewards.length} rewards`);
-  console.log(`🏆 Created ${achievements.length} achievements`);
+  console.log("✅ Created achievements")
+
+  // Create sample waste disposals with proper Decimal handling
+  await Promise.all([
+    prisma.wasteDisposal.create({
+      data: {
+        userId: regularUsers[0].id,
+        wasteBinId: wasteBins[0].id,
+        wasteType: WasteType.RECYCLING,
+        weightKg: new Prisma.Decimal("2.5"),
+        pointsEarned: 25,
+        verified: true,
+        verifiedBy: wasteManager.id,
+        verifiedAt: new Date(),
+        location: { lat: 40.7829, lng: -73.9654 },
+      },
+    }),
+    prisma.wasteDisposal.create({
+      data: {
+        userId: regularUsers[1].id,
+        wasteBinId: wasteBins[1].id,
+        wasteType: WasteType.COMPOST,
+        weightKg: new Prisma.Decimal("1.8"),
+        pointsEarned: 18,
+        verified: true,
+        verifiedBy: wasteManager.id,
+        verifiedAt: new Date(),
+        location: { lat: 40.7589, lng: -73.9851 },
+      },
+    }),
+    prisma.wasteDisposal.create({
+      data: {
+        userId: regularUsers[0].id,
+        wasteBinId: wasteBins[2].id,
+        wasteType: WasteType.ELECTRONIC,
+        weightKg: new Prisma.Decimal("5.2"),
+        pointsEarned: 52,
+        verified: false, // Pending verification
+        location: { lat: 40.7505, lng: -73.9934 },
+      },
+    }),
+  ])
+
+  console.log("✅ Created waste disposals")
+
+  // Create sample reports
+  await Promise.all([
+    prisma.report.create({
+      data: {
+        userId: regularUsers[0].id,
+        wasteBinId: wasteBins[3].id, // The full glass bin
+        type: ReportType.BIN_FULL,
+        description: "This glass recycling bin is completely full and needs to be emptied urgently",
+        priority: ReportPriority.HIGH,
+        assignedTo: wasteManager.id,
+      },
+    }),
+    prisma.report.create({
+      data: {
+        userId: regularUsers[1].id,
+        wasteBinId: wasteBins[0].id,
+        type: ReportType.BIN_DAMAGED,
+        description: "The lid of this recycling bin is broken and won't close properly",
+        priority: ReportPriority.MEDIUM,
+        assignedTo: wasteManager.id,
+      },
+    }),
+  ])
+
+  console.log("✅ Created reports")
+
+  // Create a campaign with proper Decimal handling
+  await prisma.campaign.create({
+    data: {
+      name: "Earth Day Challenge",
+      description: "Double points for all recycling during Earth Week!",
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      multiplier: new Prisma.Decimal("2.0"),
+      targetType: WasteType.RECYCLING,
+      active: true,
+      createdBy: admin.id,
+    },
+  })
+
+  console.log("✅ Created campaign")
+
+  console.log("\n🎉 Database seeded successfully!")
+  console.log("\n📋 Demo Login Credentials:")
+  console.log("┌─────────────────┬─────────────────────────┬──────────────────┐")
+  console.log("│ Role            │ Email                   │ Password         │")
+  console.log("├─────────────────┼─────────────────────────┼──────────────────┤")
+  console.log("│ Super Admin     │ superadmin@wasteapp.com │ SuperAdmin123!   │")
+  console.log("│ Admin           │ admin@wasteapp.com      │ Admin123!        │")
+  console.log("│ Waste Manager   │ manager@wasteapp.com    │ Manager123!      │")
+  console.log("│ User            │ user@wasteapp.com       │ User123!         │")
+  console.log("└─────────────────┴─────────────────────────┴──────────────────┘")
+  console.log("\nNote: These are demo accounts for development/testing purposes.")
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
   })
-  .catch(async (e) => {
-    console.error("❌ Error seeding Prisma Postgres:", e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

@@ -1,116 +1,64 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime? @map("email_verified")
-  name          String
-  image         String?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-
-  // Custom fields for Recycly
-  points   Int      @default(0)
-  level    Int      @default(1)
-  role     UserRole @default(USER)
-  isActive Boolean  @default(true) @map("is_active")
-
-  // Better Auth required relations
-  sessions Session[]
-  accounts Account[]
-
-  // Recycly relations
+  id                String              @id @default(cuid())
+  email             String              @unique
+  name              String
+  avatarUrl         String?             @map("avatar_url")
+  points            Int                 @default(0)
+  level             Int                 @default(1)
+  role              UserRole            @default(USER)
+  isActive          Boolean             @default(true) @map("is_active")
+  lastLoginAt       DateTime?           @map("last_login_at")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  
+  // Relations
   wasteDisposals    WasteDisposal[]
   userRewards       UserReward[]
   pushSubscriptions PushSubscription[]
   reports           Report[]
   achievements      UserAchievement[]
   notifications     Notification[]
-
+  managedBins       WasteBin[]          @relation("WasteBinManager")
+  verifiedDisposals WasteDisposal[]     @relation("DisposalVerifier")
+  createdRewards    Reward[]            @relation("RewardCreator")
+  resolvedReports   Report[]            @relation("ReportResolver")
+  assignedReports   Report[]            @relation("ReportAssignee")
+  createdCampaigns  Campaign[]          @relation("CampaignCreator")
+  
   @@map("users")
 }
 
-model Session {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  expiresAt DateTime @map("expires_at")
-  token     String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  ipAddress String?  @map("ip_address")
-  userAgent String?  @map("user_agent")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model Account {
-  id                    String    @id @default(cuid())
-  userId                String    @map("user_id")
-  accountId             String    @map("account_id")
-  providerId            String    @map("provider_id")
-  accessToken           String?   @map("access_token")
-  refreshToken          String?   @map("refresh_token")
-  idToken               String?   @map("id_token")
-  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
-  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([providerId, accountId])
-  @@map("accounts")
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime @map("expires_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  @@unique([identifier, value])
-  @@map("verifications")
-}
-
 model WasteBin {
-  id          String         @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
   type        WasteType
-  latitude    Decimal        @db.Decimal(10, 8)
-  longitude   Decimal        @db.Decimal(11, 8)
-  qrCode      String         @unique @map("qr_code")
-  status      WasteBinStatus @default(ACTIVE)
-  capacity    Int            @default(100)
-  lastEmptied DateTime?      @map("last_emptied")
+  latitude    Decimal           @db.Decimal(10, 8)
+  longitude   Decimal           @db.Decimal(11, 8)
+  qrCode      String            @unique @map("qr_code")
+  status      WasteBinStatus    @default(ACTIVE)
+  capacity    Int               @default(100)
+  lastEmptied DateTime?         @map("last_emptied")
   address     String?
   description String?
-  imageUrl    String?        @map("image_url")
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-
+  imageUrl    String?           @map("image_url")
+  managedBy   String?           @map("managed_by") // Waste Manager ID
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  
   // Relations
   wasteDisposals WasteDisposal[]
   reports        Report[]
-
+  manager        User?           @relation("WasteBinManager", fields: [managedBy], references: [id])
+  
   @@map("waste_bins")
 }
 
@@ -127,160 +75,170 @@ model WasteDisposal {
   verifiedAt   DateTime? @map("verified_at")
   location     Json?
   createdAt    DateTime  @default(now()) @map("created_at")
-
+  
   // Relations
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   wasteBin WasteBin @relation(fields: [wasteBinId], references: [id], onDelete: Cascade)
-
+  verifier User?    @relation("DisposalVerifier", fields: [verifiedBy], references: [id])
+  
   @@map("waste_disposals")
 }
 
 model Reward {
-  id             String         @id @default(cuid())
-  name           String
-  description    String?
-  pointsRequired Int            @map("points_required")
-  imageUrl       String?        @map("image_url")
-  category       RewardCategory
-  stock          Int?
-  active         Boolean        @default(true)
-  expiresAt      DateTime?      @map("expires_at")
-  terms          String?
-  partnerName    String?        @map("partner_name")
-  partnerLogo    String?        @map("partner_logo")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-
+  id              String       @id @default(cuid())
+  name            String
+  description     String?
+  pointsRequired  Int          @map("points_required")
+  imageUrl        String?      @map("image_url")
+  category        RewardCategory
+  stock           Int?
+  active          Boolean      @default(true)
+  expiresAt       DateTime?    @map("expires_at")
+  terms           String?
+  partnerName     String?      @map("partner_name")
+  partnerLogo     String?      @map("partner_logo")
+  createdBy       String?      @map("created_by")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  
   // Relations
   userRewards UserReward[]
-
+  creator     User?        @relation("RewardCreator", fields: [createdBy], references: [id])
+  
   @@map("rewards")
 }
 
 model UserReward {
-  id          String           @id @default(cuid())
-  userId      String           @map("user_id")
-  rewardId    String           @map("reward_id")
-  status      UserRewardStatus @default(PENDING)
-  code        String?          @unique
-  redeemedAt  DateTime         @default(now()) @map("redeemed_at")
+  id         String            @id @default(cuid())
+  userId     String            @map("user_id")
+  rewardId   String            @map("reward_id")
+  status     UserRewardStatus  @default(PENDING)
+  code       String?           @unique
+  redeemedAt DateTime          @default(now()) @map("redeemed_at")
   fulfilledAt DateTime?        @map("fulfilled_at")
-  expiresAt   DateTime?        @map("expires_at")
-
+  expiresAt  DateTime?         @map("expires_at")
+  
   // Relations
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   reward Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-
+  
   @@map("user_rewards")
 }
 
 model Achievement {
-  id          String            @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   description String
   icon        String?
   condition   Json
-  points      Int               @default(0)
+  points      Int       @default(0)
   badge       String?
   rarity      AchievementRarity @default(COMMON)
-  active      Boolean           @default(true)
-  createdAt   DateTime          @default(now()) @map("created_at")
-
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  
   // Relations
   userAchievements UserAchievement[]
-
+  
   @@map("achievements")
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
-  userId        String   @map("user_id")
-  achievementId String   @map("achievement_id")
-  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+  id            String      @id @default(cuid())
+  userId        String      @map("user_id")
+  achievementId String      @map("achievement_id")
+  unlockedAt    DateTime    @default(now()) @map("unlocked_at")
   progress      Json?
-
+  
   // Relations
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
+  
   @@unique([userId, achievementId])
   @@map("user_achievements")
 }
 
 model Report {
-  id          String         @id @default(cuid())
-  userId      String         @map("user_id")
-  wasteBinId  String?        @map("waste_bin_id")
+  id          String      @id @default(cuid())
+  userId      String      @map("user_id")
+  wasteBinId  String?     @map("waste_bin_id")
   type        ReportType
   description String
-  imageUrl    String?        @map("image_url")
+  imageUrl    String?     @map("image_url")
   location    Json?
-  status      ReportStatus   @default(PENDING)
+  status      ReportStatus @default(PENDING)
   priority    ReportPriority @default(MEDIUM)
-  resolvedAt  DateTime?      @map("resolved_at")
-  resolvedBy  String?        @map("resolved_by")
-  createdAt   DateTime       @default(now()) @map("created_at")
-
+  resolvedAt  DateTime?   @map("resolved_at")
+  resolvedBy  String?     @map("resolved_by")
+  assignedTo  String?     @map("assigned_to") // Waste Manager ID
+  createdAt   DateTime    @default(now()) @map("created_at")
+  
   // Relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  wasteBin WasteBin? @relation(fields: [wasteBinId], references: [id], onDelete: SetNull)
-
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wasteBin   WasteBin? @relation(fields: [wasteBinId], references: [id], onDelete: SetNull)
+  resolver   User?     @relation("ReportResolver", fields: [resolvedBy], references: [id])
+  assignee   User?     @relation("ReportAssignee", fields: [assignedTo], references: [id])
+  
   @@map("reports")
 }
 
 model Notification {
-  id        String           @id @default(cuid())
-  userId    String           @map("user_id")
+  id        String             @id @default(cuid())
+  userId    String             @map("user_id")
   title     String
   body      String
   type      NotificationType
   data      Json?
-  read      Boolean          @default(false)
-  sentAt    DateTime?        @map("sent_at")
-  createdAt DateTime         @default(now()) @map("created_at")
-
+  read      Boolean            @default(false)
+  sentAt    DateTime?          @map("sent_at")
+  createdAt DateTime           @default(now()) @map("created_at")
+  
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
   @@map("notifications")
 }
 
 model PushSubscription {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  endpoint  String
-  p256dh    String
-  auth      String
+  id       String   @id @default(cuid())
+  userId   String   @map("user_id")
+  endpoint String
+  p256dh   String
+  auth     String
   createdAt DateTime @default(now()) @map("created_at")
-
+  
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
   @@map("push_subscriptions")
 }
 
 model Campaign {
-  id          String     @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   description String
-  startDate   DateTime   @map("start_date")
-  endDate     DateTime   @map("end_date")
-  multiplier  Decimal    @default(1.0) @db.Decimal(3, 2)
-  targetType  WasteType? @map("target_type")
-  active      Boolean    @default(true)
-  imageUrl    String?    @map("image_url")
+  startDate   DateTime       @map("start_date")
+  endDate     DateTime       @map("end_date")
+  multiplier  Decimal        @default(1.0) @db.Decimal(3, 2)
+  targetType  WasteType?     @map("target_type")
+  active      Boolean        @default(true)
+  imageUrl    String?        @map("image_url")
   rules       Json?
-  createdAt   DateTime   @default(now()) @map("created_at")
-
+  createdBy   String?        @map("created_by")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  
+  // Relations
+  creator User? @relation("CampaignCreator", fields: [createdBy], references: [id])
+  
   @@map("campaigns")
 }
 
 // Enums
 enum UserRole {
-  USER
-  WASTE_MANAGER
-  ADMIN
-  SUPERADMIN
+  SUPER_ADMIN    // Highest level - full system access
+  ADMIN          // System administration
+  WASTE_MANAGER  // Waste bin and disposal management
+  USER           // Regular user
 }
 
 enum WasteType {
