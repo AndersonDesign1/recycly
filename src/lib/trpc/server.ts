@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { db } from "@/lib/db";
+import { db, basePrisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 import { hasPermission, hasHigherRole } from "@/lib/utils/roles";
@@ -19,9 +19,8 @@ export const createTRPCContext = async () => {
   let user = null;
   if (session?.user?.id) {
     try {
-      // Cast db to any to avoid Prisma extension type conflicts
-      const prismaClient = db as any;
-      user = await prismaClient.user.findUnique({
+      // Use base Prisma client to avoid extension type conflicts
+      user = await basePrisma.user.findUnique({
         where: { id: session.user.id },
         select: {
           id: true,
@@ -41,6 +40,7 @@ export const createTRPCContext = async () => {
 
   return {
     db,
+    basePrisma,
     session,
     user,
   };

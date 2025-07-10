@@ -1,28 +1,34 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleEmailSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
       const response = await fetch("/api/auth/sign-in/email", {
@@ -31,30 +37,30 @@ export function LoginForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      })
+      });
 
       if (response.ok) {
-        window.location.href = "/"
+        window.location.href = "/";
       } else {
-        const data = await response.json()
-        setError(data.message || "Sign in failed")
+        const data = await response.json();
+        setError(data.message || "Sign in failed");
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.")
+    } catch (err) {
+      setError("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleEmailSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    const formData = new FormData(e.currentTarget)
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
       const response = await fetch("/api/auth/sign-up/email", {
@@ -63,30 +69,32 @@ export function LoginForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
-      })
+      });
 
       if (response.ok) {
-        window.location.href = "/"
+        window.location.href = "/";
       } else {
-        const data = await response.json()
-        setError(data.message || "Sign up failed")
+        const data = await response.json();
+        setError(data.message || "Sign up failed");
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.")
+    } catch (err) {
+      setError("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleSignIn = () => {
-    window.location.href = "/api/auth/sign-in/google"
-  }
+    window.location.href = "/api/auth/sign-in/google";
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
-        <CardDescription>Sign in to your account or create a new one to start earning rewards</CardDescription>
+        <CardDescription>
+          Sign in to your account or create a new one to start earning rewards
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="signin" className="w-full">
@@ -127,7 +135,11 @@ export function LoginForm() {
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -183,7 +195,11 @@ export function LoginForm() {
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -202,7 +218,9 @@ export function LoginForm() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -234,5 +252,5 @@ export function LoginForm() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
