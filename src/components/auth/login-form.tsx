@@ -45,7 +45,7 @@ export function LoginForm() {
         const data = await response.json();
         setError(data.message || "Sign in failed");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -77,7 +77,7 @@ export function LoginForm() {
         const data = await response.json();
         setError(data.message || "Sign up failed");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
