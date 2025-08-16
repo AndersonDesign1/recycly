@@ -10,20 +10,15 @@ import {
   Sparkles,
   Zap,
   Globe,
-  TrendingUp,
-  Leaf,
-  Target,
-  Award,
 } from "lucide-react";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-forest-green-50/30 overflow-hidden">
-      {/* Navigation */}
       <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center">
               <Recycle className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-forest-green-600 to-forest-green-800 bg-clip-text text-transparent">
@@ -34,13 +29,13 @@ export default function HomePage() {
             <Link href="/auth/signin">
               <Button
                 variant="ghost"
-                className="text-gray-700 hover:text-forest-green-600 hover:bg-forest-green-50 rounded-xl px-6 transition-all duration-300"
+                className="text-gray-700 hover:text-forest-green-600 hover:bg-forest-green-50 rounded-xl px-6"
               >
                 Sign In
               </Button>
             </Link>
             <Link href="/auth/signup">
-              <Button className="bg-gradient-to-r from-forest-green-500 to-forest-green-600 hover:from-forest-green-600 hover:to-forest-green-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 px-6 transform hover:scale-105">
+              <Button className="bg-gradient-to-r from-forest-green-500 to-forest-green-600 hover:from-forest-green-600 hover:to-forest-green-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 px-6">
                 Get Started
               </Button>
             </Link>
@@ -48,9 +43,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative">
-        {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-r from-forest-green-500/5 via-transparent to-forest-green-600/5 rounded-full blur-3xl transform -rotate-12 scale-150"></div>
         <div className="absolute inset-0 opacity-5">
           <img
@@ -59,18 +52,15 @@ export default function HomePage() {
             className="w-full h-full object-cover"
           />
         </div>
-
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-12">
-            {/* Badge */}
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-forest-green-100 to-forest-green-50 rounded-full px-5 py-2 mb-6 border border-forest-green-200/50 shadow-sm">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-forest-green-100 to-forest-green-50 rounded-full px-5 py-2 mb-6 border border-forest-green-200/50">
               <Sparkles className="w-4 h-4 text-forest-green-600" />
               <span className="text-forest-green-700 font-medium text-sm">
                 The Future of Waste Intelligence
               </span>
             </div>
 
-            {/* Main Headline */}
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
               Waste
               <span className="block bg-gradient-to-r from-forest-green-500 via-forest-green-600 to-forest-green-700 bg-clip-text text-transparent">
@@ -78,19 +68,17 @@ export default function HomePage() {
               </span>
             </h1>
 
-            {/* Subtitle */}
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
               Transform chaos into clarity. Our AI-powered platform doesn't just
               track waste—it predicts, optimizes, and revolutionizes how
               businesses think about sustainability.
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link href="/auth/signup">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-forest-green-500 to-forest-green-600 hover:from-forest-green-600 hover:to-forest-green-700 text-white px-10 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group transform hover:scale-105"
+                  className="bg-gradient-to-r from-forest-green-500 to-forest-green-600 hover:from-forest-green-600 hover:to-forest-green-700 text-white px-10 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
                 >
                   Start Revolution
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -100,7 +88,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-forest-green-300 text-forest-green-700 hover:bg-forest-green-50 px-10 py-4 text-lg rounded-xl bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-forest-green-400"
+                  className="border-2 border-forest-green-300 text-forest-green-700 hover:bg-forest-green-50 px-10 py-4 text-lg rounded-xl bg-white/50 backdrop-blur-sm"
                 >
                   Experience Demo
                 </Button>
@@ -108,7 +96,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Dashboard Preview */}
           <div className="relative max-w-4xl mx-auto">
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 transform hover:scale-[1.02] transition-transform duration-500">
               <div className="relative overflow-hidden rounded-xl">
@@ -118,7 +105,7 @@ export default function HomePage() {
                   className="w-full h-auto"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-forest-green-600/20 via-transparent to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-xl rounded-lg p-4 border border-white/20 shadow-lg">
+                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-xl rounded-lg p-4 border border-white/20">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-forest-green-600">
@@ -146,7 +133,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -166,47 +152,41 @@ export default function HomePage() {
                 title: "AI Predictions",
                 desc: "Machine learning algorithms predict waste patterns, optimize collection routes, and prevent overflow incidents before they happen.",
                 image: "/images/ai-predictions.png",
-                color: "from-blue-500 to-blue-600",
               },
               {
                 icon: Globe,
                 title: "Global Impact",
                 desc: "Real-time carbon footprint calculation with blockchain-verified environmental credits and global sustainability reporting.",
                 image: "/images/global-impact.png",
-                color: "from-emerald-500 to-emerald-600",
               },
               {
                 icon: BarChart3,
                 title: "Quantum Analytics",
                 desc: "Process millions of data points instantly with quantum-inspired algorithms for unprecedented waste intelligence insights.",
                 image: "/images/quantum-analytics.png",
-                color: "from-purple-500 to-purple-600",
               },
               {
                 icon: Shield,
                 title: "Zero-Trust Security",
                 desc: "Military-grade encryption with decentralized data architecture ensures your environmental data remains completely secure.",
                 image: "/images/security-tech.png",
-                color: "from-red-500 to-red-600",
               },
               {
                 icon: Users,
                 title: "Neural Networks",
                 desc: "Connect teams, suppliers, and stakeholders through intelligent collaboration networks that learn and adapt.",
                 image: "/images/neural-networks.png",
-                color: "from-indigo-500 to-indigo-600",
               },
               {
                 icon: Recycle,
                 title: "Circular Economy",
                 desc: "Transform linear waste streams into circular value chains with automated material recovery and redistribution.",
                 image: "/images/circular-economy.png",
-                color: "from-forest-green-500 to-forest-green-600",
               },
             ].map((feature, index) => (
               <Card
                 key={index}
-                className="group border-0 bg-gradient-to-br from-white to-gray-50/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden hover:-translate-y-1 cursor-pointer"
+                className="group border-0 bg-gradient-to-br from-white to-gray-50/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden hover:-translate-y-1"
               >
                 <CardContent className="p-0 relative">
                   <div className="relative h-48 overflow-hidden">
@@ -216,14 +196,12 @@ export default function HomePage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                    <div
-                      className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}
-                    >
+                    <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center shadow-md">
                       <feature.icon className="w-6 h-6 text-white" />
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-forest-green-600 transition-colors duration-300">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
                       {feature.title}
                     </h3>
                     <p className="text-gray-600 leading-relaxed text-sm">
@@ -237,55 +215,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-forest-green-50 to-sage-green-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: TrendingUp,
-                value: "2.4M",
-                label: "Tons Recycled",
-                color: "text-forest-green-600",
-              },
-              {
-                icon: Target,
-                value: "89%",
-                label: "Efficiency Rate",
-                color: "text-emerald-600",
-              },
-              {
-                icon: Award,
-                value: "$47M",
-                label: "Cost Saved",
-                color: "text-blue-600",
-              },
-              {
-                icon: Leaf,
-                value: "156K",
-                label: "CO2 Reduced",
-                color: "text-green-600",
-              },
-            ].map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div
-                  className={`w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
-                >
-                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                </div>
-                <div className={`text-3xl font-bold ${stat.color} mb-2`}>
-                  {stat.value}
-                </div>
-                <div className="text-gray-600 text-sm font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-forest-green-600 via-forest-green-500 to-forest-green-600"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-forest-green-400/20 to-transparent"></div>
@@ -303,7 +232,7 @@ export default function HomePage() {
               <Link href="/auth/signup">
                 <Button
                   size="lg"
-                  className="bg-white text-forest-green-600 hover:bg-gray-100 px-10 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group transform hover:scale-105"
+                  className="bg-white text-forest-green-600 hover:bg-gray-100 px-10 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
                 >
                   Start Your Revolution
                   <Sparkles className="w-5 h-5 ml-2 group-hover:rotate-12 transition-transform" />
@@ -313,7 +242,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-forest-green-600 px-10 py-4 text-lg rounded-xl bg-transparent backdrop-blur-sm transition-all duration-300"
+                  className="border-2 border-white text-white hover:bg-white hover:text-forest-green-600 px-10 py-4 text-lg rounded-xl bg-transparent backdrop-blur-sm"
                 >
                   Experience the Future
                 </Button>
@@ -323,12 +252,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-16 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-8 md:mb-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center">
                 <Recycle className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-forest-green-400 to-forest-green-500 bg-clip-text text-transparent">
@@ -339,25 +267,25 @@ export default function HomePage() {
             <div className="flex flex-wrap justify-center md:justify-end gap-8 text-sm">
               <Link
                 href="#"
-                className="hover:text-forest-green-400 transition-colors duration-300"
+                className="hover:text-forest-green-400 transition-colors"
               >
                 Privacy
               </Link>
               <Link
                 href="#"
-                className="hover:text-forest-green-400 transition-colors duration-300"
+                className="hover:text-forest-green-400 transition-colors"
               >
                 Terms
               </Link>
               <Link
                 href="#"
-                className="hover:text-forest-green-400 transition-colors duration-300"
+                className="hover:text-forest-green-400 transition-colors"
               >
                 Support
               </Link>
               <Link
                 href="#"
-                className="hover:text-forest-green-400 transition-colors duration-300"
+                className="hover:text-forest-green-400 transition-colors"
               >
                 Contact
               </Link>

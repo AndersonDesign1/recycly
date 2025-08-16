@@ -1,37 +1,37 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useRef, useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, Leaf, Mail, CheckCircle } from "lucide-react";
+import type React from "react"
+import { useRef, useState } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ArrowLeft, Recycle, Mail, CheckCircle } from "lucide-react"
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
+  const [email, setEmail] = useState("")
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const formRef = useRef<HTMLFormElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
 
     try {
       // TODO: Integrate with Better Auth password reset
       // For now, simulate API call
       setTimeout(() => {
-        setIsSubmitted(true);
-        setIsLoading(false);
-      }, 1500);
+        setIsSubmitted(true)
+        setIsLoading(false)
+      }, 1500)
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
-      setIsLoading(false);
+      setError(err.message || "An unexpected error occurred")
+      setIsLoading(false)
     }
-  };
+  }
 
   if (isSubmitted) {
     return (
@@ -40,22 +40,21 @@ export default function ForgotPasswordPage() {
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-forest-green-50 to-sage-green-50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-forest-green-600/10 to-sage-green-600/10" />
           <img
-            src="/placeholder.svg?height=800&width=600"
-            alt="EcoTrack password reset success"
+            src="/placeholder.svg?height=800&width=600&text=Recycly+Password+Reset"
+            alt="Recycly password reset success"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           <div className="absolute bottom-8 left-8 text-white">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-white" />
+                <Recycle className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold">EcoTrack</span>
+              <span className="text-xl font-semibold">Recycly</span>
             </div>
             <h2 className="text-2xl font-semibold mb-2">Password reset sent</h2>
             <p className="text-white/80 max-w-md">
-              Check your email for the password reset link to get back to
-              tracking your environmental impact.
+              Check your email for the password reset link to get back to tracking your environmental impact.
             </p>
           </div>
         </div>
@@ -67,9 +66,7 @@ export default function ForgotPasswordPage() {
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Check your email
-              </h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Check your email</h1>
               <p className="text-gray-600">
                 We've sent a password reset link to <strong>{email}</strong>
               </p>
@@ -95,7 +92,7 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -104,22 +101,21 @@ export default function ForgotPasswordPage() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-forest-green-50 to-sage-green-50 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-forest-green-600/10 to-sage-green-600/10" />
         <img
-          src="/placeholder.svg?height=800&width=600"
-          alt="EcoTrack password reset"
+          src="/placeholder.svg?height=800&width=600&text=Recycly+Password+Reset"
+          alt="Recycly password reset"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <div className="absolute bottom-8 left-8 text-white">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-white" />
+              <Recycle className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-semibold">EcoTrack</span>
+            <span className="text-xl font-semibold">Recycly</span>
           </div>
           <h2 className="text-2xl font-semibold mb-2">Reset your password</h2>
           <p className="text-white/80 max-w-md">
-            Don't worry, we'll help you get back to tracking your environmental
-            impact in no time.
+            Don't worry, we'll help you get back to tracking your environmental impact in no time.
           </p>
         </div>
       </div>
@@ -131,16 +127,13 @@ export default function ForgotPasswordPage() {
           <div className="text-center space-y-6">
             <div className="flex justify-center lg:hidden">
               <div className="w-14 h-14 bg-forest-green-600 rounded-2xl flex items-center justify-center shadow-sm">
-                <Leaf className="w-7 h-7 text-white" />
+                <Recycle className="w-7 h-7 text-white" />
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Forgot password?
-              </h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Forgot password?</h1>
               <p className="text-gray-600 text-sm">
-                Enter your email address and we'll send you a link to reset your
-                password
+                Enter your email address and we'll send you a link to reset your password
               </p>
             </div>
           </div>
@@ -148,10 +141,7 @@ export default function ForgotPasswordPage() {
           {/* Form */}
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                 Email address
               </Label>
               <div className="relative">
@@ -170,9 +160,7 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* Error Message */}
-            {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
-            )}
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
             {/* Submit Button */}
             <Button
@@ -204,5 +192,5 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

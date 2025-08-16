@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, Leaf } from "lucide-react";
+import { Eye, Recycle } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
 
 function useFormValidation() {
@@ -87,7 +87,6 @@ export default function SignInPage() {
     const password = formData.get("password") as string;
 
     try {
-      // Call Better Auth signin
       const { data: result, error: signInError } = await signIn.email({
         email,
         password,
@@ -108,10 +107,14 @@ export default function SignInPage() {
       }
 
       if (result?.user) {
-        // Success - redirect to dashboard
-        // Note: Better Auth handles 2FA flow automatically
-        // If 2FA is required, it will be handled by the auth middleware
-        router.push("/dashboard");
+        // Success - redirect based on user role
+        // If user has no role, redirect to role selection
+        const userWithRole = result.user as any; // Type assertion for role field
+        if (!userWithRole.role) {
+          router.push("/auth/select-role");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (err: any) {
       // Show error
@@ -140,7 +143,11 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signIn.social({ provider: "google" });
+      const result = await signIn.social({ provider: "google" });
+
+      // Better Auth handles the redirect automatically for social signin
+      // The role check will happen after the redirect completes
+      // No need to manually redirect here
     } catch (error: any) {
       const errorEl = document.createElement("p");
       errorEl.className = "text-red-500 text-sm text-center mt-2 error-message";
@@ -156,22 +163,32 @@ export default function SignInPage() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-forest-green-50 to-sage-green-50 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-forest-green-600/10 to-sage-green-600/10" />
         <img
-          src="/placeholder.svg?height=800&width=600"
-          alt="EcoTrack sustainable office environment"
+          src="/images/environmental-signin.png"
+          alt="Recycly sustainable office environment"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-        <div className="absolute bottom-8 left-8 text-white">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-white" />
+        {/* Enhanced dark overlay for better content visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
+
+        {/* Logo section at the top */}
+        <div className="absolute top-8 left-8 z-10">
+          <div className="flex items-center space-x-3">
+            <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+              <Recycle className="w-8 h-8 text-forest-green-600" />
             </div>
-            <span className="text-xl font-semibold">EcoTrack</span>
+            <div className="text-white">
+              <h1 className="text-3xl font-bold">Recycly</h1>
+              <p className="text-white/90 text-sm">Sustainability Platform</p>
+            </div>
           </div>
-          <h2 className="text-2xl font-semibold mb-2">
+        </div>
+
+        {/* Content section at the bottom */}
+        <div className="absolute bottom-8 left-8 text-white z-10">
+          <h2 className="text-3xl font-bold mb-3">
             Track your environmental impact
           </h2>
-          <p className="text-white/80 max-w-md">
+          <p className="text-white/90 text-lg max-w-md leading-relaxed">
             Join thousands of businesses making a positive difference with
             data-driven sustainability insights.
           </p>
@@ -185,7 +202,7 @@ export default function SignInPage() {
           <div className="text-center space-y-6 mb-8">
             <div className="flex justify-center lg:hidden">
               <div className="w-14 h-14 bg-forest-green-600 rounded-2xl flex items-center justify-center shadow-sm">
-                <Leaf className="w-7 h-7 text-white" />
+                <Recycle className="w-7 h-7 text-white" />
               </div>
             </div>
             <div className="space-y-2">
@@ -193,7 +210,7 @@ export default function SignInPage() {
                 Welcome back
               </h1>
               <p className="text-gray-600 text-sm">
-                Sign in to your EcoTrack account
+                Sign in to your Recycly account
               </p>
             </div>
           </div>

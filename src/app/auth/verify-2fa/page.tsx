@@ -3,10 +3,10 @@
 import type React from "react";
 import { useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Leaf, CheckCircle, Mail } from "lucide-react";
+import { ArrowLeft, CheckCircle, Mail, Recycle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 function useCountdown() {
   const countdownRef = useRef(0);
@@ -109,7 +109,6 @@ export default function Verify2FAPage() {
     }
 
     try {
-      // Integrate with Better Auth 2FA verification
       const response = await fetch("/api/auth/2fa/verify", {
         method: "POST",
         headers: {
@@ -187,12 +186,13 @@ export default function Verify2FAPage() {
     isVerifiedRef.current = true;
     const mainContent = document.querySelector("[data-main-content]");
     const successContent = document.querySelector("[data-success-content]");
+
     if (mainContent && successContent) {
       (mainContent as HTMLElement).style.display = "none";
       (successContent as HTMLElement).style.display = "block";
 
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/auth/select-role");
       }, 2000);
     }
   };
@@ -205,7 +205,6 @@ export default function Verify2FAPage() {
     if (errorEl) errorEl.remove();
 
     try {
-      // Call the resend API
       const response = await fetch("/api/auth/2fa/resend", {
         method: "POST",
         headers: {
@@ -242,7 +241,19 @@ export default function Verify2FAPage() {
     }
   };
 
-  // Method is always email, no need for method change functionality
+  const handleMethodChange = (method: "email") => {
+    verificationMethodRef.current = method;
+
+    // Update UI
+    const emailBtn = document.querySelector('[data-method="email"]');
+    const description = document.querySelector("[data-method-description]");
+
+    if (emailBtn && description) {
+      emailBtn.className =
+        "flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors bg-white text-gray-900 shadow-sm";
+      description.textContent = "Enter the 6-digit code sent to your email";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -260,7 +271,7 @@ export default function Verify2FAPage() {
             <h1 className="text-2xl font-semibold text-gray-900">
               Verification Successful!
             </h1>
-            <p className="text-gray-600">Redirecting to your dashboard...</p>
+            <p className="text-gray-600">Setting up your account...</p>
           </div>
           <div className="w-8 h-8 border-4 border-forest-green-600 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
@@ -272,17 +283,17 @@ export default function Verify2FAPage() {
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-forest-green-50 to-sage-green-50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-forest-green-600/10 to-sage-green-600/10" />
           <img
-            src="/placeholder.svg?height=800&width=600"
-            alt="EcoTrack security verification"
+            src="/images/environmental-2fa.png"
+            alt="Recycly security verification"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           <div className="absolute bottom-8 left-8 text-white">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-white" />
+                <Recycle className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold">EcoTrack</span>
+              <span className="text-xl font-semibold">Recycly</span>
             </div>
             <h2 className="text-2xl font-semibold mb-2">
               Secure account verification
@@ -301,7 +312,7 @@ export default function Verify2FAPage() {
             <div className="text-center space-y-6">
               <div className="flex justify-center lg:hidden">
                 <div className="w-14 h-14 bg-forest-green-600 rounded-2xl flex items-center justify-center shadow-sm">
-                  <Leaf className="w-7 h-7 text-white" />
+                  <Recycle className="w-7 h-7 text-white" />
                 </div>
               </div>
               <div className="space-y-2">
@@ -309,7 +320,7 @@ export default function Verify2FAPage() {
                   Verify your account
                 </h1>
                 <p data-method-description className="text-gray-600 text-sm">
-                  Enter the 6-digit code sent to your email
+                  Enter the 6-digit code sent to your email address
                 </p>
               </div>
             </div>

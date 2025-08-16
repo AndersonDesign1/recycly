@@ -10,14 +10,14 @@ datasource db {
 model User {
   id                String             @id @default(cuid())
   email             String             @unique
-  emailVerified     DateTime?          @map("email_verified")
+  emailVerified     Boolean            @default(false) @map("email_verified")
   name              String
   image             String?
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   points            Int                @default(0)
   level             Int                @default(1)
-  role              UserRole           @default(USER)
+  role              UserRole?          // Allow null roles for new users
   isActive          Boolean            @default(true) @map("is_active")
   accounts          Account[]
   notifications     Notification[]

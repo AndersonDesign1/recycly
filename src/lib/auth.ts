@@ -1,14 +1,91 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+import { sendEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
+    // Custom field mappings for your schema
+    user: {
+      id: "id",
+      email: "email",
+      emailVerified: "emailVerified",
+      name: "name",
+      image: "image",
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
+    session: {
+      id: "id",
+      userId: "userId",
+      expiresAt: "expiresAt",
+      token: "token",
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
+    account: {
+      id: "id",
+      userId: "userId",
+      accountId: "accountId",
+      providerId: "providerId",
+      accessToken: "accessToken",
+      refreshToken: "refreshToken",
+      idToken: "idToken",
+      accessTokenExpiresAt: "accessTokenExpiresAt",
+      refreshTokenExpiresAt: "refreshTokenExpiresAt",
+      scope: "scope",
+      password: "password",
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
+    verification: {
+      id: "id",
+      identifier: "identifier",
+      value: "value",
+      expiresAt: "expiresAt",
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
   }),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    // Custom user creation to handle additional fields
+    createUser: async (data) => {
+      return await prisma.user.create({
+        data: {
+          ...data,
+          points: 0,
+          level: 1,
+          role: null, // No default role - user must select after signup
+          isActive: true,
+        },
+      });
+    },
+  },
+  // Add Google OAuth provider
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // Custom user creation for Google OAuth
+      createUser: async (data) => {
+        return await prisma.user.create({
+          data: {
+            ...data,
+            points: 0,
+            level: 1,
+            role: null, // No default role - user must select after signup
+            isActive: true,
+          },
+        });
+      },
+    },
+  },
+  // OAuth configuration
+  oauth: {
+    redirectTo: "/auth/select-role", // Redirect to role selection after OAuth
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
@@ -21,31 +98,121 @@ export const auth = betterAuth({
             <p>Hi ${user.name || "there"},</p>
             <p>Please verify your email address by clicking the button below:</p>
             
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${url}" style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+            <a href="${url}" style="display: inline-block; background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0;">
                 Verify Email Address
               </a>
-            </div>
             
-            <p style="color: #6b7280; font-size: 14px;">
-              If the button doesn't work, you can copy and paste this link into your browser: ${url}
-            </p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #6b7280;">${url}</p>
+            
+            <p>This link will expire in 24 hours.</p>
             
             <p>Best regards,<br>The Recycly Team</p>
           </div>
         `,
-        text: `Welcome to Recycly! Please verify your email address by clicking this link: ${url}`,
+        text: `Welcome to Recycly!
+
+Hi ${user.name || "there"},
+
+Please verify your email address by clicking the link below:
+
+${url}
+
+This link will expire in 24 hours.
+
+Best regards,
+The Recycly Team`,
       });
-    },
-    autoSignInAfterVerification: true,
-    afterEmailVerification: async (user, request) => {
-      console.log(`${user.email} has been successfully verified!`);
-      // You can add custom logic here like granting access to features
     },
   },
   twoFactor: {
     enabled: true,
-    methods: ["totp", "email"],
+    email: {
+      sendTwoFactorCode: async ({ user, code, request }) => {
+        await sendEmail({
+          to: user.email,
+          subject: `Your 2FA code: ${code} - Recycly`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>2FA Code - Recycly</title>
+              </head>
+              <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                  <!-- Header -->
+                  <div style="background: linear-gradient(135deg, #1e88e5, #1565c0); padding: 40px 20px; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700;">🌱 Recycly</h1>
+                    <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0; font-size: 18px;">Two-Factor Authentication</p>
+                  </div>
+                  
+                  <!-- Content -->
+                  <div style="padding: 40px 20px;">
+                    <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">🔐 Your 2FA Code</h2>
+                    
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                      Hi ${user.name || "there"},
+                    </p>
+                    
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                      Here's your two-factor authentication code to sign in to your Recycly account:
+                    </p>
+                    
+                    <div style="background-color: #f3f4f6; border: 2px solid #d1d5db; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+                      <span style="font-size: 32px; font-weight: 700; color: #1f2937; letter-spacing: 4px;">${code}</span>
+                    </div>
+                    
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                      Enter this code in the app to complete your sign-in.
+                    </p>
+                    
+                    <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                      <p style="color: #92400e; font-size: 14px; margin: 0;">
+                        <strong>Security:</strong> This code will expire in 10 minutes. If you didn't request this code, please ignore this email and contact support immediately.
+                      </p>
+                    </div>
+                    
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                      Need help? Contact our support team.
+                    </p>
+                    
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0;">
+                      Best regards,<br>
+                      <strong>The Recycly Team</strong>
+                    </p>
+                  </div>
+                  
+                  <!-- Footer -->
+                  <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                      © 2024 Recycly. All rights reserved.<br>
+                      Making waste disposal rewarding and sustainable.
+                    </p>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+          text: `Your 2FA Code - Recycly
+
+Hi ${user.name || "there"},
+
+Here's your two-factor authentication code to sign in to your Recycly account:
+
+🔑 ${code}
+
+Enter this code in the app.
+
+Security: This code will expire in 10 minutes. If you didn't request this code, please ignore this email and contact support immediately.
+
+Need help? Contact our support team.
+
+The Recycly Team`,
+        });
+      },
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -60,7 +227,7 @@ export interface User {
   email: string;
   name: string;
   image?: string | null;
-  role: string;
+  role: string | null; // Allow null role for new users
   points: number;
   level: number;
   isActive: boolean;

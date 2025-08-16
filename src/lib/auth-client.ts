@@ -6,21 +6,25 @@ export const { signIn, signUp, signOut, useSession, getSession } =
   });
 
 // Helper function to get role-based redirect URL
-export function getRoleBasedRedirectUrl(role: string): string {
+export function getRoleBasedRedirectUrl(role: string | null): string {
+  if (!role) {
+    return "/auth/select-role"; // Redirect to role selection if no role
+  }
+  
   switch (role) {
     case "SUPERADMIN":
-      return "/dashboard/superadmin";
-    case "ADMIN":
-      return "/dashboard/admin";
-    case "WASTE_MANAGER":
-      return "/dashboard/waste-manager";
-    case "USER":
-    default:
       return "/dashboard";
+    case "ADMIN":
+      return "/dashboard";
+    case "WASTE_MANAGER":
+      return "/dashboard";
+    case "USER":
+      return "/dashboard";
+    default:
+      return "/auth/select-role";
   }
 }
 
-// Client-side auth helpers
 export async function handleSignUp(data: {
   name: string;
   email: string;
@@ -41,9 +45,7 @@ export async function handleSignUp(data: {
       return {
         success: true,
         user: result.user,
-        redirectUrl: getRoleBasedRedirectUrl(
-          (result.user as any).role || "USER"
-        ),
+        redirectUrl: "/auth/select-role", // Always redirect to role selection after signup
       };
     }
 
@@ -72,7 +74,7 @@ export async function handleSignIn(data: { email: string; password: string }) {
         success: true,
         user: result.user,
         redirectUrl: getRoleBasedRedirectUrl(
-          (result.user as any).role || "USER"
+          (result.user as any).role || null
         ),
       };
     }
@@ -88,15 +90,29 @@ export async function handleSignIn(data: { email: string; password: string }) {
 
 export async function handleGoogleSignIn() {
   try {
-    await signIn.social({
+    const { data: result, error } = await signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
     });
-    return { success: true };
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (result?.user) {
+      return {
+        success: true,
+        user: result.user,
+        redirectUrl: getRoleBasedRedirectUrl(
+          (result.user as any).role || null
+        ),
+      };
+    }
+
+    return { success: false, error: "Google sign-in failed" };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Failed to sign in with Google",
+      error: error.message || "Google sign-in failed",
     };
   }
 }
