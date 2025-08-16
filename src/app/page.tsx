@@ -1,281 +1,376 @@
-"use client"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  BarChart3,
+  Shield,
+  Users,
+  Recycle,
+  ArrowRight,
+  Sparkles,
+  Zap,
+  Globe,
+  TrendingUp,
+  Leaf,
+  Target,
+  Award,
+} from "lucide-react";
 
-import { api } from "@/lib/trpc/client"
-import { useAuth } from "@/hooks/use-auth"
-import { LoginForm } from "@/components/auth/login-form"
-import { DemoAccounts } from "@/components/auth/demo-accounts"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Trash2, Award, MapPin, TrendingUp, LogOut, Crown, Settings, Shield, User } from "lucide-react"
-import { getRoleColor, getRoleDisplayName } from "@/lib/utils/roles"
-import { UserRole } from "@prisma/client"
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-forest-green-50/30 overflow-hidden">
+      {/* Navigation */}
+      <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg px-8 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center shadow-md">
+              <Recycle className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-forest-green-600 to-forest-green-800 bg-clip-text text-transparent">
+              Recycly
+            </span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link href="/auth/signin">
+              <Button
+                variant="ghost"
+                className="text-gray-700 hover:text-forest-green-600 hover:bg-forest-green-50 rounded-xl px-6 transition-all duration-300"
+              >
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup">
+              <Button className="bg-gradient-to-r from-forest-green-500 to-forest-green-600 hover:from-forest-green-600 hover:to-forest-green-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 px-6 transform hover:scale-105">
+                Get Started
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-const roleIcons = {
-  [UserRole.SUPER_ADMIN]: Crown,
-  [UserRole.ADMIN]: Settings,
-  [UserRole.WASTE_MANAGER]: Shield,
-  [UserRole.USER]: User,
-}
+      {/* Hero Section */}
+      <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-green-500/5 via-transparent to-forest-green-600/5 rounded-full blur-3xl transform -rotate-12 scale-150"></div>
+        <div className="absolute inset-0 opacity-5">
+          <img
+            src="/images/hero-tech-bg.png"
+            alt="Technology Background"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-export default function Dashboard() {
-  const { user, loading, signOut, isAuthenticated } = useAuth()
-  const { data: userStats, isLoading: statsLoading } = api.user.getStats.useQuery(undefined, {
-    enabled: isAuthenticated,
-  })
-  const { data: nearbyBins, isLoading: binsLoading } = api.wasteBin.getNearby.useQuery(
-    {
-      latitude: 40.7829,
-      longitude: -73.9654,
-      radiusKm: 5,
-    },
-    {
-      enabled: isAuthenticated,
-    },
-  )
-  const { data: leaderboard, isLoading: leaderboardLoading } = api.user.getLeaderboard.useQuery({
-    limit: 5,
-  })
+        <div className="max-w-6xl mx-auto relative">
+          <div className="text-center mb-12">
+            {/* Badge */}
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-forest-green-100 to-forest-green-50 rounded-full px-5 py-2 mb-6 border border-forest-green-200/50 shadow-sm">
+              <Sparkles className="w-4 h-4 text-forest-green-600" />
+              <span className="text-forest-green-700 font-medium text-sm">
+                The Future of Waste Intelligence
+              </span>
+            </div>
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
-      </div>
-    )
-  }
+            {/* Main Headline */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
+              Waste
+              <span className="block bg-gradient-to-r from-forest-green-500 via-forest-green-600 to-forest-green-700 bg-clip-text text-transparent">
+                Reimagined
+              </span>
+            </h1>
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl space-y-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Waste Disposal Incentive App</h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Earn rewards for proper waste disposal and help create a cleaner environment
+            {/* Subtitle */}
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+              Transform chaos into clarity. Our AI-powered platform doesn't just
+              track waste—it predicts, optimizes, and revolutionizes how
+              businesses think about sustainability.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <Link href="/auth/signup">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-forest-green-500 to-forest-green-600 hover:from-forest-green-600 hover:to-forest-green-700 text-white px-10 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group transform hover:scale-105"
+                >
+                  Start Revolution
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="/auth/signin">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-forest-green-300 text-forest-green-700 hover:bg-forest-green-50 px-10 py-4 text-lg rounded-xl bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-forest-green-400"
+                >
+                  Experience Demo
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Dashboard Preview */}
+          <div className="relative max-w-4xl mx-auto">
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 transform hover:scale-[1.02] transition-transform duration-500">
+              <div className="relative overflow-hidden rounded-xl">
+                <img
+                  src="/images/dashboard-preview.png"
+                  alt="Recycly Dashboard Interface"
+                  className="w-full h-auto"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-forest-green-600/20 via-transparent to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-xl rounded-lg p-4 border border-white/20 shadow-lg">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-forest-green-600">
+                        2.4k
+                      </div>
+                      <div className="text-gray-600 text-sm">Tons Recycled</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-forest-green-600">
+                        89%
+                      </div>
+                      <div className="text-gray-600 text-sm">Efficiency</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-forest-green-600">
+                        $47k
+                      </div>
+                      <div className="text-gray-600 text-sm">Cost Saved</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Beyond Traditional Tracking
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Six revolutionary capabilities that transform how enterprises
+              approach waste management
             </p>
           </div>
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
-            <div className="flex-1">
-              <LoginForm />
-            </div>
-            <div className="flex-1">
-              <DemoAccounts />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
-  if (statsLoading || binsLoading || leaderboardLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const RoleIcon = user?.role ? roleIcons[user.role as UserRole] : User
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-8 flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold text-gray-900">Welcome back, {user?.name}!</h1>
-              <div className="flex items-center gap-2">
-                <RoleIcon className="h-5 w-5" />
-                <Badge className={getRoleColor(user?.role as UserRole)}>
-                  {getRoleDisplayName(user?.role as UserRole)}
-                </Badge>
-              </div>
-            </div>
-            <p className="text-gray-600">Track your environmental impact and earn rewards</p>
-          </div>
-          <Button onClick={signOut} variant="outline" className="flex items-center gap-2 bg-transparent">
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Button>
-        </header>
-
-        {/* Role-specific welcome message */}
-        {user?.role !== UserRole.USER && (
-          <Card className="mb-8 border-l-4 border-l-blue-500">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-2">
-                <RoleIcon className="h-5 w-5 text-blue-600" />
-                <h3 className="font-semibold text-blue-900">
-                  {user?.role === UserRole.SUPER_ADMIN && "Super Administrator Dashboard"}
-                  {user?.role === UserRole.ADMIN && "Administrator Dashboard"}
-                  {user?.role === UserRole.WASTE_MANAGER && "Waste Manager Dashboard"}
-                </h3>
-              </div>
-              <p className="text-blue-700 text-sm">
-                {user?.role === UserRole.SUPER_ADMIN &&
-                  "You have full system access and can manage all users and settings."}
-                {user?.role === UserRole.ADMIN &&
-                  "You can manage users, campaigns, rewards, and view system analytics."}
-                {user?.role === UserRole.WASTE_MANAGER &&
-                  "You can manage waste bins, verify disposals, and handle reports."}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Disposals</CardTitle>
-              <Trash2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{userStats?.totalDisposals || 0}</div>
-              <p className="text-xs text-muted-foreground">Items properly disposed</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Points Earned</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{userStats?.totalPoints || user?.points || 0}</div>
-              <p className="text-xs text-muted-foreground">Environmental impact points</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rewards Earned</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{userStats?.totalRewards || 0}</div>
-              <p className="text-xs text-muted-foreground">Rewards redeemed</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Current Level</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{user?.level || 1}</div>
-              <p className="text-xs text-muted-foreground">User level</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Nearby Bins */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Nearby Waste Bins
-              </CardTitle>
-              <CardDescription>Find waste disposal locations near you</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {nearbyBins?.slice(0, 5).map((bin) => (
-                  <div key={bin.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">{bin.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {bin.type} • {bin.distance?.toFixed(1)}km away
-                      </p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Navigate
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Leaderboard */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Leaderboard
-              </CardTitle>
-              <CardDescription>Top environmental champions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {leaderboard?.map((leaderUser, index) => {
-                  const LeaderRoleIcon = roleIcons[leaderUser.role as UserRole] || User
-                  return (
-                    <div key={leaderUser.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                          {index + 1}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-medium">{leaderUser.name}</h4>
-                            <LeaderRoleIcon className="h-3 w-3 text-muted-foreground" />
-                          </div>
-                          <p className="text-sm text-muted-foreground">Level {leaderUser.level}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-green-600">{leaderUser.points}</div>
-                        <div className="text-xs text-muted-foreground">points</div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
-        {userStats?.recentDisposals && userStats.recentDisposals.length > 0 && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest waste disposal activities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {userStats.recentDisposals.map((disposal) => (
-                  <div key={disposal.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">{disposal.wasteBin.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {disposal.wasteType} • {new Date(disposal.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-green-600">+{disposal.pointsEarned}</div>
-                      <div className="text-xs text-muted-foreground">points</div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Zap,
+                title: "AI Predictions",
+                desc: "Machine learning algorithms predict waste patterns, optimize collection routes, and prevent overflow incidents before they happen.",
+                image: "/images/ai-predictions.png",
+                color: "from-blue-500 to-blue-600",
+              },
+              {
+                icon: Globe,
+                title: "Global Impact",
+                desc: "Real-time carbon footprint calculation with blockchain-verified environmental credits and global sustainability reporting.",
+                image: "/images/global-impact.png",
+                color: "from-emerald-500 to-emerald-600",
+              },
+              {
+                icon: BarChart3,
+                title: "Quantum Analytics",
+                desc: "Process millions of data points instantly with quantum-inspired algorithms for unprecedented waste intelligence insights.",
+                image: "/images/quantum-analytics.png",
+                color: "from-purple-500 to-purple-600",
+              },
+              {
+                icon: Shield,
+                title: "Zero-Trust Security",
+                desc: "Military-grade encryption with decentralized data architecture ensures your environmental data remains completely secure.",
+                image: "/images/security-tech.png",
+                color: "from-red-500 to-red-600",
+              },
+              {
+                icon: Users,
+                title: "Neural Networks",
+                desc: "Connect teams, suppliers, and stakeholders through intelligent collaboration networks that learn and adapt.",
+                image: "/images/neural-networks.png",
+                color: "from-indigo-500 to-indigo-600",
+              },
+              {
+                icon: Recycle,
+                title: "Circular Economy",
+                desc: "Transform linear waste streams into circular value chains with automated material recovery and redistribution.",
+                image: "/images/circular-economy.png",
+                color: "from-forest-green-500 to-forest-green-600",
+              },
+            ].map((feature, index) => (
+              <Card
+                key={index}
+                className="group border-0 bg-gradient-to-br from-white to-gray-50/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden hover:-translate-y-1 cursor-pointer"
+              >
+                <CardContent className="p-0 relative">
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={feature.image || "/placeholder.svg"}
+                      alt={feature.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                    <div
+                      className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <feature.icon className="w-6 h-6 text-white" />
                     </div>
                   </div>
-                ))}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-forest-green-600 transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                      {feature.desc}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-forest-green-50 to-sage-green-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              {
+                icon: TrendingUp,
+                value: "2.4M",
+                label: "Tons Recycled",
+                color: "text-forest-green-600",
+              },
+              {
+                icon: Target,
+                value: "89%",
+                label: "Efficiency Rate",
+                color: "text-emerald-600",
+              },
+              {
+                icon: Award,
+                value: "$47M",
+                label: "Cost Saved",
+                color: "text-blue-600",
+              },
+              {
+                icon: Leaf,
+                value: "156K",
+                label: "CO2 Reduced",
+                color: "text-green-600",
+              },
+            ].map((stat, index) => (
+              <div key={index} className="text-center group">
+                <div
+                  className={`w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
+                >
+                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                </div>
+                <div className={`text-3xl font-bold ${stat.color} mb-2`}>
+                  {stat.value}
+                </div>
+                <div className="text-gray-600 text-sm font-medium">
+                  {stat.label}
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-green-600 via-forest-green-500 to-forest-green-600"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-forest-green-400/20 to-transparent"></div>
+        <div className="relative max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-10 border border-white/20">
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Ready to Revolutionize Waste?
+            </h2>
+            <p className="text-xl text-forest-green-100 mb-10 leading-relaxed max-w-3xl mx-auto">
+              Join the sustainability revolution. Transform your waste
+              management from cost center to profit driver with Recycly's
+              intelligent platform.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/auth/signup">
+                <Button
+                  size="lg"
+                  className="bg-white text-forest-green-600 hover:bg-gray-100 px-10 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group transform hover:scale-105"
+                >
+                  Start Your Revolution
+                  <Sparkles className="w-5 h-5 ml-2 group-hover:rotate-12 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="/auth/signin">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-white text-white hover:bg-white hover:text-forest-green-600 px-10 py-4 text-lg rounded-xl bg-transparent backdrop-blur-sm transition-all duration-300"
+                >
+                  Experience the Future
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 py-16 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-3 mb-8 md:mb-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-forest-green-500 to-forest-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Recycle className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-forest-green-400 to-forest-green-500 bg-clip-text text-transparent">
+                Recycly
+              </span>
+            </div>
+
+            <div className="flex flex-wrap justify-center md:justify-end gap-8 text-sm">
+              <Link
+                href="#"
+                className="hover:text-forest-green-400 transition-colors duration-300"
+              >
+                Privacy
+              </Link>
+              <Link
+                href="#"
+                className="hover:text-forest-green-400 transition-colors duration-300"
+              >
+                Terms
+              </Link>
+              <Link
+                href="#"
+                className="hover:text-forest-green-400 transition-colors duration-300"
+              >
+                Support
+              </Link>
+              <Link
+                href="#"
+                className="hover:text-forest-green-400 transition-colors duration-300"
+              >
+                Contact
+              </Link>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+            <p className="text-gray-400">
+              © 2024 Recycly. Transforming waste into opportunity.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
-  )
+  );
 }

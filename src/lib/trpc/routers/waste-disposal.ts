@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { createTRPCRouter, protectedProcedure, adminProcedure } from "@/lib/trpc/server"
+import { createTRPCRouter, protectedProcedure, adminProcedure } from "@/src/lib/trpc/server"
 import { createWasteDisposalSchema, verifyWasteDisposalSchema } from "@/lib/validations/waste-disposal"
 
 export const wasteDisposalRouter = createTRPCRouter({

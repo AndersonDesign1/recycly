@@ -9,7 +9,7 @@ import { UserRole } from "@prisma/client"
 
 const demoAccounts = [
   {
-    role: UserRole.SUPER_ADMIN,
+    role: UserRole.SUPERADMIN,
     email: "superadmin@wasteapp.com",
     password: "SuperAdmin123!",
     name: "Super Administrator",

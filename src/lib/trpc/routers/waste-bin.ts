@@ -3,7 +3,7 @@ import {
   createTRPCRouter,
   publicProcedure,
   adminProcedure,
-} from "@/lib/trpc/server";
+} from "@/src/lib/trpc/server";
 import {
   createWasteBinSchema,
   updateWasteBinSchema,

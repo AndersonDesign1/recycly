@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import type { User, Session } from "@/lib/auth"
+import type { User, Session } from "@/src/lib/auth"
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)

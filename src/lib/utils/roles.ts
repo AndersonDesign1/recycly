@@ -5,12 +5,12 @@ export const ROLE_HIERARCHY = {
   [UserRole.USER]: 1,
   [UserRole.WASTE_MANAGER]: 2,
   [UserRole.ADMIN]: 3,
-  [UserRole.SUPER_ADMIN]: 4,
+  [UserRole.SUPERADMIN]: 4,
 } as const;
 
 // Role permissions
 export const ROLE_PERMISSIONS = {
-  [UserRole.SUPER_ADMIN]: [
+  [UserRole.SUPERADMIN]: [
     "manage_users",
     "manage_admins",
     "manage_waste_managers",
@@ -64,7 +64,7 @@ export function canManageUser(
   targetRole: UserRole
 ): boolean {
   // Super Admin can manage everyone
-  if (managerRole === UserRole.SUPER_ADMIN) return true;
+  if (managerRole === UserRole.SUPERADMIN) return true;
 
   // Admin can manage Waste Managers and Users
   if (managerRole === UserRole.ADMIN) {
@@ -83,7 +83,7 @@ export function canManageUser(
 
 export function getRoleDisplayName(role: UserRole): string {
   const roleNames = {
-    [UserRole.SUPER_ADMIN]: "Super Administrator",
+    [UserRole.SUPERADMIN]: "Super Administrator",
     [UserRole.ADMIN]: "Administrator",
     [UserRole.WASTE_MANAGER]: "Waste Manager",
     [UserRole.USER]: "User",
@@ -93,7 +93,7 @@ export function getRoleDisplayName(role: UserRole): string {
 
 export function getRoleColor(role: UserRole): string {
   const roleColors = {
-    [UserRole.SUPER_ADMIN]: "bg-purple-100 text-purple-800",
+    [UserRole.SUPERADMIN]: "bg-purple-100 text-purple-800",
     [UserRole.ADMIN]: "bg-red-100 text-red-800",
     [UserRole.WASTE_MANAGER]: "bg-blue-100 text-blue-800",
     [UserRole.USER]: "bg-green-100 text-green-800",

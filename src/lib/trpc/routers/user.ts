@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { createTRPCRouter, publicProcedure, protectedProcedure, adminProcedure } from "@/lib/trpc/server"
+import { createTRPCRouter, publicProcedure, protectedProcedure, adminProcedure } from "@/src/lib/trpc/server"
 import { updateUserSchema, userFilterSchema } from "@/lib/validations/user"
 
 export const userRouter = createTRPCRouter({
