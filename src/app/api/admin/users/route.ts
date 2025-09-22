@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { Account, Session, User } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get all users with basic info
     const users = await prisma.user.findMany({
@@ -25,7 +27,7 @@ export async function GET(request: NextRequest) {
       total: users.length,
     });
   } catch (error) {
-    console.error("Failed to fetch users:", error);
+    logger.error("Failed to fetch users: %o", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch users" },
       { status: 500 }
@@ -39,31 +41,25 @@ export async function DELETE(request: NextRequest) {
     const userId = searchParams.get("userId");
     const email = searchParams.get("email");
 
-    if (!userId && !email) {
+    if (!(userId || email)) {
       return NextResponse.json(
         { success: false, error: "User ID or email is required" },
         { status: 400 }
       );
     }
 
-    let user;
-    if (userId) {
-      user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-          sessions: true,
-          accounts: true,
-        },
-      });
-    } else if (email) {
-      user = await prisma.user.findUnique({
-        where: { email },
-        include: {
-          sessions: true,
-          accounts: true,
-        },
-      });
-    }
+    const user: (User & { sessions: Session[]; accounts: Account[] }) | null =
+      userId
+        ? await prisma.user.findUnique({
+            where: { id: userId },
+            include: { sessions: true, accounts: true },
+          })
+        : email
+        ? await prisma.user.findUnique({
+            where: { email },
+            include: { sessions: true, accounts: true },
+          })
+        : null;
 
     if (!user) {
       return NextResponse.json(
@@ -105,7 +101,7 @@ export async function DELETE(request: NextRequest) {
       message: `User ${user.email} and all related data deleted successfully`,
     });
   } catch (error) {
-    console.error("Failed to delete user:", error);
+    logger.error("Failed to delete user: %o", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete user" },
       { status: 500 }

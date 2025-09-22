@@ -1,6 +1,13 @@
-"use client"
+"use client";
 
-import { LayoutDashboard, BarChart3, MapPin, Phone, Settings, User } from "lucide-react"
+import {
+  BarChart3,
+  LayoutDashboard,
+  MapPin,
+  Phone,
+  Settings,
+  User,
+} from "lucide-react";
 
 const navigation = [
   { icon: LayoutDashboard, href: "/dashboard", active: true },
@@ -8,24 +15,26 @@ const navigation = [
   { icon: MapPin, href: "/locations", active: false },
   { icon: Phone, href: "/contact", active: false },
   { icon: Settings, href: "/settings", active: false },
-]
+];
 
 export function MinimalSidebar() {
   return (
-    <div className="minimal-sidebar fixed left-0 top-0 h-full w-20 flex flex-col items-center py-6">
+    <div className="minimal-sidebar fixed top-0 left-0 flex h-full w-20 flex-col items-center py-6">
       {/* Logo */}
-      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mb-8">
-        <div className="w-3 h-3 bg-forest-green rounded-full"></div>
+      <div className="mb-8 flex h-8 w-8 items-center justify-center rounded-full bg-white">
+        <div className="h-3 w-3 rounded-full bg-forest-green" />
       </div>
 
       {/* Navigation Icons */}
-      <nav className="flex flex-col space-y-6 flex-1">
+      <nav className="flex flex-1 flex-col space-y-6">
         {navigation.map((item, index) => (
           <button
-            key={index}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-              item.active ? "bg-white/20 text-white" : "text-white/60 hover:text-white hover:bg-white/10"
+            className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+              item.active
+                ? "bg-white/20 text-white"
+                : "text-white/60 hover:bg-white/10 hover:text-white"
             }`}
+            key={index}
           >
             <item.icon size={20} />
           </button>
@@ -33,9 +42,9 @@ export function MinimalSidebar() {
       </nav>
 
       {/* User Avatar */}
-      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-        <User size={20} className="text-white" />
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+        <User className="text-white" size={20} />
       </div>
     </div>
-  )
+  );
 }

@@ -1,10 +1,16 @@
 import { z } from "zod";
 import {
-  router,
-  publicProcedure,
-  protectedProcedure,
   adminProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
 } from "@/server/trpc";
+
+const ADMIN_USERS_DEFAULT_LIMIT = 50 as const;
+const DEFAULT_LIMIT = 20 as const;
+const DEFAULT_OFFSET = 0 as const;
+const MIN_NAME_LENGTH = 1 as const;
+const MAX_NAME_LENGTH = 100 as const;
 
 export const userRouter = router({
   // Get current user profile
@@ -32,8 +38,8 @@ export const userRouter = router({
   // Get user by ID (public)
   getById: publicProcedure
     .input(z.object({ id: z.string().cuid() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.user.findUnique({
+    .query(async ({ ctx, input }) =>
+      ctx.db.user.findUnique({
         where: { id: input.id },
         select: {
           id: true,
@@ -51,8 +57,8 @@ export const userRouter = router({
             },
           },
         },
-      });
-    }),
+      })
+    ),
 
   // Get all users (admin only)
   getAll: adminProcedure
@@ -64,8 +70,8 @@ export const userRouter = router({
             .optional(),
           isActive: z.boolean().optional(),
           search: z.string().optional(),
-          limit: z.number().default(50),
-          offset: z.number().default(0),
+          limit: z.number().default(ADMIN_USERS_DEFAULT_LIMIT),
+          offset: z.number().default(DEFAULT_OFFSET),
         })
         .optional()
     )
@@ -103,8 +109,8 @@ export const userRouter = router({
             },
           },
           orderBy: { createdAt: "desc" },
-          take: input?.limit || 50,
-          skip: input?.offset || 0,
+          take: input?.limit || ADMIN_USERS_DEFAULT_LIMIT,
+          skip: input?.offset || DEFAULT_OFFSET,
         }),
         ctx.db.user.count({ where }),
       ]);
@@ -116,16 +122,16 @@ export const userRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1).max(100).optional(),
+        name: z.string().min(MIN_NAME_LENGTH).max(MAX_NAME_LENGTH).optional(),
         image: z.string().url().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.user.update({
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.user.update({
         where: { id: ctx.session.user.id },
         data: input,
-      });
-    }),
+      })
+    ),
 
   // Get user leaderboard
   getLeaderboard: publicProcedure
@@ -137,7 +143,7 @@ export const userRouter = router({
           .optional(),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .query(({ ctx, input }) => {
       const where = input.role ? { role: input.role } : {};
 
       return ctx.db.user.findMany({
@@ -159,7 +165,7 @@ export const userRouter = router({
   getStats: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [totalWaste, totalRewards, totalPoints, level] = await Promise.all([
+    const [totalWaste, totalRewards, totalPoints] = await Promise.all([
       ctx.db.wasteDisposal.count({
         where: { userId, status: "APPROVED" },
       }),
@@ -181,22 +187,22 @@ export const userRouter = router({
   }),
 
   // Get user achievements
-  getAchievements: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.userAchievement.findMany({
+  getAchievements: protectedProcedure.query(async ({ ctx }) =>
+    ctx.db.userAchievement.findMany({
       where: { userId: ctx.session.user.id },
       include: {
         achievement: true,
       },
       orderBy: { createdAt: "desc" },
-    });
-  }),
+    })
+  ),
 
   // Get user rewards history
   getRewardsHistory: protectedProcedure
     .input(
       z.object({
-        limit: z.number().default(20),
-        offset: z.number().default(0),
+        limit: z.number().default(DEFAULT_LIMIT),
+        offset: z.number().default(DEFAULT_OFFSET),
       })
     )
     .query(async ({ ctx, input }) => {

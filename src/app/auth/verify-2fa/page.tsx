@@ -1,12 +1,12 @@
 "use client";
 
+import { ArrowLeft, CheckCircle, Mail, Recycle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type React from "react";
 import { useRef } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CheckCircle, Mail, Recycle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { handle2FAVerification, resend2FACode } from "@/lib/auth-client";
 
 function useCountdown() {
@@ -236,49 +236,49 @@ export default function Verify2FAPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="flex min-h-screen bg-white">
       {/* Success State */}
       <div
+        className="flex min-h-screen items-center justify-center bg-white p-4"
         data-success-content
-        className="min-h-screen bg-white flex items-center justify-center p-4"
         style={{ display: "none" }}
       >
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
-            <CheckCircle className="w-10 h-10 text-white" />
+        <div className="max-w-md space-y-6 text-center">
+          <div className="mx-auto flex h-20 w-20 animate-bounce items-center justify-center rounded-full bg-green-500">
+            <CheckCircle className="h-10 w-10 text-white" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="font-semibold text-2xl text-gray-900">
               Verification Successful!
             </h1>
             <p className="text-gray-600">Setting up your account...</p>
           </div>
-          <div className="w-8 h-8 border-4 border-forest-green-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-forest-green-600 border-t-transparent" />
         </div>
       </div>
 
       {/* Main Content */}
-      <div data-main-content className="min-h-screen bg-white flex w-full">
+      <div className="flex min-h-screen w-full bg-white" data-main-content>
         {/* Left side - Image */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-forest-green-50 to-sage-green-50 relative overflow-hidden">
+        <div className="relative hidden overflow-hidden bg-gradient-to-br from-forest-green-50 to-sage-green-50 lg:flex lg:w-1/2">
           <div className="absolute inset-0 bg-gradient-to-br from-forest-green-600/10 to-sage-green-600/10" />
           <img
-            src="/images/environmental-2fa.png"
             alt="Recycly security verification"
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
+            src="/images/environmental-2fa.png"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           <div className="absolute bottom-8 left-8 text-white">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <Recycle className="w-5 h-5 text-white" />
+            <div className="mb-4 flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <Recycle className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-semibold">Recycly</span>
+              <span className="font-semibold text-xl">Recycly</span>
             </div>
-            <h2 className="text-2xl font-semibold mb-2">
+            <h2 className="mb-2 font-semibold text-2xl">
               Secure account verification
             </h2>
-            <p className="text-white/80 max-w-md">
+            <p className="max-w-md text-white/80">
               We're protecting your environmental data with industry-leading
               security measures and verification protocols.
             </p>
@@ -286,34 +286,34 @@ export default function Verify2FAPage() {
         </div>
 
         {/* Right side - Form */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
+        <div className="flex flex-1 items-center justify-center p-4 lg:p-8">
           <div className="w-full max-w-md space-y-8">
             {/* Header */}
-            <div className="text-center space-y-6">
+            <div className="space-y-6 text-center">
               <div className="flex justify-center lg:hidden">
-                <div className="w-14 h-14 bg-forest-green-600 rounded-2xl flex items-center justify-center shadow-sm">
-                  <Recycle className="w-7 h-7 text-white" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-forest-green-600 shadow-sm">
+                  <Recycle className="h-7 w-7 text-white" />
                 </div>
               </div>
               <div className="space-y-2">
-                <h1 className="text-2xl font-semibold text-gray-900">
+                <h1 className="font-semibold text-2xl text-gray-900">
                   Verify your account
                 </h1>
-                <p data-method-description className="text-gray-600 text-sm">
+                <p className="text-gray-600 text-sm" data-method-description>
                   Enter the 6-digit code sent to your email address
                 </p>
               </div>
             </div>
 
             {/* Email Verification Info */}
-            <div className="bg-forest-green-50 border border-forest-green-200 rounded-lg p-4">
+            <div className="rounded-lg border border-forest-green-200 bg-forest-green-50 p-4">
               <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-forest-green-600" />
+                <Mail className="h-5 w-5 text-forest-green-600" />
                 <div>
-                  <p className="text-sm font-medium text-forest-green-800">
+                  <p className="font-medium text-forest-green-800 text-sm">
                     Email Verification
                   </p>
-                  <p className="text-xs text-forest-green-600">
+                  <p className="text-forest-green-600 text-xs">
                     We've sent a 6-digit code to your email address
                   </p>
                 </div>
@@ -321,44 +321,44 @@ export default function Verify2FAPage() {
             </div>
 
             {/* Code Input */}
-            <div data-code-container className="space-y-6">
+            <div className="space-y-6" data-code-container>
               <div className="flex justify-center space-x-3">
                 {[0, 1, 2, 3, 4, 5].map((index) => (
                   <Input
+                    className="h-12 w-12 border-2 border-gray-200 text-center font-semibold text-lg focus:border-forest-green-500 focus:ring-forest-green-500/20"
+                    inputMode="numeric"
                     key={index}
+                    maxLength={1}
+                    onChange={(e) => handleCodeChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
                     ref={(el) => {
                       inputRefs.current[index] = el;
                     }}
                     type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    onChange={(e) => handleCodeChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-200 focus:border-forest-green-500 focus:ring-forest-green-500/20"
                   />
                 ))}
               </div>
 
               {/* Verify Button */}
               <Button
-                ref={submitButtonRef}
+                className="h-11 w-full bg-forest-green-600 font-medium text-white shadow-sm transition-colors hover:bg-forest-green-700"
                 onClick={() => handleVerify()}
-                className="w-full h-11 bg-forest-green-600 hover:bg-forest-green-700 text-white font-medium transition-colors shadow-sm"
+                ref={submitButtonRef}
               >
                 Verify Code
               </Button>
 
               {/* Resend Code */}
-              <div className="text-center space-y-2">
-                <p className="text-sm text-gray-600">
+              <div className="space-y-2 text-center">
+                <p className="text-gray-600 text-sm">
                   Didn't receive the code?
                 </p>
                 <Button
+                  className="font-medium text-forest-green-600 hover:bg-gray-50 hover:text-forest-green-700"
+                  onClick={handleResend}
                   ref={resendButtonRef}
                   type="button"
                   variant="ghost"
-                  onClick={handleResend}
-                  className="text-forest-green-600 hover:text-forest-green-700 hover:bg-gray-50 font-medium"
                 >
                   Resend code via email
                 </Button>
@@ -368,10 +368,10 @@ export default function Verify2FAPage() {
             {/* Back Button */}
             <div className="text-center">
               <Link
+                className="inline-flex items-center text-gray-600 text-sm transition-colors hover:text-forest-green-700"
                 href="/auth/signup"
-                className="inline-flex items-center text-sm text-gray-600 hover:text-forest-green-700 transition-colors"
               >
-                <ArrowLeft className="w-4 h-4 mr-1" />
+                <ArrowLeft className="mr-1 h-4 w-4" />
                 Back to sign up
               </Link>
             </div>

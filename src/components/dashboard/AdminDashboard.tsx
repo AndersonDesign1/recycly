@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Users,
-  MapPin,
-  TrendingUp,
-  DollarSign,
-  Recycle,
-  Target,
+  AlertTriangle,
   CheckCircle,
   Clock,
-  AlertTriangle,
+  DollarSign,
+  MapPin,
+  Recycle,
+  Target,
+  TrendingUp,
+  Users,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface User {
   id: string;
@@ -40,7 +40,7 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
     activeUsers: 2150,
     wasteManagers: 12,
     activeWasteManagers: 11,
-    monthlyRevenue: 125000,
+    monthlyRevenue: 125_000,
     monthlyGrowth: 8.5,
     wasteCollected: 280, // tons
     collectionTarget: 350, // tons
@@ -89,15 +89,15 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "user_registration":
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />;
       case "collection_update":
-        return <Recycle className="w-4 h-4" />;
+        return <Recycle className="h-4 w-4" />;
       case "waste_manager":
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />;
       case "approval_required":
-        return <Clock className="w-4 h-4" />;
+        return <Clock className="h-4 w-4" />;
       default:
-        return <TrendingUp className="w-4 h-4" />;
+        return <TrendingUp className="h-4 w-4" />;
     }
   };
 
@@ -132,18 +132,18 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="font-bold text-3xl text-gray-900">
             Regional Admin Dashboard
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-gray-600">
             Manage your region and track performance metrics
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button size="sm" variant="outline">
             Export Report
           </Button>
-          <Button variant="outline" size="sm">
+          <Button size="sm" variant="outline">
             Manage Staff
           </Button>
           <Button className="bg-forest-green-600 hover:bg-forest-green-700">
@@ -156,15 +156,15 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
       <div className="flex items-center space-x-2">
         {(["24h", "7d", "30d", "90d"] as const).map((range) => (
           <Button
-            key={range}
-            variant={timeRange === range ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTimeRange(range)}
             className={
               timeRange === range
                 ? "bg-forest-green-600 hover:bg-forest-green-700"
                 : ""
             }
+            key={range}
+            onClick={() => setTimeRange(range)}
+            size="sm"
+            variant={timeRange === range ? "default" : "outline"}
           >
             {range}
           </Button>
@@ -172,17 +172,17 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="font-medium text-sm">Total Users</CardTitle>
             <Users className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.totalUsers.toLocaleString()}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">+{stats.monthlyGrowth}%</span>{" "}
               from last month
             </p>
@@ -191,16 +191,16 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Monthly Revenue
             </CardTitle>
             <DollarSign className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               ${(stats.monthlyRevenue / 1000).toFixed(0)}K
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">+{stats.monthlyGrowth}%</span>{" "}
               from last month
             </p>
@@ -209,16 +209,16 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Waste Managers
             </CardTitle>
             <Users className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.activeWasteManagers}/{stats.wasteManagers}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">Active</span> managers
             </p>
           </CardContent>
@@ -226,16 +226,16 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Pending Approvals
             </CardTitle>
             <Clock className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.pendingApprovals}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-yellow-600">Requires</span> attention
             </p>
           </CardContent>
@@ -243,7 +243,7 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
       </div>
 
       {/* Collection Targets & Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -253,9 +253,9 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {collectionTargets.map((target, index) => (
-              <div key={index} className="space-y-2">
+              <div className="space-y-2" key={index}>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="font-medium text-gray-700 text-sm">
                     {target.period}
                   </span>
                   <Badge className={getTargetStatusColor(target.status)}>
@@ -270,7 +270,7 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
                     {Math.round((target.achieved / target.target) * 100)}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
                     className={`h-2 rounded-full ${
                       target.status === "on-track"
@@ -298,27 +298,27 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-forest-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-forest-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 CO2 Saved
               </span>
-              <span className="text-lg font-bold text-forest-green-600">
+              <span className="font-bold text-forest-green-600 text-lg">
                 {stats.environmentalImpact.toLocaleString()} tons
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-sage-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-sage-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Trees Equivalent
               </span>
-              <span className="text-lg font-bold text-sage-green-600">
+              <span className="font-bold text-lg text-sage-green-600">
                 {Math.round(stats.environmentalImpact * 50).toLocaleString()}
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-ocean-blue-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-ocean-blue-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Energy Saved
               </span>
-              <span className="text-lg font-bold text-ocean-blue-600">
+              <span className="font-bold text-lg text-ocean-blue-600">
                 {Math.round(stats.environmentalImpact * 2.5).toLocaleString()}{" "}
                 MWh
               </span>
@@ -328,7 +328,7 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
       </div>
 
       {/* Regional Performance & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -337,32 +337,32 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-forest-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-forest-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Collection Progress
               </span>
-              <span className="text-lg font-bold text-forest-green-600">
+              <span className="font-bold text-forest-green-600 text-lg">
                 {Math.round(collectionProgress)}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="h-3 w-full rounded-full bg-gray-200">
               <div
-                className="h-3 bg-forest-green-600 rounded-full transition-all duration-300"
+                className="h-3 rounded-full bg-forest-green-600 transition-all duration-300"
                 style={{ width: `${collectionProgress}%` }}
               />
             </div>
             <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-3 bg-sage-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-sage-green-600">
+              <div className="rounded-lg bg-sage-green-50 p-3">
+                <div className="font-bold text-2xl text-sage-green-600">
                   {stats.wasteCollected}
                 </div>
-                <div className="text-xs text-gray-600">Tons Collected</div>
+                <div className="text-gray-600 text-xs">Tons Collected</div>
               </div>
-              <div className="p-3 bg-ocean-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-ocean-blue-600">
+              <div className="rounded-lg bg-ocean-blue-50 p-3">
+                <div className="font-bold text-2xl text-ocean-blue-600">
                   {stats.collectionTarget}
                 </div>
-                <div className="text-xs text-gray-600">Monthly Target</div>
+                <div className="text-gray-600 text-xs">Monthly Target</div>
               </div>
             </div>
           </CardContent>
@@ -378,25 +378,25 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
           <CardContent className="space-y-3">
             {recentActivities.map((activity) => (
               <div
+                className="flex items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
                 key={activity.id}
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div
-                  className={`p-2 rounded-full ${getActivityColor(
+                  className={`rounded-full p-2 ${getActivityColor(
                     activity.status
                   )}`}
                 >
                   {getActivityIcon(activity.type)}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 text-sm">
                     {activity.message}
                   </p>
-                  <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                  <p className="text-gray-500 text-xs">{activity.timestamp}</p>
                 </div>
                 <Badge
-                  variant="outline"
                   className={getActivityColor(activity.status)}
+                  variant="outline"
                 >
                   {activity.status}
                 </Badge>
@@ -412,20 +412,20 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Users className="h-6 w-6" />
               <span className="text-sm">Manage Users</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <MapPin className="h-6 w-6" />
               <span className="text-sm">View Locations</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Target className="h-6 w-6" />
               <span className="text-sm">Set Targets</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <CheckCircle className="h-6 w-6" />
               <span className="text-sm">Approve Transactions</span>
             </Button>

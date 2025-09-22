@@ -1,14 +1,14 @@
 "use client";
 
-import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SuperAdminDashboard } from "@/components/dashboard/SuperAdminDashboard";
-import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
-import { WasteManagerDashboard } from "@/components/dashboard/WasteManagerDashboard";
 import { UserDashboard } from "@/components/dashboard/UserDashboard";
+import { WasteManagerDashboard } from "@/components/dashboard/WasteManagerDashboard";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();

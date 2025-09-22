@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { WasteType } from "@prisma/client"
+import { WasteType } from "@prisma/client";
+import { z } from "zod";
 
 export const createWasteDisposalSchema = z.object({
   wasteBinId: z.string().cuid(),
@@ -12,9 +12,9 @@ export const createWasteDisposalSchema = z.object({
       lng: z.number(),
     })
     .optional(),
-})
+});
 
 export const verifyWasteDisposalSchema = z.object({
   id: z.string().cuid(),
   verified: z.boolean(),
-})
+});

@@ -1,6 +1,7 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "@/server/trpc/root";
 import { createContext } from "@/server/context";
+import { appRouter } from "@/server/trpc/root";
+import { logger } from "@/lib/logger";
 
 const handler = (req: Request) =>
   fetchRequestHandler({
@@ -11,7 +12,11 @@ const handler = (req: Request) =>
     onError:
       process.env.NODE_ENV === "development"
         ? ({ path, error }) => {
-            console.error(`❌ tRPC failed on ${path ?? "<no-path>"}:`, error);
+            logger.error(
+              "❌ tRPC failed on %s: %o",
+              path ?? "<no-path>",
+              error
+            );
           }
         : undefined,
   });

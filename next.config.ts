@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
   },
 
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    customKey: process.env.CUSTOM_KEY,
   },
 };
 

@@ -1,28 +1,33 @@
 import { z } from "zod";
+import { logger } from "@/lib/logger";
+
+const WASTE_DEFAULT_LIMIT = 20 as const;
+const WASTE_DEFAULT_OFFSET = 0 as const;
+const ADMIN_DEFAULT_LIMIT = 50 as const;
 import {
-  router,
-  publicProcedure,
-  protectedProcedure,
-  wasteManagerProcedure,
   adminProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
+  wasteManagerProcedure,
 } from "@/server/trpc";
 
 export const wasteRouter = router({
   // Get all waste categories
-  getCategories: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.wasteCategory.findMany({
+  getCategories: publicProcedure.query(async ({ ctx }) =>
+    ctx.db.wasteCategory.findMany({
       orderBy: { name: "asc" },
-    });
-  }),
+    })
+  ),
 
   // Get waste category by ID
   getCategoryById: publicProcedure
     .input(z.object({ id: z.string().cuid() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.wasteCategory.findUnique({
+    .query(async ({ ctx, input }) =>
+      ctx.db.wasteCategory.findUnique({
         where: { id: input.id },
-      });
-    }),
+      })
+    ),
 
   // Submit waste disposal (users only)
   submitWaste: protectedProcedure
@@ -82,8 +87,8 @@ export const wasteRouter = router({
         status: z
           .enum(["PENDING", "APPROVED", "REJECTED", "IN_PROGRESS", "COMPLETED"])
           .optional(),
-        limit: z.number().default(20),
-        offset: z.number().default(0),
+        limit: z.number().default(WASTE_DEFAULT_LIMIT),
+        offset: z.number().default(WASTE_DEFAULT_OFFSET),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -160,8 +165,8 @@ export const wasteRouter = router({
     .input(
       z.object({
         status: z.enum(["PENDING", "IN_PROGRESS", "COMPLETED"]).optional(),
-        limit: z.number().default(20),
-        offset: z.number().default(0),
+        limit: z.number().default(WASTE_DEFAULT_LIMIT),
+        offset: z.number().default(WASTE_DEFAULT_OFFSET),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -236,7 +241,7 @@ export const wasteRouter = router({
           const { RewardService } = await import("../../services/rewards");
           await RewardService.distributeWasteDisposalRewards(input.id);
         } catch (error) {
-          console.error("Failed to distribute rewards:", error);
+          logger.error("Failed to distribute rewards: %o", error);
           // Don't fail the status update if reward distribution fails
         }
       }
@@ -252,8 +257,8 @@ export const wasteRouter = router({
           .enum(["PENDING", "APPROVED", "REJECTED", "IN_PROGRESS", "COMPLETED"])
           .optional(),
         wasteCategoryId: z.string().cuid().optional(),
-        limit: z.number().default(50),
-        offset: z.number().default(0),
+        limit: z.number().default(ADMIN_DEFAULT_LIMIT),
+        offset: z.number().default(WASTE_DEFAULT_OFFSET),
       })
     )
     .query(async ({ ctx, input }) => {

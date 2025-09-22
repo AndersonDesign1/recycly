@@ -1,6 +1,6 @@
 const config = {
   plugins: {
-    '@tailwindcss/postcss': {},
+    "@tailwindcss/postcss": {},
     // Autoprefixer is now built into Tailwind CSS v4
   },
 };

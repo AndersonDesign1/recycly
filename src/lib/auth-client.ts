@@ -1,5 +1,5 @@
-import { createAuthClient } from "better-auth/react";
 import { twoFactorClient } from "better-auth/client/plugins";
+import { createAuthClient } from "better-auth/react";
 
 export const { signIn, signUp, signOut, useSession, getSession } =
   createAuthClient({
@@ -93,7 +93,7 @@ export async function handleSignIn(data: {
     if (result?.user) {
       // Store email for 2FA verification
       localStorage.setItem("userEmail", data.email);
-      
+
       // Better Auth will handle the redirect to 2FA verification
       // If 2FA is not required, it will redirect to the callbackURL
       // If 2FA is required, it will stay on the current page and show 2FA input

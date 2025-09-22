@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { ReportType, ReportStatus, ReportPriority } from "@prisma/client"
+import { ReportPriority, ReportStatus, ReportType } from "@prisma/client";
+import { z } from "zod";
 
 export const createReportSchema = z.object({
   wasteBinId: z.string().cuid().optional(),
@@ -12,10 +12,10 @@ export const createReportSchema = z.object({
       lng: z.number(),
     })
     .optional(),
-})
+});
 
 export const updateReportSchema = z.object({
   status: z.nativeEnum(ReportStatus).optional(),
   priority: z.nativeEnum(ReportPriority).optional(),
   resolvedBy: z.string().optional(),
-})
+});

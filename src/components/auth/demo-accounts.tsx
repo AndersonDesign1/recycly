@@ -1,5 +1,9 @@
 "use client";
 
+import { UserRole } from "@prisma/client";
+import { Copy, Crown, Settings, Shield, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,11 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Copy, User, Shield, Settings, Crown } from "lucide-react";
 import { getRoleColor } from "@/lib/utils/roles";
-import { UserRole } from "@prisma/client";
 
 const demoAccounts = [
   {
@@ -77,7 +77,7 @@ export function DemoAccounts() {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto mt-8">
+    <Card className="mx-auto mt-8 w-full max-w-4xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
@@ -88,13 +88,13 @@ export function DemoAccounts() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {demoAccounts.map((account) => {
             const Icon = account.icon;
             return (
               <Card
+                className="border-2 transition-colors hover:border-primary/50"
                 key={account.role}
-                className="border-2 hover:border-primary/50 transition-colors"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -113,32 +113,32 @@ export function DemoAccounts() {
                 <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Email:</span>
+                      <span className="font-medium text-sm">Email:</span>
                       <div className="flex items-center gap-1">
-                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                        <code className="rounded bg-muted px-2 py-1 text-xs">
                           {account.email}
                         </code>
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(account.email)}
                           className="h-6 w-6 p-0"
+                          onClick={() => copyToClipboard(account.email)}
+                          size="sm"
+                          variant="ghost"
                         >
                           <Copy className="h-3 w-3" />
                         </Button>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Password:</span>
+                      <span className="font-medium text-sm">Password:</span>
                       <div className="flex items-center gap-1">
-                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                        <code className="rounded bg-muted px-2 py-1 text-xs">
                           {account.password}
                         </code>
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(account.password)}
                           className="h-6 w-6 p-0"
+                          onClick={() => copyToClipboard(account.password)}
+                          size="sm"
+                          variant="ghost"
                         >
                           <Copy className="h-3 w-3" />
                         </Button>
@@ -147,13 +147,13 @@ export function DemoAccounts() {
                   </div>
 
                   <div className="space-y-2">
-                    <span className="text-sm font-medium">Permissions:</span>
+                    <span className="font-medium text-sm">Permissions:</span>
                     <div className="flex flex-wrap gap-1">
                       {account.permissions.map((permission) => (
                         <Badge
+                          className="text-xs"
                           key={permission}
                           variant="secondary"
-                          className="text-xs"
                         >
                           {permission}
                         </Badge>
@@ -162,10 +162,10 @@ export function DemoAccounts() {
                   </div>
 
                   <Button
+                    className="w-full"
                     onClick={() =>
                       loginWithDemo(account.email, account.password)
                     }
-                    className="w-full"
                     variant="outline"
                   >
                     Auto-fill Login Form
@@ -176,9 +176,9 @@ export function DemoAccounts() {
           })}
         </div>
 
-        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-start gap-2">
-            <div className="text-yellow-600 mt-0.5">⚠️</div>
+            <div className="mt-0.5 text-yellow-600">⚠️</div>
             <div className="text-sm text-yellow-800">
               <strong>Development Only:</strong> These demo accounts are for
               development and testing purposes. In production, use proper user

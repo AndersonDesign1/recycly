@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { MinimalSidebar } from "@/components/minimal-sidebar"
-import { MinimalContributionChart } from "./minimal-contribution-chart"
-import { MinimalStatisticsCards } from "./minimal-statistics-cards"
-import { MinimalEarningsChart } from "./minimal-earnings-chart"
-import { MinimalCalendarWidget } from "./minimal-calendar-widget"
-import { MinimalActiveAudience } from "./minimal-active-audience"
+import { MinimalSidebar } from "@/components/minimal-sidebar";
+import { MinimalActiveAudience } from "./minimal-active-audience";
+import { MinimalCalendarWidget } from "./minimal-calendar-widget";
+import { MinimalContributionChart } from "./minimal-contribution-chart";
+import { MinimalEarningsChart } from "./minimal-earnings-chart";
+import { MinimalStatisticsCards } from "./minimal-statistics-cards";
 
 export function MinimalDashboardLayout() {
   return (
@@ -15,8 +15,12 @@ export function MinimalDashboardLayout() {
       <main className="ml-20 p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-dark-charcoal mb-2">Dashboard</h1>
-          <p className="text-medium-gray">Hello, Thor. Great to see you again!</p>
+          <h1 className="mb-2 font-semibold text-2xl text-dark-charcoal">
+            Dashboard
+          </h1>
+          <p className="text-medium-gray">
+            Hello, Thor. Great to see you again!
+          </p>
         </div>
 
         {/* Main Grid */}
@@ -48,5 +52,5 @@ export function MinimalDashboardLayout() {
         </div>
       </main>
     </div>
-  )
+  );
 }

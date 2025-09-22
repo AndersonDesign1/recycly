@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { BarChart3, Gift, MapPin, QrCode } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,9 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { QrCode, MapPin, Gift, BarChart3 } from "lucide-react";
-import { motion } from "framer-motion";
-import Link from "next/link";
 
 export function QuickActions() {
   const actions = [
@@ -57,25 +57,25 @@ export function QuickActions() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {actions.map((action, index) => (
             <motion.div
-              key={action.title}
-              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              key={action.title}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
               <Button
                 asChild
+                className="h-auto w-full flex-col items-start space-y-2 p-4 transition-transform hover:scale-105"
                 variant={action.variant}
-                className="w-full h-auto p-4 flex-col items-start space-y-2 hover:scale-105 transition-transform"
               >
                 <Link href={action.href}>
-                  <div className="flex items-center gap-2 w-full">
+                  <div className="flex w-full items-center gap-2">
                     {action.icon}
                     <span className="font-semibold">{action.title}</span>
                   </div>
-                  <span className="text-xs opacity-90 text-left w-full">
+                  <span className="w-full text-left text-xs opacity-90">
                     {action.description}
                   </span>
                 </Link>

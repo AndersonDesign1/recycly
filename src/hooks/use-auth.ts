@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import type { User, Session } from "@/lib/auth";
+import { useEffect, useState } from "react";
+import type { Session, User } from "@/lib/auth";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -65,10 +65,9 @@ export function useAuth() {
         const data = await response.json();
         setUser(data.user);
         return { success: true, user: data.user };
-      } else {
-        const errorData = await response.json();
-        return { success: false, error: errorData.error };
       }
+      const errorData = await response.json();
+      return { success: false, error: errorData.error };
     } catch (error) {
       return { success: false, error: "Failed to update role" };
     }
@@ -83,6 +82,6 @@ export function useAuth() {
     signOut,
     updateUserRole,
     isAuthenticated: !!user,
-    hasRole: hasRole,
+    hasRole,
   };
 }

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
-interface User {
+type User = {
   id: string;
   email: string;
   name: string;
@@ -13,18 +13,14 @@ interface User {
   createdAt: string;
   role: string;
   isActive: boolean;
-}
+};
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/admin/users");
@@ -35,40 +31,61 @@ export default function AdminUsersPage() {
       } else {
         setError(data.error || "Failed to fetch users");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to fetch users");
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string;
+    email: string;
+  } | null>(null);
+  const [toast, setToast] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const confirmDeleteUser = (userId: string, email: string) => {
+    setPendingDelete({ id: userId, email });
   };
 
-  const deleteUser = async (userId: string, email: string) => {
-    if (!confirm(`Are you sure you want to delete user: ${email}?`)) {
+  const performDelete = async () => {
+    if (!pendingDelete) {
       return;
     }
-
     try {
-      const response = await fetch(`/api/admin/users?userId=${userId}`, {
-        method: "DELETE",
-      });
-
+      const response = await fetch(
+        `/api/admin/users?userId=${pendingDelete.id}`,
+        {
+          method: "DELETE",
+        }
+      );
       const data = await response.json();
-
       if (data.success) {
-        alert(`User ${email} deleted successfully`);
-        fetchUsers(); // Refresh the list
+        setToast({
+          type: "success",
+          message: `User ${pendingDelete.email} deleted`,
+        });
+        setPendingDelete(null);
+        fetchUsers();
       } else {
-        alert(`Failed to delete user: ${data.error}`);
+        setToast({ type: "error", message: `Failed: ${data.error}` });
       }
-    } catch (err) {
-      alert("Failed to delete user");
+    } catch (_err) {
+      setToast({ type: "error", message: "Failed to delete user" });
     }
   };
 
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Loading users...</h1>
+        <h1 className="mb-6 font-bold text-2xl">Loading users...</h1>
       </div>
     );
   }
@@ -76,9 +93,9 @@ export default function AdminUsersPage() {
   if (error) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Error</h1>
+        <h1 className="mb-6 font-bold text-2xl">Error</h1>
         <p className="text-red-600">{error}</p>
-        <Button onClick={fetchUsers} className="mt-4">
+        <Button className="mt-4" onClick={fetchUsers}>
           Try Again
         </Button>
       </div>
@@ -87,8 +104,8 @@ export default function AdminUsersPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Registered Users</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="font-bold text-3xl">Registered Users</h1>
         <Button onClick={fetchUsers}>Refresh</Button>
       </div>
 
@@ -96,7 +113,7 @@ export default function AdminUsersPage() {
         {users.map((user) => (
           <Card key={user.id}>
             <CardHeader>
-              <div className="flex justify-between items-start">
+              <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-lg">{user.name}</CardTitle>
                   <p className="text-gray-600">{user.email}</p>
@@ -113,14 +130,14 @@ export default function AdminUsersPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500">
+              <div className="flex items-center justify-between">
+                <div className="text-gray-500 text-sm">
                   Created: {new Date(user.createdAt).toLocaleDateString()}
                 </div>
                 <Button
-                  variant="destructive"
+                  onClick={() => confirmDeleteUser(user.id, user.email)}
                   size="sm"
-                  onClick={() => deleteUser(user.id, user.email)}
+                  variant="destructive"
                 >
                   Delete User
                 </Button>
@@ -132,15 +149,44 @@ export default function AdminUsersPage() {
 
       {users.length === 0 && (
         <Card>
-          <CardContent className="text-center py-8">
+          <CardContent className="py-8 text-center">
             <p className="text-gray-500">No users found</p>
           </CardContent>
         </Card>
       )}
 
-      <div className="mt-6 text-sm text-gray-500">
+      <div className="mt-6 text-gray-500 text-sm">
         Total Users: {users.length}
       </div>
+      {/* Simple inline confirm modal */}
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-2 font-semibold text-xl">Confirm deletion</h2>
+            <p className="mb-6 text-gray-600">
+              Are you sure you want to delete {pendingDelete.email}?
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                onClick={() => setPendingDelete(null)}
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button onClick={performDelete} variant="destructive">
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed right-4 bottom-4 z-50 rounded bg-gray-900 px-4 py-2 text-sm text-white shadow">
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }

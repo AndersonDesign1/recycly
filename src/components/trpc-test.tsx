@@ -1,6 +1,5 @@
 "use client";
 
-import { trpc } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc/client";
 
 export function TRPCTest() {
   const { data: user, isLoading, error } = trpc.user.me.useQuery();
@@ -74,9 +74,9 @@ export function TRPCTest() {
           {categories && categories.length > 0 ? (
             <div className="space-y-2">
               {categories.map((category) => (
-                <div key={category.id} className="flex justify-between">
+                <div className="flex justify-between" key={category.id}>
                   <span>{category.name}</span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-gray-500 text-sm">
                     {category.pointsPerUnit} pts/unit
                   </span>
                 </div>
@@ -97,9 +97,9 @@ export function TRPCTest() {
           {rewards && rewards.length > 0 ? (
             <div className="space-y-2">
               {rewards.map((reward) => (
-                <div key={reward.id} className="flex justify-between">
+                <div className="flex justify-between" key={reward.id}>
                   <span>{reward.name}</span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-gray-500 text-sm">
                     {reward.description || "No description"}
                   </span>
                 </div>

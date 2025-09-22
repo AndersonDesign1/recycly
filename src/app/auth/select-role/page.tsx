@@ -1,26 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  AlertCircle,
+  Award,
+  BarChart3,
+  CheckCircle,
+  MapPin,
+  Recycle,
+  Settings,
+  Shield,
+  TrendingUp,
+  Truck,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import {
-  Users,
-  MapPin,
-  TrendingUp,
-  Shield,
-  Truck,
-  Recycle,
-  Award,
-  Wallet,
-  BarChart3,
-  Settings,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 interface RoleOption {
   id: string;
@@ -177,7 +177,7 @@ export default function SelectRolePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -197,71 +197,71 @@ export default function SelectRolePage() {
     <div className="min-h-screen bg-gradient-to-br from-forest-green-50 via-white to-sage-green-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-forest-green-600 rounded-lg flex items-center justify-center mr-3">
-              <Recycle className="w-7 h-7 text-white" />
+        <div className="mb-8 text-center">
+          <div className="mb-4 flex items-center justify-center">
+            <div className="mr-3 flex h-12 w-12 items-center justify-center rounded-lg bg-forest-green-600">
+              <Recycle className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900">Recycly</h1>
+            <h1 className="font-bold text-4xl text-gray-900">Recycly</h1>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          <h2 className="mb-2 font-semibold text-2xl text-gray-800">
             Welcome, {user.name}! 🌱
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-gray-600">
             Choose your role to get started with Recycly. Your role determines
             your access level, features, and benefits within the platform.
           </p>
         </div>
 
         {/* Role Selection */}
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
             {roleOptions.map((role) => (
               <Card
-                key={role.id}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-lg border-2 ${
+                className={`cursor-pointer border-2 transition-all duration-200 hover:shadow-lg ${
                   selectedRole === role.id
                     ? "border-forest-green-500 shadow-lg"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
+                key={role.id}
                 onClick={() => handleRoleSelection(role.id)}
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-12 h-12 ${role.bgColor} rounded-lg flex items-center justify-center`}
+                        className={`h-12 w-12 ${role.bgColor} flex items-center justify-center rounded-lg`}
                       >
-                        <role.icon className={`w-6 h-6 ${role.color}`} />
+                        <role.icon className={`h-6 w-6 ${role.color}`} />
                       </div>
                       <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900">
+                        <CardTitle className="font-semibold text-gray-900 text-lg">
                           {role.name}
                         </CardTitle>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-gray-600 text-sm">
                           {role.description}
                         </p>
                       </div>
                     </div>
                     {selectedRole === role.id && (
-                      <CheckCircle className="w-6 h-6 text-forest-green-600" />
+                      <CheckCircle className="h-6 w-6 text-forest-green-600" />
                     )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Features */}
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-                      <Settings className="w-4 h-4 mr-2 text-gray-500" />
+                    <h4 className="mb-2 flex items-center font-medium text-gray-900">
+                      <Settings className="mr-2 h-4 w-4 text-gray-500" />
                       Key Features
                     </h4>
                     <ul className="space-y-1">
                       {role.features.map((feature, index) => (
                         <li
+                          className="flex items-start text-gray-600 text-sm"
                           key={index}
-                          className="text-sm text-gray-600 flex items-start"
                         >
-                          <CheckCircle className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="mt-0.5 mr-2 h-3 w-3 flex-shrink-0 text-green-500" />
                           {feature}
                         </li>
                       ))}
@@ -270,17 +270,17 @@ export default function SelectRolePage() {
 
                   {/* Benefits */}
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-                      <Award className="w-4 h-4 mr-2 text-gray-500" />
+                    <h4 className="mb-2 flex items-center font-medium text-gray-900">
+                      <Award className="mr-2 h-4 w-4 text-gray-500" />
                       Benefits
                     </h4>
                     <ul className="space-y-1">
                       {role.benefits.map((benefit, index) => (
                         <li
+                          className="flex items-start text-gray-600 text-sm"
                           key={index}
-                          className="text-sm text-gray-600 flex items-start"
                         >
-                          <CheckCircle className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="mt-0.5 mr-2 h-3 w-3 flex-shrink-0 text-green-500" />
                           {benefit}
                         </li>
                       ))}
@@ -303,9 +303,9 @@ export default function SelectRolePage() {
 
           {/* Error Message */}
           {error && (
-            <div className="max-w-2xl mx-auto mb-6">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
-                <AlertCircle className="w-5 h-5 text-red-600 mr-3" />
+            <div className="mx-auto mb-6 max-w-2xl">
+              <div className="flex items-center rounded-lg border border-red-200 bg-red-50 p-4">
+                <AlertCircle className="mr-3 h-5 w-5 text-red-600" />
                 <span className="text-red-800">{error}</span>
               </div>
             </div>
@@ -314,9 +314,9 @@ export default function SelectRolePage() {
           {/* Submit Button */}
           <div className="text-center">
             <Button
-              onClick={handleSubmit}
+              className="bg-forest-green-600 px-8 py-3 text-lg hover:bg-forest-green-700"
               disabled={!selectedRole || isSubmitting}
-              className="bg-forest-green-600 hover:bg-forest-green-700 px-8 py-3 text-lg"
+              onClick={handleSubmit}
               size="lg"
             >
               {isSubmitting ? (
@@ -328,7 +328,7 @@ export default function SelectRolePage() {
                 "Continue to Dashboard"
               )}
             </Button>
-            <p className="text-sm text-gray-500 mt-3">
+            <p className="mt-3 text-gray-500 text-sm">
               You can change your role later in your account settings
             </p>
           </div>
@@ -336,14 +336,14 @@ export default function SelectRolePage() {
 
         {/* Footer Info */}
         <div className="mt-16 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="mx-auto max-w-3xl">
+            <h3 className="mb-4 font-semibold text-gray-800 text-lg">
               Why Choose Your Role?
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-600">
+            <div className="grid grid-cols-1 gap-6 text-gray-600 text-sm md:grid-cols-3">
               <div>
-                <BarChart3 className="w-8 h-8 text-forest-green-600 mx-auto mb-2" />
-                <h4 className="font-medium text-gray-800 mb-1">
+                <BarChart3 className="mx-auto mb-2 h-8 w-8 text-forest-green-600" />
+                <h4 className="mb-1 font-medium text-gray-800">
                   Personalized Experience
                 </h4>
                 <p>
@@ -352,8 +352,8 @@ export default function SelectRolePage() {
                 </p>
               </div>
               <div>
-                <Wallet className="w-8 h-8 text-forest-green-600 mx-auto mb-2" />
-                <h4 className="font-medium text-gray-800 mb-1">
+                <Wallet className="mx-auto mb-2 h-8 w-8 text-forest-green-600" />
+                <h4 className="mb-1 font-medium text-gray-800">
                   Role-Based Benefits
                 </h4>
                 <p>
@@ -362,8 +362,8 @@ export default function SelectRolePage() {
                 </p>
               </div>
               <div>
-                <TrendingUp className="w-8 h-8 text-forest-green-600 mx-auto mb-2" />
-                <h4 className="font-medium text-gray-800 mb-1">
+                <TrendingUp className="mx-auto mb-2 h-8 w-8 text-forest-green-600" />
+                <h4 className="mb-1 font-medium text-gray-800">
                   Growth Opportunities
                 </h4>
                 <p>

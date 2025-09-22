@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -41,14 +41,14 @@ export class RewardService {
     }
 
     // Calculate user rewards
-    const userReward = await this.calculateUserRewards(
+    const userReward = await RewardService.calculateUserRewards(
       userId,
       wasteDisposal.wasteCategory.pointsPerUnit,
       Number(wasteDisposal.quantity)
     );
 
     // Calculate manager rewards (smaller amount for processing)
-    const managerReward = await this.calculateManagerRewards(
+    const managerReward = await RewardService.calculateManagerRewards(
       managerId,
       wasteDisposal.wasteCategory.pointsPerUnit,
       Number(wasteDisposal.quantity)
@@ -84,7 +84,7 @@ export class RewardService {
     const totalPoints = basePoints + bonusPoints;
 
     // Check for level up
-    const newLevel = this.calculateNewLevel(user.points + totalPoints);
+    const newLevel = RewardService.calculateNewLevel(user.points + totalPoints);
     const levelUp = newLevel > user.level;
 
     return {
@@ -123,7 +123,9 @@ export class RewardService {
     const totalPoints = basePoints + bonusPoints;
 
     // Check for level up
-    const newLevel = this.calculateNewLevel(manager.points + totalPoints);
+    const newLevel = RewardService.calculateNewLevel(
+      manager.points + totalPoints
+    );
     const levelUp = newLevel > manager.level;
 
     return {
@@ -150,12 +152,12 @@ export class RewardService {
       },
     });
 
-    if (!wasteDisposal || !wasteDisposal.assignedManagerId) {
+    if (!(wasteDisposal && wasteDisposal.assignedManagerId)) {
       throw new Error("Waste disposal or manager not found");
     }
 
     const { userReward, managerReward } =
-      await this.calculateWasteDisposalRewards(
+      await RewardService.calculateWasteDisposalRewards(
         wasteDisposalId,
         wasteDisposal.userId,
         wasteDisposal.assignedManagerId
@@ -205,12 +207,15 @@ export class RewardService {
       });
 
       // Check for achievements
-      await this.checkAndAwardAchievements(wasteDisposal.userId, tx);
-      await this.checkAndAwardAchievements(wasteDisposal.assignedManagerId, tx);
+      await RewardService.checkAndAwardAchievements(wasteDisposal.userId, tx);
+      await RewardService.checkAndAwardAchievements(
+        wasteDisposal.assignedManagerId,
+        tx
+      );
     });
 
     // Send notifications (async)
-    this.sendRewardNotifications(
+    RewardService.sendRewardNotifications(
       wasteDisposal,
       userReward,
       managerReward

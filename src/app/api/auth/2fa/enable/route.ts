@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticator } from "otplib";
+import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
     const { secret, code } = await request.json();
 
-    if (!secret || !code) {
+    if (!(secret && code)) {
       return NextResponse.json(
         { error: "Secret and verification code are required" },
         { status: 400 }
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     // Verify the TOTP code
     const isValid = authenticator.verify({
       token: code,
-      secret: secret,
+      secret,
     });
 
     if (!isValid) {
@@ -42,17 +43,16 @@ export async function POST(request: NextRequest) {
     // 1. Store the 2FA secret in your user's record
     // 2. Mark the user as having 2FA enabled
     // 3. Store backup codes securely
-    
+
     // For now, we'll just return success
     // In production, you'd want to update the user's record in the database
-    
+
     return NextResponse.json({
       success: true,
       message: "Two-factor authentication enabled successfully",
     });
-
   } catch (error) {
-    console.error("2FA enable error:", error);
+    logger.error("2FA enable error: %o", error);
     return NextResponse.json(
       { error: "Failed to enable 2FA" },
       { status: 500 }

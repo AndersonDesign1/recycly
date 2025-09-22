@@ -1,19 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-export async function GET(request: NextRequest) {
+export function GET(_request: NextRequest) {
   try {
     const envVars = {
-      RESEND_API_KEY: process.env.RESEND_API_KEY ? "✅ Set" : "❌ Missing",
-      FROM_EMAIL: process.env.FROM_EMAIL || "❌ Not set",
-      SENDER_NAME: process.env.SENDER_NAME || "❌ Not set",
-      NODE_ENV: process.env.NODE_ENV || "❌ Not set",
+      resendApiKey: process.env.RESEND_API_KEY ? "✅ Set" : "❌ Missing",
+      fromEmail: process.env.FROM_EMAIL || "❌ Not set",
+      senderName: process.env.SENDER_NAME || "❌ Not set",
+      nodeEnv: process.env.NODE_ENV || "❌ Not set",
     };
 
     // Test Resend connection
     let resendTest = "❌ Failed";
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      const _resend = new Resend(process.env.RESEND_API_KEY);
       // Just test the connection, don't send email
       resendTest = "✅ Connected";
     } catch (error) {

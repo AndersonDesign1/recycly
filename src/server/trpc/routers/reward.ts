@@ -1,9 +1,9 @@
 import { z } from "zod";
 import {
-  router,
-  publicProcedure,
-  protectedProcedure,
   adminProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
 } from "@/server/trpc";
 
 export const rewardRouter = router({
@@ -21,11 +21,11 @@ export const rewardRouter = router({
   }),
 
   // Get reward categories
-  getRewardCategories: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.rewardCategory.findMany({
+  getRewardCategories: publicProcedure.query(async ({ ctx }) =>
+    ctx.db.rewardCategory.findMany({
       orderBy: { name: "asc" },
-    });
-  }),
+    })
+  ),
 
   // Get available rewards
   getAvailableRewards: publicProcedure

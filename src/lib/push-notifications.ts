@@ -1,37 +1,40 @@
-import webpush from "web-push"
-import { prisma } from "./prisma"
+import webpush from "web-push";
+import { prisma } from "./prisma";
 
 // Configure VAPID keys
 webpush.setVapidDetails(
   `mailto:${process.env.VAPID_EMAIL}`,
   process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
-)
+  process.env.VAPID_PRIVATE_KEY!
+);
 
 export interface PushNotificationPayload {
-  title: string
-  body: string
-  icon?: string
-  badge?: string
-  image?: string
-  data?: any
+  title: string;
+  body: string;
+  icon?: string;
+  badge?: string;
+  image?: string;
+  data?: any;
   actions?: Array<{
-    action: string
-    title: string
-    icon?: string
-  }>
+    action: string;
+    title: string;
+    icon?: string;
+  }>;
 }
 
-export async function sendPushNotification(userId: string, payload: PushNotificationPayload) {
+export async function sendPushNotification(
+  userId: string,
+  payload: PushNotificationPayload
+) {
   try {
     // Get user's push subscriptions
     const subscriptions = await prisma.pushSubscription.findMany({
       where: { userId },
-    })
+    });
 
     if (subscriptions.length === 0) {
-      console.log(`No push subscriptions found for user ${userId}`)
-      return { success: false, reason: "No subscriptions" }
+      console.log(`No push subscriptions found for user ${userId}`);
+      return { success: false, reason: "No subscriptions" };
     }
 
     const notificationPayload = JSON.stringify({
@@ -42,7 +45,7 @@ export async function sendPushNotification(userId: string, payload: PushNotifica
       image: payload.image,
       data: payload.data || {},
       actions: payload.actions || [],
-    })
+    });
 
     // Send to all user's devices
     const results = await Promise.allSettled(
@@ -56,42 +59,53 @@ export async function sendPushNotification(userId: string, payload: PushNotifica
                 auth: subscription.auth,
               },
             },
-            notificationPayload,
-          )
-          return { success: true, subscriptionId: subscription.id }
+            notificationPayload
+          );
+          return { success: true, subscriptionId: subscription.id };
         } catch (error: any) {
           // Remove invalid subscriptions
           if (error.statusCode === 410 || error.statusCode === 404) {
             await prisma.pushSubscription.delete({
               where: { id: subscription.id },
-            })
-            console.log(`Removed invalid push subscription: ${subscription.id}`)
+            });
+            console.log(
+              `Removed invalid push subscription: ${subscription.id}`
+            );
           }
-          throw error
+          throw error;
         }
-      }),
-    )
+      })
+    );
 
-    const successful = results.filter((result) => result.status === "fulfilled").length
-    const failed = results.filter((result) => result.status === "rejected").length
+    const successful = results.filter(
+      (result) => result.status === "fulfilled"
+    ).length;
+    const failed = results.filter(
+      (result) => result.status === "rejected"
+    ).length;
 
-    console.log(`✅ Push notifications sent: ${successful} successful, ${failed} failed`)
+    console.log(
+      `✅ Push notifications sent: ${successful} successful, ${failed} failed`
+    );
 
     return {
       success: successful > 0,
       successful,
       failed,
       total: subscriptions.length,
-    }
+    };
   } catch (error) {
-    console.error("❌ Failed to send push notification:", error)
-    return { success: false, error }
+    console.error("❌ Failed to send push notification:", error);
+    return { success: false, error };
   }
 }
 
 // Predefined notification templates
 export const pushNotificationTemplates = {
-  pointsEarned: (points: number, wasteType: string): PushNotificationPayload => ({
+  pointsEarned: (
+    points: number,
+    wasteType: string
+  ): PushNotificationPayload => ({
     title: "Points Earned! 🎉",
     body: `You earned ${points} points for disposing ${wasteType.toLowerCase()} waste!`,
     icon: "/icons/points-icon.png",
@@ -117,7 +131,10 @@ export const pushNotificationTemplates = {
     ],
   }),
 
-  rewardAvailable: (rewardName: string, pointsRequired: number): PushNotificationPayload => ({
+  rewardAvailable: (
+    rewardName: string,
+    pointsRequired: number
+  ): PushNotificationPayload => ({
     title: "New Reward Available! 🎁",
     body: `${rewardName} is now available for ${pointsRequired} points!`,
     icon: "/icons/reward-icon.png",
@@ -168,17 +185,17 @@ export const pushNotificationTemplates = {
       },
     ],
   }),
-}
+};
 
 export async function subscribeToPushNotifications(
   userId: string,
   subscription: {
-    endpoint: string
+    endpoint: string;
     keys: {
-      p256dh: string
-      auth: string
-    }
-  },
+      p256dh: string;
+      auth: string;
+    };
+  }
 ) {
   try {
     // Check if subscription already exists
@@ -187,10 +204,10 @@ export async function subscribeToPushNotifications(
         userId,
         endpoint: subscription.endpoint,
       },
-    })
+    });
 
     if (existingSubscription) {
-      return { success: true, subscriptionId: existingSubscription.id }
+      return { success: true, subscriptionId: existingSubscription.id };
     }
 
     // Create new subscription
@@ -201,12 +218,12 @@ export async function subscribeToPushNotifications(
         p256dh: subscription.keys.p256dh,
         auth: subscription.keys.auth,
       },
-    })
+    });
 
-    console.log(`✅ Push subscription created for user ${userId}`)
-    return { success: true, subscriptionId: newSubscription.id }
+    console.log(`✅ Push subscription created for user ${userId}`);
+    return { success: true, subscriptionId: newSubscription.id };
   } catch (error) {
-    console.error("❌ Failed to create push subscription:", error)
-    return { success: false, error }
+    console.error("❌ Failed to create push subscription:", error);
+    return { success: false, error };
   }
 }

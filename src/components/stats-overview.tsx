@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Award, Recycle, Target, TrendingUp } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -7,8 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Recycle, Award, TrendingUp, Target } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface StatsOverviewProps {
   stats: {
@@ -52,17 +52,17 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       {statCards.map((stat, index) => (
         <motion.div
-          key={stat.title}
-          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          key={stat.title}
           transition={{ duration: 0.4, delay: index * 0.1 }}
         >
-          <Card className="card-shadow border-0 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200">
+          <Card className="card-shadow border-0 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="font-medium text-muted-foreground text-sm">
                 {stat.title}
               </CardTitle>
               <div className={`p-2 bg-${stat.color}-50 rounded-full`}>
@@ -70,10 +70,10 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">
+              <div className="font-bold text-2xl text-foreground">
                 {stat.value}
               </div>
-              <CardDescription className="text-xs text-muted-foreground mt-1">
+              <CardDescription className="mt-1 text-muted-foreground text-xs">
                 {stat.description}
               </CardDescription>
             </CardContent>

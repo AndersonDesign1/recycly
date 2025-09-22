@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
       session: session.session,
     });
   } catch (error) {
-    console.error("Session check failed:", error);
+    logger.error("Session check failed: %o", error);
     return NextResponse.json({ user: null, session: null }, { status: 200 });
   }
 }

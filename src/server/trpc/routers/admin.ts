@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, adminProcedure } from "@/server/trpc";
+import { adminProcedure, router } from "@/server/trpc";
 
 export const adminRouter = router({
   // Get system statistics
@@ -252,11 +252,11 @@ export const adminRouter = router({
     }),
 
   // Get waste categories
-  getWasteCategories: adminProcedure.query(async ({ ctx }) => {
-    return ctx.db.wasteCategory.findMany({
+  getWasteCategories: adminProcedure.query(async ({ ctx }) =>
+    ctx.db.wasteCategory.findMany({
       orderBy: { name: "asc" },
-    });
-  }),
+    })
+  ),
 
   // Create waste category
   createWasteCategory: adminProcedure
@@ -271,11 +271,11 @@ export const adminRouter = router({
           .optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.wasteCategory.create({
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.wasteCategory.create({
         data: input,
-      });
-    }),
+      })
+    ),
 
   // Update waste category
   updateWasteCategory: adminProcedure
@@ -322,11 +322,11 @@ export const adminRouter = router({
     }),
 
   // Get reward categories
-  getRewardCategories: adminProcedure.query(async ({ ctx }) => {
-    return ctx.db.rewardCategory.findMany({
+  getRewardCategories: adminProcedure.query(async ({ ctx }) =>
+    ctx.db.rewardCategory.findMany({
       orderBy: { name: "asc" },
-    });
-  }),
+    })
+  ),
 
   // Create reward category
   createRewardCategory: adminProcedure
@@ -340,11 +340,11 @@ export const adminRouter = router({
           .optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.rewardCategory.create({
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.rewardCategory.create({
         data: input,
-      });
-    }),
+      })
+    ),
 
   // Update reward category
   updateRewardCategory: adminProcedure

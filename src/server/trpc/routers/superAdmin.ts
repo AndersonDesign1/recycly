@@ -343,13 +343,14 @@ export const superAdminRouter = router({
       );
 
       switch (input.dataType) {
-        case "sessions":
+        case "sessions": {
           const deletedSessions = await ctx.db.session.deleteMany({
             where: { expiresAt: { lt: cutoffDate } },
           });
           return { deletedCount: deletedSessions.count, dataType: "sessions" };
+        }
 
-        case "notifications":
+        case "notifications": {
           const deletedNotifications = await ctx.db.notification.deleteMany({
             where: { createdAt: { lt: cutoffDate } },
           });
@@ -357,6 +358,7 @@ export const superAdminRouter = router({
             deletedCount: deletedNotifications.count,
             dataType: "notifications",
           };
+        }
 
         case "logs":
           // TODO: Implement when logging system is added

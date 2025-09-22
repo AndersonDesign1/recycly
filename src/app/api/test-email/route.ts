@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,14 +29,13 @@ export async function POST(request: NextRequest) {
         message: "Test email sent successfully",
         id: result.id,
       });
-    } else {
-      return NextResponse.json(
-        { error: "Failed to send test email", details: result.error },
-        { status: 500 }
-      );
     }
+    return NextResponse.json(
+      { error: "Failed to send test email", details: result.error },
+      { status: 500 }
+    );
   } catch (error) {
-    console.error("Test email error:", error);
+    logger.error("Test email error: %o", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

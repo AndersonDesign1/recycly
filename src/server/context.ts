@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 // Extended user type that includes role and other fields
 export interface ExtendedUser {

@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Clock, MapPin, Recycle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -7,10 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
-import { Recycle, MapPin, Clock } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface RecentActivityProps {
   activities: Array<{
@@ -50,8 +50,8 @@ export function RecentActivity({ activities }: RecentActivityProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {activities.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Recycle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+          <div className="py-8 text-center text-muted-foreground">
+            <Recycle className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
             <p>No recent activity</p>
             <p className="text-sm">
               Start disposing waste to see your activity here!
@@ -60,20 +60,19 @@ export function RecentActivity({ activities }: RecentActivityProps) {
         ) : (
           activities.map((activity, index) => (
             <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
+              className="flex items-center justify-between rounded-lg bg-sage-green-50/50 p-4 transition-colors hover:bg-sage-green-50"
+              initial={{ opacity: 0, x: -20 }}
+              key={activity.id}
               transition={{ duration: 0.3, delay: index * 0.1 }}
-              className="flex items-center justify-between p-4 rounded-lg bg-sage-green-50/50 hover:bg-sage-green-50 transition-colors"
             >
               <div className="flex items-center space-x-4">
-                <div className="p-2 bg-white rounded-full shadow-sm">
+                <div className="rounded-full bg-white p-2 shadow-sm">
                   <Recycle className="h-4 w-4 text-forest-green-600" />
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant="secondary"
                       className={`bg-${
                         wasteTypeColors[
                           activity.wasteType as keyof typeof wasteTypeColors
@@ -87,14 +86,15 @@ export function RecentActivity({ activities }: RecentActivityProps) {
                           activity.wasteType as keyof typeof wasteTypeColors
                         ]
                       }-200`}
+                      variant="secondary"
                     >
                       {activity.wasteType.toLowerCase()}
                     </Badge>
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="font-medium text-foreground text-sm">
                       +{activity.pointsEarned} points
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-4 text-muted-foreground text-xs">
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {activity.wasteBin.name}

@@ -1,6 +1,6 @@
+import { UserRole, WasteType } from "@prisma/client";
 import { prisma } from "./prisma";
 import { UserService } from "./user-service";
-import { UserRole, WasteType } from "@prisma/client";
 
 export async function testAuthSystem() {
   try {
