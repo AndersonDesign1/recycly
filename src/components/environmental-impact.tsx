@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Droplets, Leaf, TreePine, Zap } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -7,8 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Leaf, Droplets, Zap, TreePine } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface EnvironmentalImpactProps {
   stats: {
@@ -66,42 +66,42 @@ export function EnvironmentalImpact({ stats }: EnvironmentalImpactProps) {
         <div className="grid grid-cols-2 gap-4">
           {impacts.map((impact, index) => (
             <motion.div
-              key={impact.title}
-              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              className={`rounded-lg p-4 bg-${impact.color}-50/50 hover:bg-${impact.color}-50 transition-colors`}
+              initial={{ opacity: 0, y: 20 }}
+              key={impact.title}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className={`p-4 rounded-lg bg-${impact.color}-50/50 hover:bg-${impact.color}-50 transition-colors`}
             >
-              <div className="flex items-center gap-3 mb-2">
+              <div className="mb-2 flex items-center gap-3">
                 <div className={`p-2 bg-${impact.color}-100 rounded-full`}>
                   {impact.icon}
                 </div>
-                <div className="text-sm font-medium text-muted-foreground">
+                <div className="font-medium text-muted-foreground text-sm">
                   {impact.title}
                 </div>
               </div>
-              <div className="text-xl font-bold text-foreground mb-1">
+              <div className="mb-1 font-bold text-foreground text-xl">
                 {impact.value}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 {impact.description}
               </div>
             </motion.div>
           ))}
         </div>
 
-        <div className="mt-6 p-4 bg-gradient-to-r from-sage-green-50 to-fresh-mint-50 rounded-lg border border-sage-green-100">
+        <div className="mt-6 rounded-lg border border-sage-green-100 bg-gradient-to-r from-sage-green-50 to-fresh-mint-50 p-4">
           <div className="text-center">
-            <div className="text-sm font-medium text-forest-green-800 mb-1">
+            <div className="mb-1 font-medium text-forest-green-800 text-sm">
               🌍 Your Eco Score
             </div>
-            <div className="text-2xl font-bold text-forest-green-700">
+            <div className="font-bold text-2xl text-forest-green-700">
               {Math.floor(
                 (stats.co2Saved + stats.energySaved + stats.treesEquivalent) *
                   10
               )}
             </div>
-            <div className="text-xs text-forest-green-600">
+            <div className="text-forest-green-600 text-xs">
               Keep up the great work for our planet!
             </div>
           </div>

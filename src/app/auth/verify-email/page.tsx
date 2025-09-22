@@ -1,124 +1,137 @@
-"use client"
+"use client";
 
-import { useState, useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { Recycle, Mail, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react"
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle,
+  Mail,
+  Recycle,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 function VerifyEmailContent() {
-  const [verificationStatus, setVerificationStatus] = useState<"pending" | "success" | "error">("pending")
-  const [message, setMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  const [verificationStatus, setVerificationStatus] = useState<
+    "pending" | "success" | "error"
+  >("pending");
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   useEffect(() => {
     if (token) {
-      verifyEmail(token)
+      verifyEmail(token);
     }
-  }, [token])
+  }, [token]);
 
   const verifyEmail = async (verificationToken: string) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // TODO: Integrate with Better Auth email verification
       // For now, simulate API call
       setTimeout(() => {
-        setVerificationStatus("success")
-        setMessage("Email verified successfully! You can now sign in to your account.")
+        setVerificationStatus("success");
+        setMessage(
+          "Email verified successfully! You can now sign in to your account."
+        );
         // Redirect to sign in after 3 seconds
         setTimeout(() => {
-          router.push("/auth/signin")
-        }, 3000)
-      }, 2000)
+          router.push("/auth/signin");
+        }, 3000);
+      }, 2000);
     } catch (err) {
-      setVerificationStatus("error")
-      setMessage("Email verification failed. Please try again.")
+      setVerificationStatus("error");
+      setMessage("Email verification failed. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const resendVerification = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // TODO: Integrate with Better Auth resend verification
       setTimeout(() => {
-        setMessage("Verification email sent! Please check your inbox.")
-        setIsLoading(false)
-      }, 1500)
+        setMessage("Verification email sent! Please check your inbox.");
+        setIsLoading(false);
+      }, 1500);
     } catch (err) {
-      setMessage("An unexpected error occurred. Please try again.")
-      setIsLoading(false)
+      setMessage("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
-  }
+  };
 
   const getStatusIcon = () => {
     switch (verificationStatus) {
       case "success":
-        return <CheckCircle className="h-8 w-8 text-forest-green-600" />
+        return <CheckCircle className="h-8 w-8 text-forest-green-600" />;
       case "error":
-        return <AlertCircle className="h-8 w-8 text-red-500" />
+        return <AlertCircle className="h-8 w-8 text-red-500" />;
       default:
-        return <Mail className="h-8 w-8 text-forest-green-600" />
+        return <Mail className="h-8 w-8 text-forest-green-600" />;
     }
-  }
+  };
 
   const getStatusTitle = () => {
     switch (verificationStatus) {
       case "success":
-        return "Email Verified Successfully!"
+        return "Email Verified Successfully!";
       case "error":
-        return "Verification Failed"
+        return "Verification Failed";
       default:
-        return "Verifying Your Email"
+        return "Verifying Your Email";
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="flex min-h-screen bg-white">
       {/* Left side - Image */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-forest-green-50 to-sage-green-50 relative overflow-hidden">
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-forest-green-50 to-sage-green-50 lg:flex lg:w-1/2">
         <div className="absolute inset-0 bg-gradient-to-br from-forest-green-600/10 to-sage-green-600/10" />
         <img
-          src="/placeholder.svg?height=800&width=600&text=Recycly+Email+Verification"
           alt="Recycly email verification"
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
+          src="/placeholder.svg?height=800&width=600&text=Recycly+Email+Verification"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <div className="absolute bottom-8 left-8 text-white">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Recycle className="w-5 h-5 text-white" />
+          <div className="mb-4 flex items-center space-x-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+              <Recycle className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-semibold">Recycly</span>
+            <span className="font-semibold text-xl">Recycly</span>
           </div>
-          <h2 className="text-2xl font-semibold mb-2">Email verification</h2>
-          <p className="text-white/80 max-w-md">
-            Secure your account by verifying your email address to access all features.
+          <h2 className="mb-2 font-semibold text-2xl">Email verification</h2>
+          <p className="max-w-md text-white/80">
+            Secure your account by verifying your email address to access all
+            features.
           </p>
         </div>
       </div>
 
       {/* Right side - Content */}
-      <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
+      <div className="flex flex-1 items-center justify-center p-4 lg:p-8">
         <div className="w-full max-w-md space-y-8">
           {/* Header */}
-          <div className="text-center space-y-6">
+          <div className="space-y-6 text-center">
             <div className="flex justify-center lg:hidden">
-              <div className="w-14 h-14 bg-forest-green-600 rounded-2xl flex items-center justify-center shadow-sm">
-                <Recycle className="w-7 h-7 text-white" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-forest-green-600 shadow-sm">
+                <Recycle className="h-7 w-7 text-white" />
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-semibold text-gray-900">{getStatusTitle()}</h1>
+              <h1 className="font-semibold text-2xl text-gray-900">
+                {getStatusTitle()}
+              </h1>
             </div>
           </div>
 
           {/* Status Icon */}
           <div className="text-center">
-            <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
               {getStatusIcon()}
             </div>
           </div>
@@ -127,12 +140,12 @@ function VerifyEmailContent() {
           <div className="space-y-6">
             {message && (
               <div
-                className={`border rounded-lg p-4 ${
+                className={`rounded-lg border p-4 ${
                   verificationStatus === "success"
-                    ? "bg-green-50 border-green-200"
+                    ? "border-green-200 bg-green-50"
                     : verificationStatus === "error"
-                      ? "bg-red-50 border-red-200"
-                      : "bg-blue-50 border-blue-200"
+                      ? "border-red-200 bg-red-50"
+                      : "border-blue-200 bg-blue-50"
                 }`}
               >
                 <p
@@ -150,19 +163,21 @@ function VerifyEmailContent() {
             )}
 
             {verificationStatus === "success" && (
-              <div className="text-center space-y-4">
-                <div className="w-8 h-8 border-4 border-forest-green-600 border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-sm text-gray-500">Redirecting to sign in page...</p>
+              <div className="space-y-4 text-center">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-forest-green-600 border-t-transparent" />
+                <p className="text-gray-500 text-sm">
+                  Redirecting to sign in page...
+                </p>
               </div>
             )}
 
             {/* Back to sign in */}
             <div className="text-center">
               <Link
+                className="inline-flex items-center font-medium text-forest-green-600 text-sm transition-colors hover:text-forest-green-700"
                 href="/auth/signin"
-                className="inline-flex items-center text-sm text-forest-green-600 hover:text-forest-green-700 font-medium transition-colors"
               >
-                <ArrowLeft className="w-4 h-4 mr-1" />
+                <ArrowLeft className="mr-1 h-4 w-4" />
                 Back to Sign In
               </Link>
             </div>
@@ -170,7 +185,7 @@ function VerifyEmailContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function VerifyEmailPage() {
@@ -178,5 +193,5 @@ export default function VerifyEmailPage() {
     <Suspense fallback={<div>Loading...</div>}>
       <VerifyEmailContent />
     </Suspense>
-  )
+  );
 }

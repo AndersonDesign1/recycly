@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { sendEmail, emailTemplates } from "@/lib/email";
+import { emailTemplates, sendEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,10 +21,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (result.error) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
     // Send welcome email after successful verification
@@ -34,7 +32,7 @@ export async function POST(request: NextRequest) {
           ...emailTemplates.welcome(result.user.name || "User"),
         });
       } catch (emailError) {
-        console.error("Failed to send welcome email:", emailError);
+        logger.error("Failed to send welcome email: %o", emailError);
         // Don't fail the verification if email fails
       }
     }
@@ -44,9 +42,8 @@ export async function POST(request: NextRequest) {
       message: "Email verified successfully",
       user: result.user,
     });
-
   } catch (error) {
-    console.error("Email verification error:", error);
+    logger.error("Email verification error: %o", error);
     return NextResponse.json(
       { error: "Email verification failed" },
       { status: 500 }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 const statisticsData = [
   {
@@ -29,55 +29,79 @@ const statisticsData = [
     percentage: 23,
     color: "var(--color-reward-gold)",
   },
-]
+];
 
-function CircularProgress({ percentage, color }: { percentage: number; color: string }) {
-  const radius = 20
-  const circumference = 2 * Math.PI * radius
-  const strokeDasharray = circumference
-  const strokeDashoffset = circumference - (percentage / 100) * circumference
+function CircularProgress({
+  percentage,
+  color,
+}: {
+  percentage: number;
+  color: string;
+}) {
+  const radius = 20;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative w-12 h-12">
-      <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 44 44">
+    <div className="relative h-12 w-12">
+      <svg className="-rotate-90 h-12 w-12 transform" viewBox="0 0 44 44">
         {/* Background circle */}
-        <circle cx="22" cy="22" r={radius} stroke="#f5f5f5" strokeWidth="4" fill="none" />
-        {/* Progress circle */}
         <circle
           cx="22"
           cy="22"
+          fill="none"
+          r={radius}
+          stroke="#f5f5f5"
+          strokeWidth="4"
+        />
+        {/* Progress circle */}
+        <circle
+          className="transition-all duration-300 ease-in-out"
+          cx="22"
+          cy="22"
+          fill="none"
           r={radius}
           stroke={color}
-          strokeWidth="4"
-          fill="none"
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="transition-all duration-300 ease-in-out"
+          strokeWidth="4"
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs font-medium text-dark-charcoal">{percentage}%</span>
+        <span className="font-medium text-dark-charcoal text-xs">
+          {percentage}%
+        </span>
       </div>
     </div>
-  )
+  );
 }
 
 export function MinimalStatisticsCards() {
   return (
     <div className="minimal-card">
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-medium-gray uppercase tracking-wide">STATISTICS</h3>
+        <h3 className="font-medium text-medium-gray text-sm uppercase tracking-wide">
+          STATISTICS
+        </h3>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
         {statisticsData.map((stat, index) => (
-          <div key={index} className="flex items-center justify-between">
+          <div className="flex items-center justify-between" key={index}>
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-dark-charcoal">{stat.title}</h4>
+              <div className="mb-2 flex items-center justify-between">
+                <h4 className="font-medium text-dark-charcoal text-sm">
+                  {stat.title}
+                </h4>
                 <button className="text-medium-gray hover:text-dark-charcoal">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <svg
+                    fill="currentColor"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    width="16"
+                  >
                     <circle cx="8" cy="3" r="1" />
                     <circle cx="8" cy="8" r="1" />
                     <circle cx="8" cy="13" r="1" />
@@ -85,16 +109,21 @@ export function MinimalStatisticsCards() {
                 </button>
               </div>
               <div className="flex items-end space-x-3">
-                <div className="text-2xl font-semibold text-dark-charcoal">
+                <div className="font-semibold text-2xl text-dark-charcoal">
                   {stat.value}
-                  <span className="text-sm font-normal text-medium-gray ml-1">{stat.unit}</span>
+                  <span className="ml-1 font-normal text-medium-gray text-sm">
+                    {stat.unit}
+                  </span>
                 </div>
-                <CircularProgress percentage={stat.percentage} color={stat.color} />
+                <CircularProgress
+                  color={stat.color}
+                  percentage={stat.percentage}
+                />
               </div>
             </div>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }

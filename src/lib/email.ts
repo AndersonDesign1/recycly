@@ -1,5 +1,5 @@
-import { Resend } from "resend";
 import type { ReactElement } from "react";
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

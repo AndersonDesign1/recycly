@@ -1,27 +1,26 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Home,
   BarChart3,
-  Recycle,
-  Gift,
-  Users,
-  Settings,
-  MapPin,
-  Trophy,
-  Database,
   Bell,
-  LogOut,
   ChevronLeft,
   ChevronRight,
+  Database,
+  Gift,
+  Home,
+  LogOut,
+  MapPin,
+  Recycle,
+  Settings,
+  Trophy,
+  Users,
 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
-import { signOut, useSession } from "@/src/lib/auth-client";
+import { usePathname, useRouter } from "next/navigation";
+import type React from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { signOut, useSession } from "@/src/lib/auth-client";
 
 interface SidebarItem {
   id: string;
@@ -36,63 +35,63 @@ const sidebarItems: SidebarItem[] = [
   {
     id: "dashboard",
     label: "Dashboard",
-    icon: <Home className="w-5 h-5" />,
+    icon: <Home className="h-5 w-5" />,
     href: "/dashboard",
     roles: ["USER", "WASTE_MANAGER", "ADMIN", "SUPERADMIN"],
   },
   {
     id: "scan",
     label: "Scan & Dispose",
-    icon: <Recycle className="w-5 h-5" />,
+    icon: <Recycle className="h-5 w-5" />,
     href: "/scan",
     roles: ["USER"],
   },
   {
     id: "bins",
     label: "Waste Bins",
-    icon: <MapPin className="w-5 h-5" />,
+    icon: <MapPin className="h-5 w-5" />,
     href: "/bins",
     roles: ["USER", "WASTE_MANAGER", "ADMIN", "SUPERADMIN"],
   },
   {
     id: "rewards",
     label: "Rewards",
-    icon: <Gift className="w-5 h-5" />,
+    icon: <Gift className="h-5 w-5" />,
     href: "/rewards",
     roles: ["USER", "ADMIN", "SUPERADMIN"],
   },
   {
     id: "leaderboard",
     label: "Leaderboard",
-    icon: <Trophy className="w-5 h-5" />,
+    icon: <Trophy className="h-5 w-5" />,
     href: "/leaderboard",
     roles: ["USER"],
   },
   {
     id: "analytics",
     label: "Analytics",
-    icon: <BarChart3 className="w-5 h-5" />,
+    icon: <BarChart3 className="h-5 w-5" />,
     href: "/analytics",
     roles: ["WASTE_MANAGER", "ADMIN", "SUPERADMIN"],
   },
   {
     id: "users",
     label: "User Management",
-    icon: <Users className="w-5 h-5" />,
+    icon: <Users className="h-5 w-5" />,
     href: "/admin/users",
     roles: ["ADMIN", "SUPERADMIN"],
   },
   {
     id: "system",
     label: "System Admin",
-    icon: <Database className="w-5 h-5" />,
+    icon: <Database className="h-5 w-5" />,
     href: "/superadmin",
     roles: ["SUPERADMIN"],
   },
   {
     id: "notifications",
     label: "Notifications",
-    icon: <Bell className="w-5 h-5" />,
+    icon: <Bell className="h-5 w-5" />,
     href: "/notifications",
     roles: ["USER", "WASTE_MANAGER", "ADMIN", "SUPERADMIN"],
     badge: 3,
@@ -100,7 +99,7 @@ const sidebarItems: SidebarItem[] = [
   {
     id: "settings",
     label: "Settings",
-    icon: <Settings className="w-5 h-5" />,
+    icon: <Settings className="h-5 w-5" />,
     href: "/settings",
     roles: ["USER", "WASTE_MANAGER", "ADMIN", "SUPERADMIN"],
   },
@@ -128,69 +127,69 @@ export function FuturisticSidebar({ className }: FuturisticSidebarProps) {
 
   return (
     <motion.div
-      initial={{ x: -300 }}
       animate={{ x: 0 }}
       className={cn(
-        "fixed left-0 top-0 h-full bg-card border-r border-border z-50 transition-all duration-300",
+        "fixed top-0 left-0 z-50 h-full border-border border-r bg-card transition-all duration-300",
         isCollapsed ? "w-16" : "w-64",
         className
       )}
+      initial={{ x: -300 }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-border">
+      <div className="border-border border-b p-4">
         <div className="flex items-center justify-between">
           <AnimatePresence>
             {!isCollapsed && (
               <motion.div
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
                 className="flex items-center space-x-3"
+                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }}
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-                  <Recycle className="w-5 h-5 text-white" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500">
+                  <Recycle className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-foreground">Recycly</h1>
-                  <p className="text-xs text-muted-foreground">Premium</p>
+                  <h1 className="font-bold text-foreground text-lg">Recycly</h1>
+                  <p className="text-muted-foreground text-xs">Premium</p>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
           <button
+            className="rounded-lg p-2 transition-colors hover:bg-muted/50"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
           >
             {isCollapsed ? (
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
         </div>
       </div>
 
       {/* User Profile */}
-      <div className="p-4 border-b border-border">
+      <div className="border-border border-b p-4">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-500">
+            <span className="font-semibold text-sm text-white">
               {session?.user?.name?.charAt(0) || "U"}
             </span>
           </div>
           <AnimatePresence>
             {!isCollapsed && (
               <motion.div
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                className="min-w-0 flex-1"
                 exit={{ opacity: 0 }}
-                className="flex-1 min-w-0"
+                initial={{ opacity: 0 }}
               >
-                <p className="text-sm font-medium text-foreground truncate">
+                <p className="truncate font-medium text-foreground text-sm">
                   {session?.user?.name || "User"}
                 </p>
-                <p className="text-xs text-muted-foreground capitalize">
+                <p className="text-muted-foreground text-xs capitalize">
                   {userRole.toLowerCase().replace("_", " ")}
                 </p>
               </motion.div>
@@ -200,15 +199,15 @@ export function FuturisticSidebar({ className }: FuturisticSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 space-y-2 p-4">
         {filteredItems.map((item) => {
           const isActive = pathname === item.href;
 
           return (
             <motion.button
+              className={cn("sidebar-item w-full", isActive && "active")}
               key={item.id}
               onClick={() => router.push(item.href)}
-              className={cn("sidebar-item w-full", isActive && "active")}
               whileHover={{ x: isCollapsed ? 0 : 4 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -216,8 +215,8 @@ export function FuturisticSidebar({ className }: FuturisticSidebarProps) {
                 <div className="relative">
                   {item.icon}
                   {item.badge && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-white font-medium">
+                    <div className="-top-1 -right-1 absolute flex h-4 w-4 items-center justify-center rounded-full bg-red-500">
+                      <span className="font-medium text-white text-xs">
                         {item.badge}
                       </span>
                     </div>
@@ -226,10 +225,10 @@ export function FuturisticSidebar({ className }: FuturisticSidebarProps) {
                 <AnimatePresence>
                   {!isCollapsed && (
                     <motion.span
-                      initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
+                      className="font-medium text-sm"
                       exit={{ opacity: 0 }}
-                      className="text-sm font-medium"
+                      initial={{ opacity: 0 }}
                     >
                       {item.label}
                     </motion.span>
@@ -242,22 +241,22 @@ export function FuturisticSidebar({ className }: FuturisticSidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border">
+      <div className="border-border border-t p-4">
         <motion.button
-          onClick={handleSignOut}
           className="sidebar-item w-full text-red-500 hover:bg-red-500/10"
+          onClick={handleSignOut}
           whileHover={{ x: isCollapsed ? 0 : 4 }}
           whileTap={{ scale: 0.98 }}
         >
           <div className="flex items-center space-x-3">
-            <LogOut className="w-5 h-5" />
+            <LogOut className="h-5 w-5" />
             <AnimatePresence>
               {!isCollapsed && (
                 <motion.span
-                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
+                  className="font-medium text-sm"
                   exit={{ opacity: 0 }}
-                  className="text-sm font-medium"
+                  initial={{ opacity: 0 }}
                 >
                   Sign Out
                 </motion.span>

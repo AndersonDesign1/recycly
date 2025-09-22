@@ -1,19 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
-import { sendEmail, emailTemplates } from "@/lib/email";
+import { type NextRequest, NextResponse } from "next/server";
+import { emailTemplates, sendEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
-    
+
     if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const results = [];
+    const results: Array<{
+      template: string;
+      success: boolean;
+      id?: string;
+      error?: string;
+    }> = [];
     const testName = "Test User";
+    const TEST_POINTS = 150 as const;
+    const TEST_LEVEL = 5 as const;
 
     // Test 1: Welcome Email
     try {
@@ -39,7 +44,10 @@ export async function POST(request: NextRequest) {
     try {
       const verificationResult = await sendEmail({
         to: email,
-        ...emailTemplates.emailVerification(testName, "http://localhost:3000/verify?token=test"),
+        ...emailTemplates.emailVerification(
+          testName,
+          "http://localhost:3000/verify?token=test"
+        ),
       });
       results.push({
         template: "Email Verification",
@@ -59,7 +67,10 @@ export async function POST(request: NextRequest) {
     try {
       const resetResult = await sendEmail({
         to: email,
-        ...emailTemplates.passwordReset(testName, "http://localhost:3000/reset?token=test"),
+        ...emailTemplates.passwordReset(
+          testName,
+          "http://localhost:3000/reset?token=test"
+        ),
       });
       results.push({
         template: "Password Reset",
@@ -79,7 +90,7 @@ export async function POST(request: NextRequest) {
     try {
       const pointsResult = await sendEmail({
         to: email,
-        ...emailTemplates.pointsEarned(testName, 150, "Plastic"),
+        ...emailTemplates.pointsEarned(testName, TEST_POINTS, "Plastic"),
       });
       results.push({
         template: "Points Earned",
@@ -99,7 +110,7 @@ export async function POST(request: NextRequest) {
     try {
       const levelResult = await sendEmail({
         to: email,
-        ...emailTemplates.levelUp(testName, 5),
+        ...emailTemplates.levelUp(testName, TEST_LEVEL),
       });
       results.push({
         template: "Level Up",
@@ -119,7 +130,13 @@ export async function POST(request: NextRequest) {
     try {
       const twoFactorResult = await sendEmail({
         to: email,
-        ...emailTemplates.twoFactorSetup(testName, "JBSWY3DPEHPK3PXP", ["123456", "234567", "345678", "456789", "567890"]),
+        ...emailTemplates.twoFactorSetup(testName, "JBSWY3DPEHPK3PXP", [
+          "123456",
+          "234567",
+          "345678",
+          "456789",
+          "567890",
+        ]),
       });
       results.push({
         template: "2FA Setup",
@@ -135,7 +152,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const successCount = results.filter(r => r.success).length;
+    const successCount = results.filter((r) => r.success).length;
     const totalCount = results.length;
 
     return NextResponse.json({
@@ -148,11 +165,10 @@ export async function POST(request: NextRequest) {
         failed: totalCount - successCount,
       },
     });
-
   } catch (error) {
-    console.error("Test all emails error:", error);
+    logger.error("Test all emails error: %o", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: (error as Error).message },
       { status: 500 }
     );
   }

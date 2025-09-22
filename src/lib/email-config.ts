@@ -6,8 +6,8 @@ export const emailConfig = {
 
   // Sender Information
   senderName: process.env.SENDER_NAME || "Recycly Team",
-  fromEmail: process.env.FROM_EMAIL || "noreply@onresend.com",
-  supportEmail: process.env.SUPPORT_EMAIL || "support@onresend.com",
+  fromEmail: process.env.FROM_EMAIL || "noreply@recycly.onresend.com", // Your custom domain
+  supportEmail: process.env.SUPPORT_EMAIL || "support@recycly.onresend.com", // Your custom domain
 
   // Brand Colors
   colors: {

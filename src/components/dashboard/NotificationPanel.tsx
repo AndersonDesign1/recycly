@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Bell, AlertCircle, CheckCircle, Info, Clock } from "lucide-react";
-import { Button } from "../ui/button";
+import { AlertCircle, Bell, CheckCircle, Clock, Info, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface User {
@@ -183,14 +183,14 @@ export function NotificationPanel({
   const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
       case "success":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       case "warning":
-        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
       case "error":
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
+        return <AlertCircle className="h-5 w-5 text-red-500" />;
       case "info":
       default:
-        return <Info className="w-5 h-5 text-blue-500" />;
+        return <Info className="h-5 w-5 text-blue-500" />;
     }
   };
 
@@ -221,17 +221,17 @@ export function NotificationPanel({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className="fixed inset-0 z-40 bg-black bg-opacity-50"
         onClick={onClose}
       />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
+      <div className="fixed top-0 right-0 z-50 h-full w-96 transform bg-white shadow-xl transition-transform duration-300 ease-in-out">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between border-gray-200 border-b p-4">
           <div className="flex items-center space-x-2">
-            <Bell className="w-5 h-5 text-forest-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <Bell className="h-5 w-5 text-forest-green-600" />
+            <h2 className="font-semibold text-gray-900 text-lg">
               Notifications
             </h2>
             {unreadCount > 0 && (
@@ -240,30 +240,30 @@ export function NotificationPanel({
               </Badge>
             )}
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-5 h-5" />
+          <Button onClick={onClose} size="sm" variant="ghost">
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex border-gray-200 border-b">
           <button
-            onClick={() => setActiveTab("all")}
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 px-4 py-2 font-medium text-sm transition-colors ${
               activeTab === "all"
-                ? "text-forest-green-600 border-b-2 border-forest-green-600"
+                ? "border-forest-green-600 border-b-2 text-forest-green-600"
                 : "text-gray-500 hover:text-gray-700"
             }`}
+            onClick={() => setActiveTab("all")}
           >
             All ({notifications.length})
           </button>
           <button
-            onClick={() => setActiveTab("unread")}
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 px-4 py-2 font-medium text-sm transition-colors ${
               activeTab === "unread"
-                ? "text-forest-green-600 border-b-2 border-forest-green-600"
+                ? "border-forest-green-600 border-b-2 text-forest-green-600"
                 : "text-gray-500 hover:text-gray-700"
             }`}
+            onClick={() => setActiveTab("unread")}
           >
             Unread ({unreadCount})
           </button>
@@ -271,12 +271,12 @@ export function NotificationPanel({
 
         {/* Actions */}
         {unreadCount > 0 && (
-          <div className="p-4 border-b border-gray-200">
+          <div className="border-gray-200 border-b p-4">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={markAllAsRead}
               className="w-full"
+              onClick={markAllAsRead}
+              size="sm"
+              variant="outline"
             >
               Mark all as read
             </Button>
@@ -284,10 +284,10 @@ export function NotificationPanel({
         )}
 
         {/* Notifications List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 space-y-3 overflow-y-auto p-4">
           {filteredNotifications.length === 0 ? (
-            <div className="text-center py-8">
-              <Bell className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <div className="py-8 text-center">
+              <Bell className="mx-auto mb-3 h-12 w-12 text-gray-400" />
               <p className="text-gray-500">
                 {activeTab === "unread"
                   ? "No unread notifications"
@@ -297,10 +297,10 @@ export function NotificationPanel({
           ) : (
             filteredNotifications.map((notification) => (
               <Card
-                key={notification.id}
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   notification.read ? "opacity-75" : ""
                 } ${getNotificationColor(notification.type)}`}
+                key={notification.id}
                 onClick={() => {
                   markAsRead(notification.id);
                   if (notification.actionUrl) {
@@ -311,15 +311,15 @@ export function NotificationPanel({
                 <CardContent className="p-3">
                   <div className="flex items-start space-x-3">
                     {getNotificationIcon(notification.type)}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="mb-1 font-medium text-gray-900 text-sm">
                         {notification.title}
                       </h4>
-                      <p className="text-xs text-gray-600 mb-2">
+                      <p className="mb-2 text-gray-600 text-xs">
                         {notification.message}
                       </p>
-                      <div className="flex items-center space-x-2 text-xs text-gray-500">
-                        <Clock className="w-3 h-3" />
+                      <div className="flex items-center space-x-2 text-gray-500 text-xs">
+                        <Clock className="h-3 w-3" />
                         <span>
                           {notification.timestamp.toLocaleTimeString([], {
                             hour: "2-digit",
@@ -327,7 +327,7 @@ export function NotificationPanel({
                           })}
                         </span>
                         {!notification.read && (
-                          <Badge className="bg-forest-green-600 text-white text-xs px-1 py-0">
+                          <Badge className="bg-forest-green-600 px-1 py-0 text-white text-xs">
                             New
                           </Badge>
                         )}

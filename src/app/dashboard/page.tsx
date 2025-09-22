@@ -1,22 +1,23 @@
 "use client";
 
-import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SuperAdminDashboard } from "@/components/dashboard/SuperAdminDashboard";
-import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
-import { WasteManagerDashboard } from "@/components/dashboard/WasteManagerDashboard";
 import { UserDashboard } from "@/components/dashboard/UserDashboard";
+import { WasteManagerDashboard } from "@/components/dashboard/WasteManagerDashboard";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user && !user.role) {
-      // Redirect users without roles to role selection
+    if (!loading && user && user.role === "USER") {
+      // For now, redirect all USER role users to role selection
+      // Later we can add logic to check if they've completed onboarding
       router.push("/auth/select-role");
     }
   }, [user, loading, router]);

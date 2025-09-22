@@ -1,13 +1,15 @@
-"use client"
+"use client";
 
 export function MinimalActiveAudience() {
   return (
-    <div className="minimal-card h-80 bg-forest-green text-white relative overflow-hidden">
+    <div className="minimal-card relative h-80 overflow-hidden bg-forest-green text-white">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-sm font-medium text-white/70 uppercase tracking-wide">GENERAL</h3>
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="font-medium text-sm text-white/70 uppercase tracking-wide">
+          GENERAL
+        </h3>
         <button className="text-white/70 hover:text-white">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <svg fill="currentColor" height="16" viewBox="0 0 16 16" width="16">
             <circle cx="8" cy="3" r="1" />
             <circle cx="8" cy="8" r="1" />
             <circle cx="8" cy="13" r="1" />
@@ -16,16 +18,21 @@ export function MinimalActiveAudience() {
       </div>
 
       <div className="mb-4">
-        <h4 className="text-lg font-semibold text-white mb-2">Active Audience</h4>
+        <h4 className="mb-2 font-semibold text-lg text-white">
+          Active Audience
+        </h4>
       </div>
 
       {/* Illustration Area */}
-      <div className="flex items-center justify-center mb-6 h-24">
+      <div className="mb-6 flex h-24 items-center justify-center">
         {/* Simple person illustrations */}
         <div className="flex space-x-2">
           {[1, 2, 3, 4].map((person) => (
-            <div key={person} className="w-8 h-12 bg-white/20 rounded-full flex items-end justify-center pb-1">
-              <div className="w-4 h-4 bg-white/40 rounded-full"></div>
+            <div
+              className="flex h-12 w-8 items-end justify-center rounded-full bg-white/20 pb-1"
+              key={person}
+            >
+              <div className="h-4 w-4 rounded-full bg-white/40" />
             </div>
           ))}
         </div>
@@ -33,13 +40,13 @@ export function MinimalActiveAudience() {
 
       {/* Stats */}
       <div className="flex items-center justify-between">
-        <div className="text-white/70 text-sm">World Widely</div>
-        <div className="text-2xl font-bold text-white">730k</div>
+        <div className="text-sm text-white/70">World Widely</div>
+        <div className="font-bold text-2xl text-white">730k</div>
       </div>
 
       {/* Background decoration */}
-      <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-white/5 rounded-full"></div>
-      <div className="absolute -top-2 -left-2 w-8 h-8 bg-white/5 rounded-full"></div>
+      <div className="-bottom-4 -right-4 absolute h-16 w-16 rounded-full bg-white/5" />
+      <div className="-top-2 -left-2 absolute h-8 w-8 rounded-full bg-white/5" />
     </div>
-  )
+  );
 }

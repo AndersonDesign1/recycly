@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Star, TrendingUp } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,8 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Star } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface LevelProgressProps {
   currentLevel: number;
@@ -42,21 +42,21 @@ export function LevelProgress({
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-r from-reward-gold-500 to-reward-gold-600 rounded-full">
+            <div className="rounded-full bg-gradient-to-r from-reward-gold-500 to-reward-gold-600 p-3">
               <Star className="h-6 w-6 text-white" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground">
+              <div className="font-bold text-2xl text-foreground">
                 Level {currentLevel}
               </div>
-              <div className="text-sm text-muted-foreground">Eco Warrior</div>
+              <div className="text-muted-foreground text-sm">Eco Warrior</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-semibold text-foreground">
+            <div className="font-semibold text-foreground text-lg">
               {currentPoints.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">Total Points</div>
+            <div className="text-muted-foreground text-xs">Total Points</div>
           </div>
         </div>
 
@@ -70,38 +70,38 @@ export function LevelProgress({
             </span>
           </div>
           <motion.div
-            initial={{ width: 0 }}
             animate={{ width: "100%" }}
+            initial={{ width: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <Progress
-              value={progressPercentage}
               className="h-3 bg-sage-green-100"
+              value={progressPercentage}
             />
           </motion.div>
-          <div className="text-xs text-muted-foreground text-center">
+          <div className="text-center text-muted-foreground text-xs">
             {nextLevelPoints - currentPoints} points until next level
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-sage-green-100">
+        <div className="grid grid-cols-3 gap-4 border-sage-green-100 border-t pt-4">
           <div className="text-center">
-            <div className="text-lg font-bold text-forest-green-600">
+            <div className="font-bold text-forest-green-600 text-lg">
               {Math.floor(currentPoints / 10)}
             </div>
-            <div className="text-xs text-muted-foreground">Items Recycled</div>
+            <div className="text-muted-foreground text-xs">Items Recycled</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-ocean-blue-600">
+            <div className="font-bold text-lg text-ocean-blue-600">
               {currentLevel * 2}
             </div>
-            <div className="text-xs text-muted-foreground">Achievements</div>
+            <div className="text-muted-foreground text-xs">Achievements</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-fresh-mint-600">
+            <div className="font-bold text-fresh-mint-600 text-lg">
               {Math.floor(currentPoints / 50)}
             </div>
-            <div className="text-xs text-muted-foreground">Rewards Earned</div>
+            <div className="text-muted-foreground text-xs">Rewards Earned</div>
           </div>
         </div>
       </CardContent>

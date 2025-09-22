@@ -1,15 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { type NextRequest, NextResponse } from "next/server";
 import { authenticator } from "otplib";
-import QRCode from "qrcode";
-import { sendEmail, emailTemplates } from "@/lib/email";
+import QrCode from "qrcode";
+import { auth } from "@/lib/auth";
+import { sendEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 
 // Generate backup codes
-function generateBackupCodes(count: number = 8): string[] {
+const DEFAULT_BACKUP_CODE_COUNT = 8 as const;
+const BACKUP_CODE_BASE36_START_INDEX = 2 as const;
+const BACKUP_CODE_BASE36_END_INDEX = 10 as const;
+const BASE36_RADIX = 36 as const;
+
+function generateBackupCodes(
+  count: number = DEFAULT_BACKUP_CODE_COUNT
+): string[] {
   const codes: string[] = [];
   for (let i = 0; i < count; i++) {
     // Generate 8-character alphanumeric codes
-    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const code = Math.random()
+      .toString(BASE36_RADIX)
+      .substring(BACKUP_CODE_BASE36_START_INDEX, BACKUP_CODE_BASE36_END_INDEX)
+      .toUpperCase();
     codes.push(code);
   }
   return codes;
@@ -31,22 +42,18 @@ export async function POST(request: NextRequest) {
 
     // Generate TOTP secret
     const secret = authenticator.generateSecret();
-    
+
     // Generate QR code
-    const otpauth = authenticator.keyuri(
-      session.user.email,
-      "Recycly",
-      secret
-    );
-    
-    const qrCode = await QRCode.toDataURL(otpauth);
-    
+    const otpauth = authenticator.keyuri(session.user.email, "Recycly", secret);
+
+    const qrCode = await QrCode.toDataURL(otpauth);
+
     // Generate backup codes
-    const backupCodes = generateBackupCodes(8);
+    const backupCodes = generateBackupCodes(DEFAULT_BACKUP_CODE_COUNT);
 
     // Store the secret temporarily (you might want to store this in a secure session or database)
     // For now, we'll return it to the client, but in production you should store it securely
-    
+
     // Send 2FA setup email via Resend
     try {
       await sendEmail({
@@ -70,7 +77,7 @@ export async function POST(request: NextRequest) {
             <h2 style="color: #1e88e5;">Step 3: Backup Codes</h2>
             <p>Store these backup codes in a safe place. You can use them to access your account if you lose your 2FA device:</p>
             <div style="background-color: #f3f4f6; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 14px; margin: 16px 0;">
-              ${backupCodes.join('<br>')}
+              ${backupCodes.join("<br>")}
             </div>
             
             <p style="color: #6b7280; font-size: 14px;">
@@ -96,7 +103,7 @@ If the QR code doesn't work, manually enter this secret: ${secret}
 
 Step 3: Backup Codes
 Store these backup codes securely:
-${backupCodes.join('\n')}
+${backupCodes.join("\n")}
 
 Once you've set up your authenticator app, return to the app to complete the verification.
 
@@ -104,7 +111,7 @@ Best regards,
 The Recycly Team`,
       });
     } catch (emailError) {
-      console.error("Failed to send 2FA setup email:", emailError);
+      logger.error("Failed to send 2FA setup email: %o", emailError);
       // Continue with the setup even if email fails
     }
 
@@ -113,11 +120,11 @@ The Recycly Team`,
       secret,
       qrCode,
       backupCodes,
-      message: "2FA setup generated successfully. Check your email for setup instructions.",
+      message:
+        "2FA setup generated successfully. Check your email for setup instructions.",
     });
-
   } catch (error) {
-    console.error("2FA setup error:", error);
+    logger.error("2FA setup error: %o", error);
     return NextResponse.json(
       { error: "Failed to generate 2FA setup" },
       { status: 500 }

@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { WasteType, WasteBinStatus } from "@prisma/client"
+import { WasteBinStatus, WasteType } from "@prisma/client";
+import { z } from "zod";
 
 export const createWasteBinSchema = z.object({
   name: z.string().min(1).max(100),
@@ -9,7 +9,7 @@ export const createWasteBinSchema = z.object({
   address: z.string().optional(),
   description: z.string().optional(),
   imageUrl: z.string().url().optional(),
-})
+});
 
 export const updateWasteBinSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -21,7 +21,7 @@ export const updateWasteBinSchema = z.object({
   address: z.string().optional(),
   description: z.string().optional(),
   imageUrl: z.string().url().optional(),
-})
+});
 
 export const wasteBinFilterSchema = z.object({
   type: z.nativeEnum(WasteType).optional(),
@@ -33,4 +33,4 @@ export const wasteBinFilterSchema = z.object({
       radiusKm: z.number().default(10),
     })
     .optional(),
-})
+});

@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { useState } from "react"
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 interface ContributionChartProps {
-  data: any
+  data: any;
 }
 
 export function ContributionChart({ data }: ContributionChartProps) {
-  const [activeTab, setActiveTab] = useState<"delivered" | "thrown">("delivered")
-  const [timeframe, setTimeframe] = useState<"week" | "month">("week")
+  const [activeTab, setActiveTab] = useState<"delivered" | "thrown">(
+    "delivered"
+  );
+  const [timeframe, setTimeframe] = useState<"week" | "month">("week");
 
   // Mock data for the chart - matching the reference design
   const chartData = [
@@ -20,20 +22,26 @@ export function ContributionChart({ data }: ContributionChartProps) {
     { day: "Fri", value: 2.8 },
     { day: "Sat", value: 2.4 },
     { day: "Sun", value: 1.2 },
-  ]
+  ];
 
-  const maxValue = Math.max(...chartData.map((d) => d.value))
-  const currentValue = 2.2
+  const maxValue = Math.max(...chartData.map((d) => d.value));
+  const currentValue = 2.2;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="dashboard-card h-full">
+    <motion.div
+      animate={{ opacity: 1, y: 0 }}
+      className="dashboard-card h-full"
+      initial={{ opacity: 0, y: 20 }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-medium-gray uppercase tracking-wide mb-2">CONTRIBUTION</h3>
-          <div className="text-2xl font-bold text-dark-charcoal">
+          <h3 className="mb-2 font-medium text-medium-gray text-sm uppercase tracking-wide">
+            CONTRIBUTION
+          </h3>
+          <div className="font-bold text-2xl text-dark-charcoal">
             {currentValue}
-            <span className="text-sm font-normal">kg</span>
+            <span className="font-normal text-sm">kg</span>
           </div>
         </div>
 
@@ -41,41 +49,47 @@ export function ContributionChart({ data }: ContributionChartProps) {
           {/* Status Tabs */}
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setActiveTab("delivered")}
               className={`flex items-center space-x-2 text-sm ${
-                activeTab === "delivered" ? "text-fresh-mint-500" : "text-medium-gray"
+                activeTab === "delivered"
+                  ? "text-fresh-mint-500"
+                  : "text-medium-gray"
               }`}
+              onClick={() => setActiveTab("delivered")}
             >
-              <div className="w-2 h-2 bg-fresh-mint-500 rounded-full" />
+              <div className="h-2 w-2 rounded-full bg-fresh-mint-500" />
               <span>Delivered</span>
             </button>
             <button
-              onClick={() => setActiveTab("thrown")}
               className={`flex items-center space-x-2 text-sm ${
                 activeTab === "thrown" ? "text-medium-gray" : "text-medium-gray"
               }`}
+              onClick={() => setActiveTab("thrown")}
             >
-              <div className="w-2 h-2 bg-medium-gray rounded-full" />
+              <div className="h-2 w-2 rounded-full bg-medium-gray" />
               <span>Thrown</span>
             </button>
           </div>
 
           {/* Date Selector */}
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-medium-gray uppercase tracking-wide">DATE</span>
+            <span className="font-medium text-medium-gray text-sm uppercase tracking-wide">
+              DATE
+            </span>
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => setTimeframe("week")}
                 className={`flex items-center space-x-1 text-sm ${
-                  timeframe === "week" ? "text-dark-charcoal" : "text-medium-gray"
+                  timeframe === "week"
+                    ? "text-dark-charcoal"
+                    : "text-medium-gray"
                 }`}
+                onClick={() => setTimeframe("week")}
               >
-                <div className="w-2 h-2 bg-fresh-mint-500 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-fresh-mint-500" />
                 <span>Week</span>
               </button>
               <button
-                onClick={() => setTimeframe("month")}
                 className={`text-sm ${timeframe === "month" ? "text-dark-charcoal" : "text-medium-gray"}`}
+                onClick={() => setTimeframe("month")}
               >
                 Month
               </button>
@@ -87,7 +101,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
       {/* Chart */}
       <div className="relative h-64">
         {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-medium-gray">
+        <div className="absolute top-0 left-0 flex h-full flex-col justify-between text-medium-gray text-xs">
           <span>3.5kg</span>
           <span>3.0kg</span>
           <span>2.5kg</span>
@@ -97,59 +111,69 @@ export function ContributionChart({ data }: ContributionChartProps) {
         </div>
 
         {/* Chart area */}
-        <div className="ml-12 h-full relative">
-          <svg className="w-full h-full" viewBox="0 0 400 200">
+        <div className="relative ml-12 h-full">
+          <svg className="h-full w-full" viewBox="0 0 400 200">
             {/* Grid lines */}
             {[0, 1, 2, 3, 4, 5].map((i) => (
-              <line key={i} x1="0" y1={i * 40} x2="400" y2={i * 40} stroke="#f3f4f6" strokeWidth="1" />
+              <line
+                key={i}
+                stroke="#f3f4f6"
+                strokeWidth="1"
+                x1="0"
+                x2="400"
+                y1={i * 40}
+                y2={i * 40}
+              />
             ))}
 
             {/* Chart line - using warm yellow from design brief */}
             <motion.path
-              initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 2, ease: "easeInOut" }}
+              className="chart-line"
               d={`M ${chartData
                 .map(
-                  (point, index) => `${(index * 400) / (chartData.length - 1)},${200 - (point.value / maxValue) * 160}`,
+                  (point, index) =>
+                    `${(index * 400) / (chartData.length - 1)},${200 - (point.value / maxValue) * 160}`
                 )
                 .join(" L ")}`}
-              className="chart-line"
+              initial={{ pathLength: 0 }}
               stroke="#FFD54F"
+              transition={{ duration: 2, ease: "easeInOut" }}
             />
 
             {/* Fill area */}
             <motion.path
-              initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 2, ease: "easeInOut" }}
               d={`M ${chartData
                 .map(
-                  (point, index) => `${(index * 400) / (chartData.length - 1)},${200 - (point.value / maxValue) * 160}`,
+                  (point, index) =>
+                    `${(index * 400) / (chartData.length - 1)},${200 - (point.value / maxValue) * 160}`
                 )
                 .join(" L ")} L 400,200 L 0,200 Z`}
               fill="url(#gradient)"
+              initial={{ pathLength: 0 }}
               opacity="0.3"
+              transition={{ duration: 2, ease: "easeInOut" }}
             />
 
             {/* Data points */}
             {chartData.map((point, index) => (
               <motion.circle
-                key={index}
-                initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: index * 0.1 + 1, duration: 0.3 }}
+                className="chart-point"
                 cx={(index * 400) / (chartData.length - 1)}
                 cy={200 - (point.value / maxValue) * 160}
-                r="4"
-                className="chart-point"
                 fill="#FFD54F"
+                initial={{ scale: 0 }}
+                key={index}
+                r="4"
+                transition={{ delay: index * 0.1 + 1, duration: 0.3 }}
               />
             ))}
 
             {/* Gradient definition */}
             <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <linearGradient id="gradient" x1="0%" x2="0%" y1="0%" y2="100%">
                 <stop offset="0%" stopColor="#FFD54F" stopOpacity="0.3" />
                 <stop offset="100%" stopColor="#FFD54F" stopOpacity="0" />
               </linearGradient>
@@ -157,7 +181,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
           </svg>
 
           {/* X-axis labels */}
-          <div className="flex justify-between mt-4 text-xs text-medium-gray">
+          <div className="mt-4 flex justify-between text-medium-gray text-xs">
             {chartData.map((point) => (
               <span key={point.day}>{point.day}</span>
             ))}
@@ -165,5 +189,5 @@ export function ContributionChart({ data }: ContributionChartProps) {
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

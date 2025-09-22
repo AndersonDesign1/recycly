@@ -1,21 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Users,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
   MapPin,
-  Truck,
   Recycle,
   Shield,
   Target,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-  Activity,
+  Truck,
+  Users,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface User {
   id: string;
@@ -118,15 +118,15 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "collection_completed":
-        return <CheckCircle className="w-4 h-4" />;
+        return <CheckCircle className="h-4 w-4" />;
       case "bin_alert":
-        return <AlertTriangle className="w-4 h-4" />;
+        return <AlertTriangle className="h-4 w-4" />;
       case "verification_required":
-        return <Shield className="w-4 h-4" />;
+        return <Shield className="h-4 w-4" />;
       case "vehicle_maintenance":
-        return <Truck className="w-4 h-4" />;
+        return <Truck className="h-4 w-4" />;
       default:
-        return <Activity className="w-4 h-4" />;
+        return <Activity className="h-4 w-4" />;
     }
   };
 
@@ -166,18 +166,18 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="font-bold text-3xl text-gray-900">
             Waste Manager Dashboard
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-gray-600">
             Monitor collections and manage operations
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button size="sm" variant="outline">
             Export Report
           </Button>
-          <Button variant="outline" size="sm">
+          <Button size="sm" variant="outline">
             Manage Staff
           </Button>
           <Button className="bg-forest-green-600 hover:bg-forest-green-700">
@@ -190,15 +190,15 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
       <div className="flex items-center space-x-2">
         {(["24h", "7d", "30d", "90d"] as const).map((range) => (
           <Button
-            key={range}
-            variant={timeRange === range ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTimeRange(range)}
             className={
               timeRange === range
                 ? "bg-forest-green-600 hover:bg-forest-green-700"
                 : ""
             }
+            key={range}
+            onClick={() => setTimeRange(range)}
+            size="sm"
+            variant={timeRange === range ? "default" : "outline"}
           >
             {range}
           </Button>
@@ -206,19 +206,19 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Waste Collected
             </CardTitle>
             <Recycle className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.wasteCollected} tons
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">
                 {Math.round(collectionProgress)}%
               </span>{" "}
@@ -229,16 +229,16 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Active Vehicles
             </CardTitle>
             <Truck className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.activeVehicles}/{stats.totalVehicles}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">Operational</span> vehicles
             </p>
           </CardContent>
@@ -246,16 +246,16 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Pending Verifications
             </CardTitle>
             <Shield className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.pendingVerifications}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-yellow-600">Requires</span> attention
             </p>
           </CardContent>
@@ -263,14 +263,14 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Quality Score</CardTitle>
+            <CardTitle className="font-medium text-sm">Quality Score</CardTitle>
             <Target className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.qualityScore}%
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">Excellent</span> quality
             </p>
           </CardContent>
@@ -278,7 +278,7 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
       </div>
 
       {/* Collection Routes & Environmental Impact */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -288,9 +288,9 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {collectionRoutes.map((route) => (
-              <div key={route.id} className="space-y-2">
+              <div className="space-y-2" key={route.id}>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="font-medium text-gray-700 text-sm">
                     {route.name}
                   </span>
                   <Badge className={getRouteStatusColor(route.status)}>
@@ -305,14 +305,14 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
                     {route.progress}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
                     className={`h-2 rounded-full ${
                       route.status === "completed"
                         ? "bg-forest-green-600"
                         : route.status === "active"
-                        ? "bg-blue-500"
-                        : "bg-gray-400"
+                          ? "bg-blue-500"
+                          : "bg-gray-400"
                     }`}
                     style={{ width: `${route.progress}%` }}
                   />
@@ -330,27 +330,27 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-forest-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-forest-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 CO2 Saved
               </span>
-              <span className="text-lg font-bold text-forest-green-600">
+              <span className="font-bold text-forest-green-600 text-lg">
                 {stats.environmentalImpact.toLocaleString()} tons
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-sage-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-sage-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Trees Equivalent
               </span>
-              <span className="text-lg font-bold text-sage-green-600">
+              <span className="font-bold text-lg text-sage-green-600">
                 {Math.round(stats.environmentalImpact * 50).toLocaleString()}
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-ocean-blue-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-ocean-blue-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Energy Saved
               </span>
-              <span className="text-lg font-bold text-ocean-blue-600">
+              <span className="font-bold text-lg text-ocean-blue-600">
                 {Math.round(stats.environmentalImpact * 2.5).toLocaleString()}{" "}
                 MWh
               </span>
@@ -360,7 +360,7 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
       </div>
 
       {/* Collection Progress & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -369,39 +369,39 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-forest-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-forest-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Monthly Progress
               </span>
-              <span className="text-lg font-bold text-forest-green-600">
+              <span className="font-bold text-forest-green-600 text-lg">
                 {Math.round(collectionProgress)}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="h-3 w-full rounded-full bg-gray-200">
               <div
-                className="h-3 bg-forest-green-600 rounded-full transition-all duration-300"
+                className="h-3 rounded-full bg-forest-green-600 transition-all duration-300"
                 style={{ width: `${collectionProgress}%` }}
               />
             </div>
             <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-3 bg-sage-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-sage-green-600">
+              <div className="rounded-lg bg-sage-green-50 p-3">
+                <div className="font-bold text-2xl text-sage-green-600">
                   {stats.wasteCollected}
                 </div>
-                <div className="text-xs text-gray-600">Tons Collected</div>
+                <div className="text-gray-600 text-xs">Tons Collected</div>
               </div>
-              <div className="p-3 bg-ocean-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-ocean-blue-600">
+              <div className="rounded-lg bg-ocean-blue-50 p-3">
+                <div className="font-bold text-2xl text-ocean-blue-600">
                   {stats.collectionTarget}
                 </div>
-                <div className="text-xs text-gray-600">Monthly Target</div>
+                <div className="text-gray-600 text-xs">Monthly Target</div>
               </div>
             </div>
             {stats.binCapacityAlerts > 0 && (
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                  <span className="text-sm font-medium text-yellow-800">
+                  <span className="font-medium text-sm text-yellow-800">
                     {stats.binCapacityAlerts} bins need attention
                   </span>
                 </div>
@@ -420,25 +420,25 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
           <CardContent className="space-y-3">
             {recentActivities.map((activity) => (
               <div
+                className="flex items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
                 key={activity.id}
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div
-                  className={`p-2 rounded-full ${getActivityColor(
+                  className={`rounded-full p-2 ${getActivityColor(
                     activity.status
                   )}`}
                 >
                   {getActivityIcon(activity.type)}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 text-sm">
                     {activity.message}
                   </p>
-                  <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                  <p className="text-gray-500 text-xs">{activity.timestamp}</p>
                 </div>
                 <Badge
-                  variant="outline"
                   className={getActivityColor(activity.status)}
+                  variant="outline"
                 >
                   {activity.status}
                 </Badge>
@@ -454,20 +454,20 @@ export function WasteManagerDashboard({ user }: WasteManagerDashboardProps) {
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Truck className="h-6 w-6" />
               <span className="text-sm">Start Route</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Shield className="h-6 w-6" />
               <span className="text-sm">Verify Deposits</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <MapPin className="h-6 w-6" />
               <span className="text-sm">Check Bins</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Users className="h-6 w-6" />
               <span className="text-sm">Manage Staff</span>
             </Button>

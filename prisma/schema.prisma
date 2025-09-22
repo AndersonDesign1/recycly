@@ -17,8 +17,11 @@ model User {
   updatedAt         DateTime           @updatedAt @map("updated_at")
   points            Int                @default(0)
   level             Int                @default(1)
-  role              UserRole?          // Allow null roles for new users
+  role              UserRole           @default(USER)
   isActive          Boolean            @default(true) @map("is_active")
+  lastLoginAt       DateTime?          @map("last_login_at")
+  // 2FA fields
+  twoFactorEnabled  Boolean            @default(false) @map("two_factor_enabled")
   accounts          Account[]
   notifications     Notification[]
   pushSubscriptions PushSubscription[]
@@ -27,6 +30,12 @@ model User {
   achievements      UserAchievement[]
   userRewards       UserReward[]
   wasteDisposals    WasteDisposal[]
+  // Manager assignments
+  assignedWasteDisposals WasteDisposal[] @relation("WasteManager")
+  // Point transactions
+  pointTransactions PointTransaction[]
+  // 2FA relation
+  twoFactor         TwoFactor?
 
   @@map("users")
 }
@@ -93,28 +102,79 @@ model WasteBin {
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
   reports        Report[]
-  wasteDisposals WasteDisposal[]
 
   @@map("waste_bins")
 }
 
 model WasteDisposal {
-  id           String    @id @default(cuid())
-  userId       String    @map("user_id")
-  wasteBinId   String    @map("waste_bin_id")
-  wasteType    WasteType @map("waste_type")
-  weightKg     Decimal?  @map("weight_kg") @db.Decimal(5, 2)
-  imageUrl     String?   @map("image_url")
-  pointsEarned Int       @map("points_earned")
-  verified     Boolean   @default(false)
-  verifiedBy   String?   @map("verified_by")
-  verifiedAt   DateTime? @map("verified_at")
-  location     Json?
-  createdAt    DateTime  @default(now()) @map("created_at")
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  wasteBin     WasteBin  @relation(fields: [wasteBinId], references: [id], onDelete: Cascade)
+  id                 String           @id @default(cuid())
+  userId             String           @map("user_id")
+  wasteCategoryId    String           @map("waste_category_id")
+  quantity           Decimal          @db.Decimal(8, 2)
+  description        String?
+  imageUrl           String?          @map("image_url")
+  latitude           Decimal          @db.Decimal(10, 8)
+  longitude          Decimal          @db.Decimal(11, 8)
+  address            String?
+  status             WasteDisposalStatus @default(PENDING)
+  assignedManagerId  String?          @map("assigned_manager_id")
+  adminNotes         String?          @map("admin_notes")
+  notes              String?
+  approvedAt         DateTime?        @map("approved_at")
+  rejectedAt         DateTime?        @map("rejected_at")
+  completedAt        DateTime?        @map("completed_at")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wasteCategory      WasteCategory    @relation(fields: [wasteCategoryId], references: [id])
+  assignedManager    User?            @relation("WasteManager", fields: [assignedManagerId], references: [id])
 
   @@map("waste_disposals")
+}
+
+model WasteCategory {
+  id             String          @id @default(cuid())
+  name           String
+  description    String?
+  pointsPerUnit  Int             @map("points_per_unit")
+  color          String?
+  isActive       Boolean         @default(true) @map("is_active")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  
+  wasteDisposals WasteDisposal[]
+
+  @@map("waste_categories")
+}
+
+model PointTransaction {
+  id            String              @id @default(cuid())
+  userId        String              @map("user_id")
+  type          PointTransactionType
+  amount        Int
+  description   String
+  referenceId   String?             @map("reference_id")
+  referenceType String?             @map("reference_type")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("point_transactions")
+}
+
+model RewardCategory {
+  id             String         @id @default(cuid())
+  name           String
+  description    String?
+  color          String?
+  isActive       Boolean         @default(true) @map("is_active")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  
+  rewards        Reward[]
+
+  @@map("reward_categories")
 }
 
 model Reward {
@@ -123,15 +183,17 @@ model Reward {
   description    String?
   pointsRequired Int            @map("points_required")
   imageUrl       String?        @map("image_url")
-  category       RewardCategory
+  categoryId     String         @map("category_id")
   stock          Int?
-  active         Boolean        @default(true)
+  isActive       Boolean        @default(true) @map("is_active")
   expiresAt      DateTime?      @map("expires_at")
   terms          String?
   partnerName    String?        @map("partner_name")
   partnerLogo    String?        @map("partner_logo")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
+  
+  category       RewardCategory @relation(fields: [categoryId], references: [id])
   userRewards    UserReward[]
 
   @@map("rewards")
@@ -142,10 +204,13 @@ model UserReward {
   userId      String           @map("user_id")
   rewardId    String           @map("reward_id")
   status      UserRewardStatus @default(PENDING)
-  code        String?          @unique
-  redeemedAt  DateTime         @default(now()) @map("redeemed_at")
-  fulfilledAt DateTime?        @map("fulfilled_at")
-  expiresAt   DateTime?        @map("expires_at")
+  pointsSpent Int              @map("points_spent")
+  adminNotes  String?          @map("admin_notes")
+  approvedAt  DateTime?        @map("approved_at")
+  completedAt DateTime?        @map("completed_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  
   reward      Reward           @relation(fields: [rewardId], references: [id], onDelete: Cascade)
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -157,12 +222,13 @@ model Achievement {
   name             String
   description      String
   icon             String?
-  condition        Json
-  points           Int               @default(0)
-  badge            String?
-  rarity           AchievementRarity @default(COMMON)
-  active           Boolean           @default(true)
+  type             String
+  requirement      Int
+  bonusPoints      Int               @default(0) @map("bonus_points")
+  isActive         Boolean           @default(true) @map("is_active")
   createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  
   userAchievements UserAchievement[]
 
   @@map("achievements")
@@ -243,11 +309,23 @@ model Campaign {
   @@map("campaigns")
 }
 
+model TwoFactor {
+  id          String   @id @default(cuid())
+  userId      String   @unique @map("user_id")
+  secret      String? // For TOTP
+  backupCodes String?  @map("backup_codes") // JSON string of backup codes
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("two_factor")
+}
+
 enum UserRole {
   USER
   WASTE_MANAGER
   ADMIN
-  SUPERADMIN
+  SUPER_ADMIN
 }
 
 enum WasteType {
@@ -270,20 +348,13 @@ enum WasteBinStatus {
   INACTIVE
 }
 
-enum RewardCategory {
-  DISCOUNT
-  VOUCHER
-  PRODUCT
-  EXPERIENCE
-  DONATION
-  CASHBACK
-}
+
 
 enum UserRewardStatus {
   PENDING
-  FULFILLED
-  EXPIRED
-  CANCELLED
+  APPROVED
+  REJECTED
+  COMPLETED
 }
 
 enum AchievementRarity {
@@ -325,4 +396,19 @@ enum NotificationType {
   BIN_NEARBY
   REMINDER
   SYSTEM
+}
+
+enum WasteDisposalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum PointTransactionType {
+  EARNED
+  SPENT
+  BONUS
+  PENALTY
 }

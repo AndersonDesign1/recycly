@@ -1,6 +1,6 @@
-import { prisma } from "./prisma";
 import { UserRole, WasteType } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { prisma } from "./prisma";
 
 export class UserService {
   // Create a new user with proper role assignment
@@ -48,7 +48,7 @@ export class UserService {
     if (!user) return null;
 
     // Role-based access control
-    if (!this.canAccessUser(requestingUserRole, user.role)) {
+    if (!UserService.canAccessUser(requestingUserRole, user.role)) {
       throw new Error("Insufficient permissions to access this user");
     }
 
@@ -63,7 +63,7 @@ export class UserService {
       isActive?: boolean;
     }
   ) {
-    if (!this.canListUsers(requestingUserRole)) {
+    if (!UserService.canListUsers(requestingUserRole)) {
       throw new Error("Insufficient permissions to list users");
     }
 
@@ -120,7 +120,10 @@ export class UserService {
     location?: any;
   }) {
     // Calculate points based on waste type and weight
-    const pointsEarned = this.calculatePoints(data.wasteType, data.weightKg);
+    const pointsEarned = UserService.calculatePoints(
+      data.wasteType,
+      data.weightKg
+    );
 
     // Create waste disposal record
     const wasteDisposal = await prisma.wasteDisposal.create({
@@ -137,10 +140,13 @@ export class UserService {
     });
 
     // Update user points and check for level up
-    const updatedUser = await this.updateUserPoints(data.userId, pointsEarned);
+    const updatedUser = await UserService.updateUserPoints(
+      data.userId,
+      pointsEarned
+    );
 
     // Check for achievements
-    await this.checkAchievements(data.userId);
+    await UserService.checkAchievements(data.userId);
 
     return { wasteDisposal, updatedUser, pointsEarned };
   }
@@ -207,7 +213,7 @@ export class UserService {
 
     // Check for first disposal achievement
     if (user.wasteDisposals.length === 1) {
-      await this.grantAchievement(userId, "first_disposal");
+      await UserService.grantAchievement(userId, "first_disposal");
     }
 
     // Check for level achievements
@@ -215,14 +221,14 @@ export class UserService {
       user.level >= 5 &&
       !user.userAchievements.some((ua) => ua.achievementId === "level_5")
     ) {
-      await this.grantAchievement(userId, "level_5");
+      await UserService.grantAchievement(userId, "level_5");
     }
 
     if (
       user.level >= 10 &&
       !user.userAchievements.some((ua) => ua.achievementId === "level_10")
     ) {
-      await this.grantAchievement(userId, "level_10");
+      await UserService.grantAchievement(userId, "level_10");
     }
   }
 
@@ -242,7 +248,7 @@ export class UserService {
     });
 
     // Add achievement points to user
-    await this.updateUserPoints(userId, achievement.points);
+    await UserService.updateUserPoints(userId, achievement.points);
   }
 
   // Role-based access control methods
@@ -269,7 +275,7 @@ export class UserService {
 
   // Get user statistics for dashboard
   static async getUserStats(userId: string, requestingUserRole: UserRole) {
-    const user = await this.getUserById(userId, requestingUserRole);
+    const user = await UserService.getUserById(userId, requestingUserRole);
     if (!user) return null;
 
     const stats = await prisma.$transaction([

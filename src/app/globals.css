@@ -68,15 +68,27 @@
 
   /* Gradient Backgrounds */
   .gradient-primary {
-    background: linear-gradient(135deg, var(--color-forest-green-500), var(--color-ocean-blue-500));
+    background: linear-gradient(
+      135deg,
+      var(--color-forest-green-500),
+      var(--color-ocean-blue-500)
+    );
   }
 
   .gradient-secondary {
-    background: linear-gradient(135deg, var(--color-ocean-blue-500), var(--color-sage-green-500));
+    background: linear-gradient(
+      135deg,
+      var(--color-ocean-blue-500),
+      var(--color-sage-green-500)
+    );
   }
 
   .gradient-green {
-    background: linear-gradient(135deg, var(--color-fresh-mint-500), var(--color-sage-green-500));
+    background: linear-gradient(
+      135deg,
+      var(--color-fresh-mint-500),
+      var(--color-sage-green-500)
+    );
   }
 
   /* Animation Classes */
@@ -100,14 +112,18 @@
   .minimal-card {
     background-color: var(--color-forest-green-50);
     border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
     padding: 1.5rem;
   }
 
   .dashboard-card {
     background-color: var(--color-forest-green-50);
     border-radius: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
     padding: 1.5rem;
   }
 }

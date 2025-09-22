@@ -1,21 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Users,
-  MapPin,
-  TrendingUp,
-  DollarSign,
-  Recycle,
-  Shield,
   Activity,
   AlertTriangle,
   CheckCircle,
   Clock,
+  DollarSign,
+  MapPin,
+  Recycle,
+  Shield,
+  TrendingUp,
+  Users,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface User {
   id: string;
@@ -37,11 +37,11 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
 
   // Mock data for SuperAdmin dashboard
   const stats = {
-    totalUsers: 15420,
-    activeUsers: 12850,
+    totalUsers: 15_420,
+    activeUsers: 12_850,
     totalLocations: 45,
     activeLocations: 42,
-    totalRevenue: 1250000,
+    totalRevenue: 1_250_000,
     monthlyGrowth: 12.5,
     wasteCollected: 1250, // tons
     environmentalImpact: 2500, // CO2 saved in tons
@@ -84,15 +84,15 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "user_registration":
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />;
       case "system_alert":
-        return <AlertTriangle className="w-4 h-4" />;
+        return <AlertTriangle className="h-4 w-4" />;
       case "revenue_milestone":
-        return <DollarSign className="w-4 h-4" />;
+        return <DollarSign className="h-4 w-4" />;
       case "fraud_detection":
-        return <Shield className="w-4 h-4" />;
+        return <Shield className="h-4 w-4" />;
       default:
-        return <Activity className="w-4 h-4" />;
+        return <Activity className="h-4 w-4" />;
     }
   };
 
@@ -114,18 +114,18 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="font-bold text-3xl text-gray-900">
             Super Admin Dashboard
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-gray-600">
             Global system overview and master controls
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button size="sm" variant="outline">
             Export Data
           </Button>
-          <Button variant="outline" size="sm">
+          <Button size="sm" variant="outline">
             Generate Report
           </Button>
           <Button className="bg-forest-green-600 hover:bg-forest-green-700">
@@ -138,15 +138,15 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
       <div className="flex items-center space-x-2">
         {(["24h", "7d", "30d", "90d"] as const).map((range) => (
           <Button
-            key={range}
-            variant={timeRange === range ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTimeRange(range)}
             className={
               timeRange === range
                 ? "bg-forest-green-600 hover:bg-forest-green-700"
                 : ""
             }
+            key={range}
+            onClick={() => setTimeRange(range)}
+            size="sm"
+            variant={timeRange === range ? "default" : "outline"}
           >
             {range}
           </Button>
@@ -154,17 +154,17 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="font-medium text-sm">Total Users</CardTitle>
             <Users className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.totalUsers.toLocaleString()}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">+{stats.monthlyGrowth}%</span>{" "}
               from last month
             </p>
@@ -173,14 +173,14 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="font-medium text-sm">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              ${(stats.totalRevenue / 1000000).toFixed(1)}M
+            <div className="font-bold text-2xl text-gray-900">
+              ${(stats.totalRevenue / 1_000_000).toFixed(1)}M
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">+{stats.monthlyGrowth}%</span>{" "}
               from last month
             </p>
@@ -189,16 +189,16 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="font-medium text-sm">
               Waste Collected
             </CardTitle>
             <Recycle className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.wasteCollected.toLocaleString()} tons
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">+8.2%</span> from last month
             </p>
           </CardContent>
@@ -206,14 +206,14 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
 
         <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Health</CardTitle>
+            <CardTitle className="font-medium text-sm">System Health</CardTitle>
             <Activity className="h-4 w-4 text-forest-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-bold text-2xl text-gray-900">
               {stats.systemHealth}%
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600 text-xs">
               <span className="text-green-600">Optimal</span> performance
             </p>
           </CardContent>
@@ -221,7 +221,7 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
       </div>
 
       {/* Environmental Impact & Financial Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -230,27 +230,27 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-forest-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-forest-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 CO2 Saved
               </span>
-              <span className="text-lg font-bold text-forest-green-600">
+              <span className="font-bold text-forest-green-600 text-lg">
                 {stats.environmentalImpact.toLocaleString()} tons
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-sage-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-sage-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Trees Equivalent
               </span>
-              <span className="text-lg font-bold text-sage-green-600">
+              <span className="font-bold text-lg text-sage-green-600">
                 {Math.round(stats.environmentalImpact * 50).toLocaleString()}
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-ocean-blue-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-ocean-blue-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Energy Saved
               </span>
-              <span className="text-lg font-bold text-ocean-blue-600">
+              <span className="font-bold text-lg text-ocean-blue-600">
                 {Math.round(stats.environmentalImpact * 2.5).toLocaleString()}{" "}
                 MWh
               </span>
@@ -266,27 +266,27 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-forest-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-forest-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Monthly Revenue
               </span>
-              <span className="text-lg font-bold text-forest-green-600">
+              <span className="font-bold text-forest-green-600 text-lg">
                 ${(stats.totalRevenue / 12).toLocaleString()}
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-sage-green-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-sage-green-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Commission Paid
               </span>
-              <span className="text-lg font-bold text-sage-green-600">
+              <span className="font-bold text-lg text-sage-green-600">
                 ${(stats.totalRevenue * 0.15).toLocaleString()}
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-ocean-blue-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-lg bg-ocean-blue-50 p-3">
+              <span className="font-medium text-gray-700 text-sm">
                 Net Profit
               </span>
-              <span className="text-lg font-bold text-ocean-blue-600">
+              <span className="font-bold text-lg text-ocean-blue-600">
                 ${(stats.totalRevenue * 0.25).toLocaleString()}
               </span>
             </div>
@@ -295,7 +295,7 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
       </div>
 
       {/* Alerts & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="dashboard-card">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -304,10 +304,10 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
-                <span className="text-sm font-medium text-red-800">
+                <span className="font-medium text-red-800 text-sm">
                   Fraud Detection
                 </span>
               </div>
@@ -315,10 +315,10 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                 {stats.fraudAlerts} alerts
               </Badge>
             </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-3">
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-800">
+                <span className="font-medium text-sm text-yellow-800">
                   Pending Approvals
                 </span>
               </div>
@@ -326,10 +326,10 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
                 {stats.pendingApprovals} pending
               </Badge>
             </div>
-            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-3">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium text-green-800">
+                <span className="font-medium text-green-800 text-sm">
                   System Status
                 </span>
               </div>
@@ -348,25 +348,25 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
           <CardContent className="space-y-3">
             {recentActivities.map((activity) => (
               <div
+                className="flex items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
                 key={activity.id}
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div
-                  className={`p-2 rounded-full ${getActivityColor(
+                  className={`rounded-full p-2 ${getActivityColor(
                     activity.status
                   )}`}
                 >
                   {getActivityIcon(activity.type)}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 text-sm">
                     {activity.message}
                   </p>
-                  <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                  <p className="text-gray-500 text-xs">{activity.timestamp}</p>
                 </div>
                 <Badge
-                  variant="outline"
                   className={getActivityColor(activity.status)}
+                  variant="outline"
                 >
                   {activity.status}
                 </Badge>
@@ -382,20 +382,20 @@ export function SuperAdminDashboard({ user }: SuperAdminDashboardProps) {
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Users className="h-6 w-6" />
               <span className="text-sm">User Management</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <MapPin className="h-6 w-6" />
               <span className="text-sm">Location Management</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <TrendingUp className="h-6 w-6" />
               <span className="text-sm">Revenue Analytics</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button className="h-20 flex-col space-y-2" variant="outline">
               <Shield className="h-6 w-6" />
               <span className="text-sm">System Health</span>
             </Button>

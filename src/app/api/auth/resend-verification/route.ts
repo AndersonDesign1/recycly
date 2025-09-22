@@ -1,16 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { sendEmail, emailTemplates } from "@/lib/email";
+import { emailTemplates, sendEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
 
     if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Generate a new verification email using Better Auth
@@ -20,10 +18,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (result.error) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
     // Send the verification email using Resend
@@ -32,7 +27,8 @@ export async function POST(request: NextRequest) {
         to: email,
         ...emailTemplates.emailVerification(
           "User", // You might want to get the actual name from the user
-          result.verificationUrl || `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${result.token}`
+          result.verificationUrl ||
+            `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${result.token}`
         ),
       });
 
@@ -40,17 +36,15 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "Verification email sent successfully",
       });
-
     } catch (emailError) {
-      console.error("Failed to send verification email:", emailError);
+      logger.error("Failed to send verification email: %o", emailError);
       return NextResponse.json(
         { error: "Failed to send verification email" },
         { status: 500 }
       );
     }
-
   } catch (error) {
-    console.error("Resend verification error:", error);
+    logger.error("Resend verification error: %o", error);
     return NextResponse.json(
       { error: "Failed to resend verification email" },
       { status: 500 }
