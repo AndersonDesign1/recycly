@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import type { User, Session } from "@/lib/auth"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import type { User, Session } from "@/lib/auth";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/session")
+        const response = await fetch("/api/auth/session");
         if (response.ok) {
-          const data = await response.json()
-          setUser(data.user)
-          setSession(data.session)
-          
+          const data = await response.json();
+          setUser(data.user);
+          setSession(data.session);
+
           // Check if user needs to select a role
           if (data.user && !data.user.role) {
             // Don't redirect here, let the component handle it
@@ -26,14 +26,14 @@ export function useAuth() {
           }
         }
       } catch (error) {
-        console.error("Auth check failed:", error)
+        console.error("Auth check failed:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    checkAuth()
-  }, [])
+    checkAuth();
+  }, []);
 
   const signOut = async () => {
     try {
@@ -42,14 +42,14 @@ export function useAuth() {
         headers: {
           "Content-Type": "application/json",
         },
-      })
-      setUser(null)
-      setSession(null)
-      window.location.href = "/"
+      });
+      setUser(null);
+      setSession(null);
+      window.location.href = "/";
     } catch (error) {
-      console.error("Sign out failed:", error)
+      console.error("Sign out failed:", error);
     }
-  }
+  };
 
   const updateUserRole = async (role: string) => {
     try {
@@ -59,20 +59,22 @@ export function useAuth() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ role }),
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        setUser(data.user)
-        return { success: true, user: data.user }
+        const data = await response.json();
+        setUser(data.user);
+        return { success: true, user: data.user };
       } else {
-        const errorData = await response.json()
-        return { success: false, error: errorData.error }
+        const errorData = await response.json();
+        return { success: false, error: errorData.error };
       }
     } catch (error) {
-      return { success: false, error: "Failed to update role" }
+      return { success: false, error: "Failed to update role" };
     }
-  }
+  };
+
+  const hasRole = user?.role && user.role !== "USER";
 
   return {
     user,
@@ -81,6 +83,6 @@ export function useAuth() {
     signOut,
     updateUserRole,
     isAuthenticated: !!user,
-    hasRole: !!user?.role,
-  }
+    hasRole: hasRole,
+  };
 }

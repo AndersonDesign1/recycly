@@ -132,12 +132,9 @@ export default function SelectRolePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!loading && user) {
-      // If user already has a role, redirect to dashboard
-      if (user.role) {
-        router.push("/dashboard");
-        return;
-      }
+    if (!loading && user && user.role && user.role !== "USER") {
+      // If user already has a specific role (not USER), redirect to dashboard
+      router.push("/dashboard");
     }
   }, [user, loading, router]);
 
@@ -350,8 +347,8 @@ export default function SelectRolePage() {
                   Personalized Experience
                 </h4>
                 <p>
-                  Get access to features and tools specifically designed for your
-                  role and responsibilities.
+                  Get access to features and tools specifically designed for
+                  your role and responsibilities.
                 </p>
               </div>
               <div>

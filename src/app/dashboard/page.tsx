@@ -15,8 +15,9 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user && !user.role) {
-      // Redirect users without roles to role selection
+    if (!loading && user && user.role === "USER") {
+      // For now, redirect all USER role users to role selection
+      // Later we can add logic to check if they've completed onboarding
       router.push("/auth/select-role");
     }
   }, [user, loading, router]);

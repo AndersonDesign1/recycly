@@ -10,10 +10,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { role } = await request.json();
@@ -21,10 +18,7 @@ export async function POST(request: NextRequest) {
     // Validate role
     const validRoles = ["USER", "WASTE_MANAGER", "ADMIN", "SUPERADMIN"];
     if (!validRoles.includes(role)) {
-      return NextResponse.json(
-        { error: "Invalid role" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
     // Update the user's role

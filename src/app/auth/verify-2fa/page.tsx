@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, CheckCircle, Mail, Recycle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { handle2FAVerification, resend2FACode } from "@/lib/auth-client";
 
 function useCountdown() {
   const countdownRef = useRef(0);
@@ -109,20 +110,9 @@ export default function Verify2FAPage() {
     }
 
     try {
-      const response = await fetch("/api/auth/2fa/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          code: verificationCode,
-          method: verificationMethodRef.current,
-        }),
-      });
+      const result = await handle2FAVerification(verificationCode);
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
+      if (result.success) {
         showSuccess();
       } else {
         showError(
@@ -205,19 +195,9 @@ export default function Verify2FAPage() {
     if (errorEl) errorEl.remove();
 
     try {
-      const response = await fetch("/api/auth/2fa/resend", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          method: "email",
-        }),
-      });
+      const result = await resend2FACode();
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
+      if (result.success) {
         // Start countdown
         startCountdown(60, (remaining) => {
           if (resendButtonRef.current) {

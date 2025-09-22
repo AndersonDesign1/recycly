@@ -1,213 +1,175 @@
-import { PrismaClient, UserRole, AchievementRarity } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({ path: '.env.local' });
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting database seed...");
+  console.log('🌱 Starting database seed...');
 
-  // Create achievements
-  const achievements = [
-    {
-      id: "first_disposal",
-      name: "First Step",
-      description: "Complete your first waste disposal",
-      icon: "🌱",
-      condition: { type: "first_disposal" },
-      points: 50,
-      badge: "🥇",
-      rarity: AchievementRarity.COMMON,
-    },
-    {
-      id: "level_5",
-      name: "Rising Star",
-      description: "Reach level 5",
-      icon: "⭐",
-      condition: { type: "level", value: 5 },
-      points: 100,
-      badge: "🌟",
-      rarity: AchievementRarity.RARE,
-    },
-    {
-      id: "level_10",
-      name: "Waste Warrior",
-      description: "Reach level 10",
-      icon: "🏆",
-      condition: { type: "level", value: 10 },
-      points: 200,
-      badge: "👑",
-      rarity: AchievementRarity.EPIC,
-    },
-    {
-      id: "recycling_master",
-      name: "Recycling Master",
-      description: "Dispose of 50 recycling items",
-      icon: "♻️",
-      condition: { type: "waste_count", wasteType: "RECYCLING", count: 50 },
-      points: 150,
-      badge: "♻️",
-      rarity: AchievementRarity.RARE,
-    },
-    {
-      id: "hazardous_hero",
-      name: "Hazardous Hero",
-      description: "Dispose of 10 hazardous waste items",
-      icon: "⚠️",
-      condition: { type: "waste_count", wasteType: "HAZARDOUS", count: 10 },
-      points: 300,
-      badge: "🛡️",
-      rarity: AchievementRarity.EPIC,
-    },
-  ];
-
-  for (const achievement of achievements) {
-    await prisma.achievement.upsert({
-      where: { id: achievement.id },
-      update: {},
-      create: achievement,
-    });
-  }
-
-  // Create sample rewards
-  const rewards = [
-    {
-      name: "Eco-Friendly Water Bottle",
-      description: "Reusable water bottle made from recycled materials",
-      pointsRequired: 500,
-      category: "PRODUCT",
-      stock: 100,
-      partnerName: "EcoStore",
-      partnerLogo: "🌍",
-    },
-    {
-      name: "Local Coffee Shop Voucher",
-      description: "Get 20% off at participating eco-friendly coffee shops",
-      pointsRequired: 200,
-      category: "VOUCHER",
-      stock: 50,
-      partnerName: "Green Coffee Co.",
-      partnerLogo: "☕",
-    },
-    {
-      name: "Tree Planting Certificate",
-      description:
-        "We'll plant a tree in your name for environmental conservation",
-      pointsRequired: 1000,
-      category: "DONATION",
-      stock: null,
-      partnerName: "Tree Foundation",
-      partnerLogo: "🌳",
-    },
-  ];
-
-  for (const reward of rewards) {
-    await prisma.reward.create({
-      data: reward,
-    });
-  }
-
-  // Create superadmin user
-  const hashedPassword = await bcrypt.hash("superadmin123", 12);
-
-  const superadmin = await prisma.user.upsert({
-    where: { email: "superadmin@recycly.com" },
-    update: {},
-    create: {
-      email: "superadmin@recycly.com",
-      name: "Super Admin",
-      role: UserRole.SUPERADMIN,
-      points: 0,
-      level: 1,
-      isActive: true,
-      accounts: {
-        create: {
-          providerId: "credentials",
-          accountId: "superadmin@recycly.com",
-          password: hashedPassword,
-        },
+  // Create waste categories
+  const wasteCategories = await Promise.all([
+    prisma.wasteCategory.create({
+      data: {
+        name: 'Plastic',
+        description: 'Plastic bottles, containers, and packaging',
+        pointsPerUnit: 10,
+        color: '#3B82F6',
       },
-    },
-  });
-
-  // Create sample admin user
-  const adminPassword = await bcrypt.hash("admin123", 12);
-
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@recycly.com" },
-    update: {},
-    create: {
-      email: "admin@recycly.com",
-      name: "Admin User",
-      role: UserRole.ADMIN,
-      points: 0,
-      level: 1,
-      isActive: true,
-      accounts: {
-        create: {
-          providerId: "credentials",
-          accountId: "admin@recycly.com",
-          password: adminPassword,
-        },
+    }),
+    prisma.wasteCategory.create({
+      data: {
+        name: 'Paper',
+        description: 'Cardboard, newspapers, magazines',
+        pointsPerUnit: 8,
+        color: '#10B981',
       },
-    },
-  });
-
-  // Create sample waste manager
-  const managerPassword = await bcrypt.hash("manager123", 12);
-
-  const manager = await prisma.user.upsert({
-    where: { email: "manager@recycly.com" },
-    update: {},
-    create: {
-      email: "manager@recycly.com",
-      name: "Waste Manager",
-      role: UserRole.WASTE_MANAGER,
-      points: 0,
-      level: 1,
-      isActive: true,
-      accounts: {
-        create: {
-          providerId: "credentials",
-          accountId: "manager@recycly.com",
-          password: managerPassword,
-        },
+    }),
+    prisma.wasteCategory.create({
+      data: {
+        name: 'Glass',
+        description: 'Glass bottles and containers',
+        pointsPerUnit: 15,
+        color: '#8B5CF6',
       },
-    },
-  });
-
-  // Create sample regular user
-  const userPassword = await bcrypt.hash("user123", 12);
-
-  const user = await prisma.user.upsert({
-    where: { email: "user@recycly.com" },
-    update: {},
-    create: {
-      email: "user@recycly.com",
-      name: "Regular User",
-      role: UserRole.USER,
-      points: 0,
-      level: 1,
-      isActive: true,
-      accounts: {
-        create: {
-          providerId: "credentials",
-          accountId: "user@recycly.com",
-          password: userPassword,
-        },
+    }),
+    prisma.wasteCategory.create({
+      data: {
+        name: 'Metal',
+        description: 'Aluminum cans, steel containers',
+        pointsPerUnit: 20,
+        color: '#F59E0B',
       },
-    },
-  });
+    }),
+    prisma.wasteCategory.create({
+      data: {
+        name: 'Electronics',
+        description: 'Old phones, computers, batteries',
+        pointsPerUnit: 50,
+        color: '#EF4444',
+      },
+    }),
+  ]);
 
-  console.log("✅ Database seeded successfully!");
-  console.log("👑 Superadmin: superadmin@recycly.com / superadmin123");
-  console.log("👨‍💼 Admin: admin@recycly.com / admin123");
-  console.log("👷 Waste Manager: manager@recycly.com / manager123");
-  console.log("👤 User: user@recycly.com / user123");
+  console.log('✅ Created waste categories:', wasteCategories.length);
+
+  // Create reward categories
+  const rewardCategories = await Promise.all([
+    prisma.rewardCategory.create({
+      data: {
+        name: 'Discounts',
+        description: 'Store discounts and coupons',
+        color: '#3B82F6',
+      },
+    }),
+    prisma.rewardCategory.create({
+      data: {
+        name: 'Products',
+        description: 'Physical products and merchandise',
+        color: '#10B981',
+      },
+    }),
+    prisma.rewardCategory.create({
+      data: {
+        name: 'Experiences',
+        description: 'Event tickets and activities',
+        color: '#8B5CF6',
+      },
+    }),
+    prisma.rewardCategory.create({
+      data: {
+        name: 'Donations',
+        description: 'Charitable donations in your name',
+        color: '#F59E0B',
+      },
+    }),
+  ]);
+
+  console.log('✅ Created reward categories:', rewardCategories.length);
+
+  // Create some sample rewards
+  const rewards = await Promise.all([
+    prisma.reward.create({
+      data: {
+        name: '10% Off at EcoStore',
+        description: 'Get 10% off your next purchase at EcoStore',
+        pointsRequired: 100,
+        categoryId: rewardCategories[0].id, // Discounts
+        stock: 100,
+      },
+    }),
+    prisma.reward.create({
+      data: {
+        name: 'Reusable Water Bottle',
+        description: 'Eco-friendly stainless steel water bottle',
+        pointsRequired: 200,
+        categoryId: rewardCategories[1].id, // Products
+        stock: 50,
+      },
+    }),
+    prisma.reward.create({
+      data: {
+        name: 'Tree Planting',
+        description: 'Plant a tree in your name',
+        pointsRequired: 150,
+        categoryId: rewardCategories[3].id, // Donations
+        stock: 1000,
+      },
+    }),
+  ]);
+
+  console.log('✅ Created rewards:', rewards.length);
+
+  // Create some achievements
+  const achievements = await Promise.all([
+    prisma.achievement.create({
+      data: {
+        name: 'First Steps',
+        description: 'Complete your first waste disposal',
+        type: 'WASTE_COUNT',
+        requirement: 1,
+        bonusPoints: 50,
+      },
+    }),
+    prisma.achievement.create({
+      data: {
+        name: 'Waste Warrior',
+        description: 'Complete 10 waste disposals',
+        type: 'WASTE_COUNT',
+        requirement: 10,
+        bonusPoints: 200,
+      },
+    }),
+    prisma.achievement.create({
+      data: {
+        name: 'Point Collector',
+        description: 'Earn 500 points',
+        type: 'POINTS_THRESHOLD',
+        requirement: 500,
+        bonusPoints: 100,
+      },
+    }),
+    prisma.achievement.create({
+      data: {
+        name: 'Level Up',
+        description: 'Reach level 5',
+        type: 'LEVEL_THRESHOLD',
+        requirement: 5,
+        bonusPoints: 300,
+      },
+    }),
+  ]);
+
+  console.log('✅ Created achievements:', achievements.length);
+
+  console.log('🎉 Database seeding completed successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:", e);
+    console.error('❌ Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

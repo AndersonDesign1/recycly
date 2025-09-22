@@ -173,6 +173,7 @@ export default function SignUpPage() {
         email,
         password,
         name: fullName,
+        callbackURL: "/auth/verify-email", // Redirect to email verification
       });
 
       if (signUpError) {
@@ -192,10 +193,9 @@ export default function SignUpPage() {
       }
 
       if (result?.user) {
-        // Success - redirect to 2FA verification
-        setTimeout(() => {
-          router.push("/auth/verify-2fa");
-        }, 1000);
+        // Success - redirect to email verification
+        // Better Auth will handle the redirect automatically
+        console.log("Account created successfully:", result.user);
       }
     } catch (err: any) {
       // Show error

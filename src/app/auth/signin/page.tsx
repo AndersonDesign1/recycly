@@ -85,11 +85,14 @@ export default function SignInPage() {
     // Extract form data
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const rememberMe = formData.get("rememberMe") === "true";
 
     try {
       const { data: result, error: signInError } = await signIn.email({
         email,
         password,
+        rememberMe,
+        callbackURL: "/auth/verify-2fa", // Redirect to 2FA verification
       });
 
       if (signInError) {
@@ -107,14 +110,13 @@ export default function SignInPage() {
       }
 
       if (result?.user) {
-        // Success - redirect based on user role
-        // If user has no role, redirect to role selection
-        const userWithRole = result.user as any; // Type assertion for role field
-        if (!userWithRole.role) {
-          router.push("/auth/select-role");
-        } else {
-          router.push("/dashboard");
-        }
+        // Store email for 2FA verification
+        localStorage.setItem("userEmail", email);
+
+        // Better Auth will handle the redirect to 2FA verification
+        // If 2FA is not required, it will redirect to the callbackURL
+        // If 2FA is required, it will stay on the current page and show 2FA input
+        console.log("Sign in successful, user:", result.user);
       }
     } catch (err: any) {
       // Show error
