@@ -1,328 +1,327 @@
+// Recycly - Role-based Recycling App Database Schema
+
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("PRISMA_DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  emailVerified     Boolean            @default(false) @map("email_verified")
-  name              String
-  image             String?
-  createdAt         DateTime           @default(now()) @map("created_at")
-  updatedAt         DateTime           @updatedAt @map("updated_at")
-  points            Int                @default(0)
-  level             Int                @default(1)
-  role              UserRole?          // Allow null roles for new users
-  isActive          Boolean            @default(true) @map("is_active")
-  accounts          Account[]
-  notifications     Notification[]
-  pushSubscriptions PushSubscription[]
-  reports           Report[]
-  sessions          Session[]
-  achievements      UserAchievement[]
-  userRewards       UserReward[]
-  wasteDisposals    WasteDisposal[]
-
-  @@map("users")
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  expiresAt DateTime @map("expires_at")
-  token     String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  ipAddress String?  @map("ip_address")
-  userAgent String?  @map("user_agent")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model Account {
-  id                    String    @id @default(cuid())
-  userId                String    @map("user_id")
-  accountId             String    @map("account_id")
-  providerId            String    @map("provider_id")
-  accessToken           String?   @map("access_token")
-  refreshToken          String?   @map("refresh_token")
-  idToken               String?   @map("id_token")
-  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
-  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([providerId, accountId])
-  @@map("accounts")
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime @map("expires_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  @@unique([identifier, value])
-  @@map("verifications")
-}
-
-model WasteBin {
-  id             String          @id @default(cuid())
-  name           String
-  type           WasteType
-  latitude       Decimal         @db.Decimal(10, 8)
-  longitude      Decimal         @db.Decimal(11, 8)
-  qrCode         String          @unique @map("qr_code")
-  status         WasteBinStatus  @default(ACTIVE)
-  capacity       Int             @default(100)
-  lastEmptied    DateTime?       @map("last_emptied")
-  address        String?
-  description    String?
-  imageUrl       String?         @map("image_url")
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  reports        Report[]
-  wasteDisposals WasteDisposal[]
-
-  @@map("waste_bins")
-}
-
-model WasteDisposal {
-  id           String    @id @default(cuid())
-  userId       String    @map("user_id")
-  wasteBinId   String    @map("waste_bin_id")
-  wasteType    WasteType @map("waste_type")
-  weightKg     Decimal?  @map("weight_kg") @db.Decimal(5, 2)
-  imageUrl     String?   @map("image_url")
-  pointsEarned Int       @map("points_earned")
-  verified     Boolean   @default(false)
-  verifiedBy   String?   @map("verified_by")
-  verifiedAt   DateTime? @map("verified_at")
-  location     Json?
-  createdAt    DateTime  @default(now()) @map("created_at")
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  wasteBin     WasteBin  @relation(fields: [wasteBinId], references: [id], onDelete: Cascade)
-
-  @@map("waste_disposals")
-}
-
-model Reward {
-  id             String         @id @default(cuid())
-  name           String
-  description    String?
-  pointsRequired Int            @map("points_required")
-  imageUrl       String?        @map("image_url")
-  category       RewardCategory
-  stock          Int?
-  active         Boolean        @default(true)
-  expiresAt      DateTime?      @map("expires_at")
-  terms          String?
-  partnerName    String?        @map("partner_name")
-  partnerLogo    String?        @map("partner_logo")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-  userRewards    UserReward[]
-
-  @@map("rewards")
-}
-
-model UserReward {
-  id          String           @id @default(cuid())
-  userId      String           @map("user_id")
-  rewardId    String           @map("reward_id")
-  status      UserRewardStatus @default(PENDING)
-  code        String?          @unique
-  redeemedAt  DateTime         @default(now()) @map("redeemed_at")
-  fulfilledAt DateTime?        @map("fulfilled_at")
-  expiresAt   DateTime?        @map("expires_at")
-  reward      Reward           @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_rewards")
-}
-
-model Achievement {
-  id               String            @id @default(cuid())
-  name             String
-  description      String
-  icon             String?
-  condition        Json
-  points           Int               @default(0)
-  badge            String?
-  rarity           AchievementRarity @default(COMMON)
-  active           Boolean           @default(true)
-  createdAt        DateTime          @default(now()) @map("created_at")
-  userAchievements UserAchievement[]
-
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            String      @id @default(cuid())
-  userId        String      @map("user_id")
-  achievementId String      @map("achievement_id")
-  unlockedAt    DateTime    @default(now()) @map("unlocked_at")
-  progress      Json?
-  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, achievementId])
-  @@map("user_achievements")
-}
-
-model Report {
-  id          String         @id @default(cuid())
-  userId      String         @map("user_id")
-  wasteBinId  String?        @map("waste_bin_id")
-  type        ReportType
-  description String
-  imageUrl    String?        @map("image_url")
-  location    Json?
-  status      ReportStatus   @default(PENDING)
-  priority    ReportPriority @default(MEDIUM)
-  resolvedAt  DateTime?      @map("resolved_at")
-  resolvedBy  String?        @map("resolved_by")
-  createdAt   DateTime       @default(now()) @map("created_at")
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  wasteBin    WasteBin?      @relation(fields: [wasteBinId], references: [id])
-
-  @@map("reports")
-}
-
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String           @map("user_id")
-  title     String
-  body      String
-  type      NotificationType
-  data      Json?
-  read      Boolean          @default(false)
-  sentAt    DateTime?        @map("sent_at")
-  createdAt DateTime         @default(now()) @map("created_at")
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notifications")
-}
-
-model PushSubscription {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  endpoint  String
-  p256dh    String
-  auth      String
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("push_subscriptions")
-}
-
-model Campaign {
-  id          String     @id @default(cuid())
-  name        String
-  description String
-  startDate   DateTime   @map("start_date")
-  endDate     DateTime   @map("end_date")
-  multiplier  Decimal    @default(1.0) @db.Decimal(3, 2)
-  targetType  WasteType? @map("target_type")
-  active      Boolean    @default(true)
-  imageUrl    String?    @map("image_url")
-  rules       Json?
-  createdAt   DateTime   @default(now()) @map("created_at")
-
-  @@map("campaigns")
-}
-
+// User roles enum
 enum UserRole {
-  USER
-  WASTE_MANAGER
+  SUPER_ADMIN
   ADMIN
-  SUPERADMIN
+  WASTE_MANAGER
+  USER
 }
 
-enum WasteType {
-  RECYCLING
-  COMPOST
-  GENERAL
-  ELECTRONIC
-  HAZARDOUS
-  TEXTILE
-  GLASS
-  METAL
-  PAPER
-  PLASTIC
-}
-
-enum WasteBinStatus {
-  ACTIVE
-  FULL
-  MAINTENANCE
-  INACTIVE
-}
-
-enum RewardCategory {
-  DISCOUNT
-  VOUCHER
-  PRODUCT
-  EXPERIENCE
-  DONATION
-  CASHBACK
-}
-
-enum UserRewardStatus {
+// Waste deposit status enum
+enum WasteDepositStatus {
   PENDING
-  FULFILLED
-  EXPIRED
+  ASSIGNED
+  COLLECTED
+  VERIFIED
+  COMPLETED
   CANCELLED
 }
 
-enum AchievementRarity {
-  COMMON
-  RARE
-  EPIC
-  LEGENDARY
+// Credit transaction types
+enum CreditType {
+  EARNED
+  WITHDRAWN
+  BONUS
+  REFUND
 }
 
-enum ReportType {
-  BIN_FULL
-  BIN_DAMAGED
-  ILLEGAL_DUMPING
-  CONTAMINATION
-  MISSING_BIN
-  OTHER
+// Notification types
+enum NotificationType {
+  DEPOSIT_REQUEST
+  DEPOSIT_ASSIGNED
+  DEPOSIT_VERIFIED
+  PAYOUT_APPROVED
+  PAYOUT_REJECTED
+  SYSTEM_ANNOUNCEMENT
 }
 
-enum ReportStatus {
+// Payout request status
+enum PayoutStatus {
   PENDING
-  IN_PROGRESS
-  RESOLVED
+  APPROVED
   REJECTED
 }
 
-enum ReportPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
+// Waste manager assignment status
+enum AssignmentStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
 
-enum NotificationType {
-  POINTS_EARNED
-  LEVEL_UP
-  REWARD_AVAILABLE
-  ACHIEVEMENT_UNLOCKED
-  CAMPAIGN_STARTED
-  BIN_NEARBY
-  REMINDER
-  SYSTEM
+// Users table with role-based access
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String
+  phone             String?
+  role              UserRole @default(USER)
+  
+  // Location data (permanent storage for efficiency)
+  latitude          Decimal? @db.Decimal(10, 8) // More precise for coordinates
+  longitude         Decimal? @db.Decimal(11, 8)  // More precise for coordinates
+  address           String?
+  
+  // Waste manager specific fields
+  governmentId      String?  @unique
+  certificateUrl    String?
+  isVerified        Boolean  @default(false)
+  isAvailable       Boolean  @default(true) // For waste managers
+  
+  // User activity tracking
+  lastLogin         DateTime?
+  creditsBalance    Decimal  @db.Decimal(10, 2) @default(0) // Cached balance for performance
+  
+  // Audit columns
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime? // Soft delete support
+  
+  // Relations
+  wasteDeposits     WasteDeposit[]
+  assignedDeposits  WasteDeposit[] @relation("WasteManagerDeposits")
+  credits           Credit[]
+  notifications     Notification[]
+  payoutRequests    PayoutRequest[]
+  processedPayouts  PayoutRequest[] @relation("ProcessedPayouts")
+  assignments       WasteManagerAssignment[]
+  
+  // Indexes for performance
+  @@index([role])
+  @@index([isVerified])
+  @@index([isAvailable])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([creditsBalance]) // For balance-based queries
+  @@map("users")
+}
+
+// Waste types with configurable rates
+model WasteType {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  ratePerKg   Decimal @db.Decimal(10, 2) // Use Decimal for money/credits
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? // Soft delete support
+  
+  // Relations
+  wasteDeposits WasteDeposit[]
+  
+  @@index([isActive])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("waste_types")
+}
+
+// Waste deposit requests
+model WasteDeposit {
+  id              String              @id @default(cuid())
+  userId          String
+  wasteManagerId  String?
+  wasteTypeId     String
+  quantityKg      Decimal             @db.Decimal(8, 3) // More precise for weight
+  latitude        Decimal             @db.Decimal(10, 8) // More precise for coordinates
+  longitude       Decimal             @db.Decimal(11, 8)  // More precise for coordinates
+  address         String?
+  status          WasteDepositStatus  @default(PENDING)
+  creditsEarned   Decimal             @db.Decimal(10, 2) @default(0) // Use Decimal for money
+  // Photos will be handled by WasteDepositPhoto table
+  notes           String?
+  
+  // Audit timestamps
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?           // Soft delete support
+  assignedAt      DateTime?
+  collectedAt     DateTime?
+  verifiedAt      DateTime?
+  completedAt     DateTime?
+  
+  // Relations
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wasteManager    User?               @relation("WasteManagerDeposits", fields: [wasteManagerId], references: [id])
+  wasteType       WasteType           @relation(fields: [wasteTypeId], references: [id])
+  credits         Credit[]
+  assignments     WasteManagerAssignment[]
+  photos          WasteDepositPhoto[]
+  history         WasteDepositHistory[]
+  
+  // Indexes for performance
+  @@index([userId])
+  @@index([wasteManagerId])
+  @@index([wasteTypeId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([latitude, longitude]) // For location-based queries
+  @@index([status, createdAt]) // Optimize common queries like 'show all pending deposits'
+  @@map("waste_deposits")
+}
+
+// Waste manager assignments (first-come-first-served)
+model WasteManagerAssignment {
+  id              String   @id @default(cuid())
+  wasteDepositId  String
+  wasteManagerId  String
+  status          AssignmentStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  wasteDeposit    WasteDeposit @relation(fields: [wasteDepositId], references: [id], onDelete: Cascade)
+  wasteManager    User         @relation(fields: [wasteManagerId], references: [id], onDelete: Cascade)
+  
+  @@unique([wasteDepositId, wasteManagerId])
+  @@index([wasteDepositId])
+  @@index([wasteManagerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("waste_manager_assignments")
+}
+
+// Credits system
+model Credit {
+  id              String     @id @default(cuid())
+  userId          String
+  amount          Decimal     @db.Decimal(10, 2) // Use Decimal for money
+  type            CreditType
+  wasteDepositId  String?
+  description     String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  // Relations
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wasteDeposit    WasteDeposit? @relation(fields: [wasteDepositId], references: [id])
+  
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([wasteDepositId])
+  @@map("credits")
+}
+
+// Payout requests
+model PayoutRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Decimal  @db.Decimal(10, 2) // Use Decimal for money
+  status      PayoutStatus @default(PENDING)
+  reason      String?  // For rejections
+  processedById String? // Admin who processed (foreign key)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  processedAt DateTime?
+  deletedAt   DateTime? // Soft delete support
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processedBy User?    @relation("ProcessedPayouts", fields: [processedById], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("payout_requests")
+}
+
+// Notifications system
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  
+  // Relations
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// System settings (for admins to configure)
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+  
+  @@index([key])
+  @@index([updatedAt])
+  @@map("system_settings")
+}
+
+// Waste deposit photos with metadata
+model WasteDepositPhoto {
+  id              String   @id @default(cuid())
+  wasteDepositId  String
+  url             String
+  filename        String?
+  fileSize        Int?     // File size in bytes
+  mimeType        String?  // MIME type (image/jpeg, etc.)
+  uploadedAt      DateTime @default(now())
+  
+  // Relations
+  wasteDeposit    WasteDeposit @relation(fields: [wasteDepositId], references: [id], onDelete: Cascade)
+  
+  @@index([wasteDepositId])
+  @@index([uploadedAt])
+  @@map("waste_deposit_photos")
+}
+
+// Waste deposit status history for audit trail
+model WasteDepositHistory {
+  id              String              @id @default(cuid())
+  wasteDepositId  String
+  status          WasteDepositStatus
+  changedBy       String?             // User ID who made the change
+  reason          String?             // Optional reason for status change
+  createdAt       DateTime            @default(now())
+  
+  // Relations
+  wasteDeposit    WasteDeposit        @relation(fields: [wasteDepositId], references: [id], onDelete: Cascade)
+  
+  @@index([wasteDepositId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("waste_deposit_history")
+}
+
+// System-wide notifications (broadcast messages)
+model SystemNotification {
+  id          String   @id @default(cuid())
+  title       String
+  message     String
+  type        NotificationType
+  isActive    Boolean  @default(true)
+  targetRoles UserRole[] // Which roles should see this notification
+  expiresAt   DateTime? // Optional expiration
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([isActive])
+  @@index([type])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@map("system_notifications")
 }
