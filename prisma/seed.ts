@@ -1,176 +1,151 @@
-import { PrismaClient } from "@prisma/client";
-import dotenv from "dotenv";
-import { logger } from "@/lib/logger";
-
-// Load environment variables
-dotenv.config({ path: ".env.local" });
+import { PrismaClient } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  logger.info("🌱 Starting database seed...");
-
-  // Create waste categories
-  const wasteCategories = await Promise.all([
-    prisma.wasteCategory.create({
-      data: {
-        name: "Plastic",
-        description: "Plastic bottles, containers, and packaging",
-        pointsPerUnit: 10,
-        color: "#3B82F6",
+  // Create Nigerian-based waste types with realistic rates (in Naira per kg)
+  const wasteTypes = await Promise.all([
+    prisma.wasteType.upsert({
+      where: { name: "Plastic Bottles" },
+      update: {},
+      create: {
+        name: "Plastic Bottles",
+        description: "PET bottles, water bottles, soft drink bottles",
+        ratePerKg: 25.0, // ₦25 per kg
       },
     }),
-    prisma.wasteCategory.create({
-      data: {
+    prisma.wasteType.upsert({
+      where: { name: "Cardboard" },
+      update: {},
+      create: {
+        name: "Cardboard",
+        description: "Cardboard boxes, packaging materials",
+        ratePerKg: 15.0, // ₦15 per kg
+      },
+    }),
+    prisma.wasteType.upsert({
+      where: { name: "Aluminum Cans" },
+      update: {},
+      create: {
+        name: "Aluminum Cans",
+        description: "Beer cans, soft drink cans, aluminum containers",
+        ratePerKg: 40.0, // ₦40 per kg
+      },
+    }),
+    prisma.wasteType.upsert({
+      where: { name: "Glass Bottles" },
+      update: {},
+      create: {
+        name: "Glass Bottles",
+        description: "Beer bottles, wine bottles, glass containers",
+        ratePerKg: 10.0, // ₦10 per kg
+      },
+    }),
+    prisma.wasteType.upsert({
+      where: { name: "Organic Waste" },
+      update: {},
+      create: {
+        name: "Organic Waste",
+        description: "Food scraps, vegetable peels, garden waste",
+        ratePerKg: 5.0, // ₦5 per kg
+      },
+    }),
+    prisma.wasteType.upsert({
+      where: { name: "Electronic Waste" },
+      update: {},
+      create: {
+        name: "Electronic Waste",
+        description: "Old phones, computers, electronic devices",
+        ratePerKg: 100.0, // ₦100 per kg
+      },
+    }),
+    prisma.wasteType.upsert({
+      where: { name: "Textiles" },
+      update: {},
+      create: {
+        name: "Textiles",
+        description: "Old clothes, fabric scraps, textile waste",
+        ratePerKg: 8.0, // ₦8 per kg
+      },
+    }),
+    prisma.wasteType.upsert({
+      where: { name: "Paper" },
+      update: {},
+      create: {
         name: "Paper",
-        description: "Cardboard, newspapers, magazines",
-        pointsPerUnit: 8,
-        color: "#10B981",
-      },
-    }),
-    prisma.wasteCategory.create({
-      data: {
-        name: "Glass",
-        description: "Glass bottles and containers",
-        pointsPerUnit: 15,
-        color: "#8B5CF6",
-      },
-    }),
-    prisma.wasteCategory.create({
-      data: {
-        name: "Metal",
-        description: "Aluminum cans, steel containers",
-        pointsPerUnit: 20,
-        color: "#F59E0B",
-      },
-    }),
-    prisma.wasteCategory.create({
-      data: {
-        name: "Electronics",
-        description: "Old phones, computers, batteries",
-        pointsPerUnit: 50,
-        color: "#EF4444",
+        description: "Newspapers, magazines, office paper",
+        ratePerKg: 12.0, // ₦12 per kg
       },
     }),
   ]);
 
-  logger.info("✅ Created waste categories: %d", wasteCategories.length);
-
-  // Create reward categories
-  const rewardCategories = await Promise.all([
-    prisma.rewardCategory.create({
-      data: {
-        name: "Discounts",
-        description: "Store discounts and coupons",
-        color: "#3B82F6",
+  // Create Nigerian-based system settings
+  const systemSettings = await Promise.all([
+    prisma.systemSetting.upsert({
+      where: { key: "min_deposit_kg" },
+      update: {},
+      create: {
+        key: "min_deposit_kg",
+        value: "1",
+        description: "Minimum weight in kg for waste deposits",
       },
     }),
-    prisma.rewardCategory.create({
-      data: {
-        name: "Products",
-        description: "Physical products and merchandise",
-        color: "#10B981",
+    prisma.systemSetting.upsert({
+      where: { key: "min_payout_amount" },
+      update: {},
+      create: {
+        key: "min_payout_amount",
+        value: "500", // ₦500 minimum payout
+        description: "Minimum credit amount for payout requests (in Naira)",
       },
     }),
-    prisma.rewardCategory.create({
-      data: {
-        name: "Experiences",
-        description: "Event tickets and activities",
-        color: "#8B5CF6",
+    prisma.systemSetting.upsert({
+      where: { key: "currency" },
+      update: {},
+      create: {
+        key: "currency",
+        value: "NGN",
+        description: "Default currency for the system",
       },
     }),
-    prisma.rewardCategory.create({
-      data: {
-        name: "Donations",
-        description: "Charitable donations in your name",
-        color: "#F59E0B",
+    prisma.systemSetting.upsert({
+      where: { key: "max_daily_deposits" },
+      update: {},
+      create: {
+        key: "max_daily_deposits",
+        value: "10",
+        description: "Maximum number of deposits per user per day",
       },
     }),
-  ]);
-
-  logger.info("✅ Created reward categories: %d", rewardCategories.length);
-
-  // Create some sample rewards
-  const rewards = await Promise.all([
-    prisma.reward.create({
-      data: {
-        name: "10% Off at EcoStore",
-        description: "Get 10% off your next purchase at EcoStore",
-        pointsRequired: 100,
-        categoryId: rewardCategories[0].id, // Discounts
-        stock: 100,
+    prisma.systemSetting.upsert({
+      where: { key: "waste_manager_radius_km" },
+      update: {},
+      create: {
+        key: "waste_manager_radius_km",
+        value: "5",
+        description: "Radius in kilometers for waste manager assignment",
       },
     }),
-    prisma.reward.create({
-      data: {
-        name: "Reusable Water Bottle",
-        description: "Eco-friendly stainless steel water bottle",
-        pointsRequired: 200,
-        categoryId: rewardCategories[1].id, // Products
-        stock: 50,
-      },
-    }),
-    prisma.reward.create({
-      data: {
-        name: "Tree Planting",
-        description: "Plant a tree in your name",
-        pointsRequired: 150,
-        categoryId: rewardCategories[3].id, // Donations
-        stock: 1000,
+    prisma.systemSetting.upsert({
+      where: { key: "app_name" },
+      update: {},
+      create: {
+        key: "app_name",
+        value: "Recycly Nigeria",
+        description: "Application name",
       },
     }),
   ]);
 
-  logger.info("✅ Created rewards: %d", rewards.length);
-
-  // Create some achievements
-  const achievements = await Promise.all([
-    prisma.achievement.create({
-      data: {
-        name: "First Steps",
-        description: "Complete your first waste disposal",
-        type: "WASTE_COUNT",
-        requirement: 1,
-        bonusPoints: 50,
-      },
-    }),
-    prisma.achievement.create({
-      data: {
-        name: "Waste Warrior",
-        description: "Complete 10 waste disposals",
-        type: "WASTE_COUNT",
-        requirement: 10,
-        bonusPoints: 200,
-      },
-    }),
-    prisma.achievement.create({
-      data: {
-        name: "Point Collector",
-        description: "Earn 500 points",
-        type: "POINTS_THRESHOLD",
-        requirement: 500,
-        bonusPoints: 100,
-      },
-    }),
-    prisma.achievement.create({
-      data: {
-        name: "Level Up",
-        description: "Reach level 5",
-        type: "LEVEL_THRESHOLD",
-        requirement: 5,
-        bonusPoints: 300,
-      },
-    }),
-  ]);
-
-  logger.info("✅ Created achievements: %d", achievements.length);
-
-  logger.info("🎉 Database seeding completed successfully!");
+  console.log("✅ Database seeded successfully with Nigerian data!");
+  console.log(`Created ${wasteTypes.length} waste types`);
+  console.log(`Created ${systemSettings.length} system settings`);
+  console.log("🇳🇬 Nigerian waste types and settings configured");
 }
 
 main()
   .catch((e) => {
-    logger.error("❌ Error seeding database: %o", e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {

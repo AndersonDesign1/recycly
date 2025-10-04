@@ -1,129 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --color-forest-green-50: #f0f9f4;
-  --color-forest-green-100: #dcf4e3;
-  --color-forest-green-200: #bbe8ca;
-  --color-forest-green-300: #8dd5a7;
-  --color-forest-green-400: #57ba7d;
-  --color-forest-green-500: #0b3d2e;
-  --color-forest-green-600: #0a3426;
-  --color-forest-green-700: #082a1f;
-  --color-forest-green-800: #062118;
-  --color-forest-green-900: #041a13;
-
-  --color-sage-green-50: #f7fdf7;
-  --color-sage-green-100: #edfaed;
-  --color-sage-green-200: #d3f4d3;
-  --color-sage-green-300: #aae8aa;
-  --color-sage-green-400: #8bc34a;
-  --color-sage-green-500: #7cb342;
-  --color-sage-green-600: #689f38;
-  --color-sage-green-700: #558b2f;
-  --color-sage-green-800: #33691e;
-  --color-sage-green-900: #1b5e20;
-
-  --color-ocean-blue-50: #eff6ff;
-  --color-ocean-blue-100: #dbeafe;
-  --color-ocean-blue-200: #bfdbfe;
-  --color-ocean-blue-300: #93c5fd;
-  --color-ocean-blue-400: #60a5fa;
-  --color-ocean-blue-500: #1e88e5;
-  --color-ocean-blue-600: #1976d2;
-  --color-ocean-blue-700: #1565c0;
-  --color-ocean-blue-800: #0d47a1;
-  --color-ocean-blue-900: #0a3d91;
-
-  --color-fresh-mint-50: #f0fdf4;
-  --color-fresh-mint-100: #dcfce7;
-  --color-fresh-mint-200: #bbf7d0;
-  --color-fresh-mint-300: #86efac;
-  --color-fresh-mint-400: #4ade80;
-  --color-fresh-mint-500: #4caf50;
-  --color-fresh-mint-600: #16a34a;
-  --color-fresh-mint-700: #15803d;
-  --color-fresh-mint-800: #166534;
-  --color-fresh-mint-900: #14532d;
-
-  --color-reward-gold-50: #fffbeb;
-  --color-reward-gold-100: #fef3c7;
-  --color-reward-gold-200: #fde68a;
-  --color-reward-gold-300: #fcd34d;
-  --color-reward-gold-400: #fbbf24;
-  --color-reward-gold-500: #ffb300;
-  --color-reward-gold-600: #d97706;
-  --color-reward-gold-700: #b45309;
-  --color-reward-gold-800: #92400e;
-  --color-reward-gold-900: #78350f;
+  --color-background: #F5F6F7;
+  --color-page: #FFFFFF;
+  --color-primary: #195B4E;
+  --color-primary-dark: #153E36;
+  --color-primary-card: #184D44;
+  --color-accent: #F6C24A;
+  --color-muted: #6B7280;
+  --color-text: #111827;
+  --color-border: #E6E9EB;
+  --color-shadow: rgba(16,24,40,0.06);
+  
+  --font-family-sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  
+  --radius-small: 6px;
+  --radius-base: 12px;
+  --radius-large: 18px;
+  --radius-pill: 9999px;
+  
+  --shadow-card: 0 10px 30px rgba(16,24,40,0.06);
+  --shadow-floating: 0 14px 40px rgba(16,24,40,0.08);
+  
+  --max-width-page: 1440px;
+  --width-sidebar: 88px;
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
   body {
-    @apply bg-white text-gray-900;
-  }
-}
-
-@layer utilities {
-  /* Custom utility classes and component styles */
-
-  /* Gradient Backgrounds */
-  .gradient-primary {
-    background: linear-gradient(
-      135deg,
-      var(--color-forest-green-500),
-      var(--color-ocean-blue-500)
-    );
-  }
-
-  .gradient-secondary {
-    background: linear-gradient(
-      135deg,
-      var(--color-ocean-blue-500),
-      var(--color-sage-green-500)
-    );
-  }
-
-  .gradient-green {
-    background: linear-gradient(
-      135deg,
-      var(--color-fresh-mint-500),
-      var(--color-sage-green-500)
-    );
-  }
-
-  /* Animation Classes */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.5s ease-out;
-  }
-
-  /* Card Components */
-  .minimal-card {
-    background-color: var(--color-forest-green-50);
-    border-radius: 0.75rem;
-    box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
-    padding: 1.5rem;
-  }
-
-  .dashboard-card {
-    background-color: var(--color-forest-green-50);
-    border-radius: 1.5rem;
-    box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
-    padding: 1.5rem;
+    @apply bg-background text-text font-sans;
   }
 }

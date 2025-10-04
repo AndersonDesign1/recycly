@@ -1,16 +1,18 @@
-import { router } from "@/server/trpc";
-import { adminRouter } from "./routers/admin";
-import { rewardRouter } from "./routers/reward";
-import { superAdminRouter } from "./routers/superAdmin";
-import { userRouter } from "./routers/user";
-import { wasteRouter } from "./routers/waste";
+import { fetchRouter } from "../../lib/trpc";
+import { adminRouter } from "./admin";
+import { creditRouter } from "./credit";
+import { notificationRouter } from "./notification";
+import { userRouter } from "./user";
+import { wasteDepositRouter } from "./waste-deposit";
+import { wasteManagerRouter } from "./waste-manager";
 
-export const appRouter = router({
+export const appRouter = fetchRouter({
   user: userRouter,
-  waste: wasteRouter,
-  reward: rewardRouter,
+  wasteDeposit: wasteDepositRouter,
+  wasteManager: wasteManagerRouter,
   admin: adminRouter,
-  superAdmin: superAdminRouter,
+  credit: creditRouter,
+  notification: notificationRouter,
 });
 
 export type AppRouter = typeof appRouter;

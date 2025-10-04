@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { signIn } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-export function LoginForm() {
+export function SignupForm() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -20,10 +22,17 @@ export function LoginForm() {
     setIsLoading(true);
     setError("");
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const result = await signIn.email({
+      const result = await signUp.email({
         email,
         password,
+        name,
       });
 
       if (result.error) {
@@ -41,13 +50,28 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-h1 text-text">Welcome Back</CardTitle>
+        <CardTitle className="text-h1 text-text">Join Recycly</CardTitle>
         <CardDescription className="text-muted">
-          Sign in to your Recycly account
+          Create your account and start recycling
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-md">
+          <div className="space-y-sm">
+            <Label htmlFor="name" className="text-body">
+              Full Name
+            </Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full"
+              placeholder="Enter your full name"
+            />
+          </div>
+
           <div className="space-y-sm">
             <Label htmlFor="email" className="text-body">
               Email
@@ -74,7 +98,22 @@ export function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full"
-              placeholder="Enter your password"
+              placeholder="Create a password"
+            />
+          </div>
+
+          <div className="space-y-sm">
+            <Label htmlFor="confirmPassword" className="text-body">
+              Confirm Password
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full"
+              placeholder="Confirm your password"
             />
           </div>
 
@@ -89,15 +128,15 @@ export function LoginForm() {
             className="w-full bg-primary hover:bg-primary-dark"
             disabled={isLoading}
           >
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Creating account..." : "Sign Up"}
           </Button>
         </form>
 
         <div className="mt-lg text-center">
           <p className="text-muted">
-            Don't have an account?{" "}
-            <a href="/signup" className="text-primary hover:text-primary-dark">
-              Sign up
+            Already have an account?{" "}
+            <a href="/signin" className="text-primary hover:text-primary-dark">
+              Sign in
             </a>
           </p>
         </div>
