@@ -575,7 +575,7 @@ Mitigation:
 
 ### Phase 1: MVP delivery
 
-- Status: `Not started`
+- Status: `Ongoing`
 
 - build user pickup flow
 - build collector job handling

@@ -102,7 +102,7 @@
 
 ## Phase 3: User And Collector Workflows
 
-- Status: `Not started`
+- Status: `Done`
 - Objective: deliver the core pickup workflow from request creation to collector fulfillment.
 - Completion target: users can create pickups and collectors can receive and work assigned jobs.
 - Prerequisites: Phase 2 done.
@@ -123,6 +123,7 @@
 - A user can create and track a pickup request.
 - An eligible collector can see, accept, and progress a nearby job.
 - Pickup states update correctly through the operational flow.
+- Validation complete: `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
@@ -131,7 +132,7 @@
 
 ## Phase 4: Verification, Rewards, And Operations
 
-- Status: `Not started`
+- Status: `Done`
 - Objective: add the back-office workflows that make the product operationally real.
 - Completion target: staff can verify pickups, issue points, and manage redemptions and exceptions.
 - Prerequisites: Phase 3 done.
@@ -152,6 +153,7 @@
 - Users can submit redemption requests and see statuses.
 - Staff can process operational queues.
 - Super Admin can manage access and key reward settings.
+- Validation complete: `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
