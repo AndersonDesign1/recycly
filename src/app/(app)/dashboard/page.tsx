@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ArrowRight, Database, ShieldCheck, Sparkles } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { roleLabels } from "@/lib/roles";
+import { ensureProfile } from "@/server/auth/permissions";
 
 const phaseOneWins = [
   {
@@ -24,9 +25,9 @@ const phaseOneWins = [
 ];
 
 export default async function DashboardPage() {
-  const { userId } = await auth();
+  const profile = await ensureProfile();
 
-  if (!userId) {
+  if (!profile) {
     redirect("/sign-in");
   }
 
@@ -44,6 +45,9 @@ export default async function DashboardPage() {
           groups, app shell, and data foundations so we can move into workflows
           next without carrying legacy structure.
         </p>
+        <div className="mt-6 inline-flex rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
+          Current role foundation: {roleLabels[profile.role]}
+        </div>
         <Link className={buttonVariants({ className: "mt-6" })} href="/docs">
           Review project docs
           <ArrowRight className="size-4" />

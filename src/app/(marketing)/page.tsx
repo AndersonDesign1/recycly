@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Leaf, MapPinned, Wallet } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 
 const highlights = [
   {

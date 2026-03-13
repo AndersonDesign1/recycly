@@ -8,6 +8,12 @@
 - Last updated: 2026-03-13
 - Product type: Production-style side project with real operational workflows
 
+## Delivery Status Legend
+
+- `Not started`
+- `Ongoing`
+- `Done`
+
 ## 1. Product Summary
 
 Recycly is a pickup-first recycling rewards platform designed for an initial Nigeria urban launch. It helps people recycle major household waste categories correctly by letting them schedule waste pickups, track collection status, and earn points after successful verification.
@@ -557,6 +563,8 @@ Mitigation:
 
 ### Phase 0: foundation
 
+- Status: `Done`
+
 - finalize PRD
 - define information architecture
 - set up fresh codebase
@@ -566,6 +574,8 @@ Mitigation:
 - establish role model and route structure
 
 ### Phase 1: MVP delivery
+
+- Status: `Not started`
 
 - build user pickup flow
 - build collector job handling
@@ -577,6 +587,8 @@ Mitigation:
 
 ### Phase 1.1: hardening
 
+- Status: `Not started`
+
 - add audit logs
 - improve operational reporting
 - harden notifications
@@ -584,6 +596,8 @@ Mitigation:
 - add better performance and exception handling
 
 ### Phase 2: growth
+
+- Status: `Not started`
 
 - add campaigns and bonus systems
 - add referrals
@@ -615,4 +629,3 @@ These do not block the PRD but will need follow-up before coding:
 - map/geocoding vendor selection
 - email provider choice
 - queue/job infrastructure choice
-

@@ -74,7 +74,7 @@
 
 ## Phase 2: Data Model And RBAC Foundation
 
-- Status: `Not started`
+- Status: `Done`
 - Objective: define the business schema and core permissions model.
 - Completion target: Drizzle schema and role model support the MVP entities and access patterns.
 - Prerequisites: Phase 1 done.
@@ -93,6 +93,7 @@
 - Core tables/entities are represented in Drizzle.
 - Role-restricted access rules are enforceable in the app layer.
 - UploadThing is ready for operational file flows.
+- Validation complete: `pnpm db:generate`, `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
