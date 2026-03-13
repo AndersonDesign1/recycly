@@ -23,7 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      afterSignOutUrl="/"
+      signInFallbackRedirectUrl="/dashboard"
+      signInUrl="/sign-in"
+      signUpFallbackRedirectUrl="/dashboard"
+      signUpUrl="/sign-up"
+    >
       <html lang="en" className={cn("font-sans", geist.variable)}>
         <body>{children}</body>
       </html>
