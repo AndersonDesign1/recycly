@@ -44,6 +44,12 @@ function normalizeRole(value: FormDataEntryValue | null): AppRole {
   return role;
 }
 
+function normalizeOnboardingRole(value: FormDataEntryValue | null): "user" | "collector" {
+  const role = String(value ?? "").trim();
+
+  return role === "collector" ? "collector" : "user";
+}
+
 function normalizePickupStatus(value: FormDataEntryValue | null): PickupStatus {
   const allowed: PickupStatus[] = [
     "accepted",
@@ -65,7 +71,7 @@ export async function saveOnboarding(formData: FormData) {
   const database = requireDb();
   const profile = await requireProfile();
 
-  const role = normalizeRole(formData.get("role"));
+  const role = normalizeOnboardingRole(formData.get("role"));
   const fullName = String(formData.get("fullName") ?? "").trim();
   const phoneNumber = String(formData.get("phoneNumber") ?? "").trim();
   const city = String(formData.get("city") ?? "Lagos").trim() || "Lagos";
@@ -117,18 +123,6 @@ export async function saveOnboarding(formData: FormData) {
 
   revalidatePath("/dashboard");
   redirect("/dashboard");
-}
-
-async function getPointsBalance(profileId: string) {
-  const database = requireDb();
-  const [result] = await database
-    .select({
-      balance: sql<number>`coalesce(sum(case when ${pointsLedger.direction} = 'credit' then ${pointsLedger.points} else -${pointsLedger.points} end), 0)`,
-    })
-    .from(pointsLedger)
-    .where(eq(pointsLedger.profileId, profileId));
-
-  return Number(result?.balance ?? 0);
 }
 
 export async function createPickupRequest(formData: FormData) {
@@ -224,12 +218,21 @@ export async function createRedemptionRequest(formData: FormData) {
     throw new Error("Reward is not available.");
   }
 
-  const currentBalance = await getPointsBalance(profile.id);
-  if (currentBalance < reward.pointsCost) {
-    throw new Error("Not enough points for this redemption.");
-  }
-
   await database.transaction(async (tx) => {
+    await tx.execute(sql`select ${profiles.id} from ${profiles} where ${profiles.id} = ${profile.id} for update`);
+
+    const [balanceResult] = await tx
+      .select({
+        balance: sql<number>`coalesce(sum(case when ${pointsLedger.direction} = 'credit' then ${pointsLedger.points} else -${pointsLedger.points} end), 0)`,
+      })
+      .from(pointsLedger)
+      .where(eq(pointsLedger.profileId, profile.id));
+
+    const currentBalance = Number(balanceResult?.balance ?? 0);
+    if (currentBalance < reward.pointsCost) {
+      throw new Error("Not enough points for this redemption.");
+    }
+
     const [redemption] = await tx
       .insert(redemptionRequests)
       .values({
@@ -343,7 +346,7 @@ export async function acceptAssignedPickup(formData: FormData) {
     throw new Error("Collector profile is missing.");
   }
 
-  await database
+  const acceptedRequests = await database
     .update(pickupRequests)
     .set({
       status: "accepted",
@@ -356,15 +359,18 @@ export async function acceptAssignedPickup(formData: FormData) {
         eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
         eq(pickupRequests.status, "assigned"),
       ),
-    );
+    )
+    .returning({ id: pickupRequests.id });
 
-  await database
-    .update(collectorProfiles)
-    .set({
-      availability: "busy",
-      updatedAt: new Date(),
-    })
-    .where(eq(collectorProfiles.id, collectorProfile.id));
+  if (acceptedRequests.length) {
+    await database
+      .update(collectorProfiles)
+      .set({
+        availability: "busy",
+        updatedAt: new Date(),
+      })
+      .where(eq(collectorProfiles.id, collectorProfile.id));
+  }
 
   revalidatePath("/dashboard");
 }
