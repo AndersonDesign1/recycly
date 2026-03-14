@@ -67,6 +67,23 @@ function normalizePickupStatus(value: FormDataEntryValue | null): PickupStatus {
   return status;
 }
 
+function canTransitionPickupStatus(currentStatus: PickupStatus, nextStatus: PickupStatus) {
+  const allowedTransitions: Record<PickupStatus, PickupStatus[]> = {
+    draft: [],
+    requested: [],
+    assigned: [],
+    accepted: ["accepted", "en_route", "cancelled"],
+    en_route: ["en_route", "collected", "cancelled"],
+    collected: ["collected", "completed", "cancelled"],
+    verified: [],
+    rejected: [],
+    completed: [],
+    cancelled: [],
+  };
+
+  return allowedTransitions[currentStatus]?.includes(nextStatus) ?? false;
+}
+
 export async function saveOnboarding(formData: FormData) {
   const database = requireDb();
   const profile = await requireProfile();
@@ -391,6 +408,28 @@ export async function updatePickupStatus(formData: FormData) {
     throw new Error("Collector profile is missing.");
   }
 
+  const [request] = await database
+    .select({
+      id: pickupRequests.id,
+      status: pickupRequests.status,
+    })
+    .from(pickupRequests)
+    .where(
+      and(
+        eq(pickupRequests.id, pickupRequestId),
+        eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
+      ),
+    )
+    .limit(1);
+
+  if (!request) {
+    throw new Error("Pickup request was not found.");
+  }
+
+  if (!canTransitionPickupStatus(request.status, nextStatus)) {
+    throw new Error("Invalid pickup status transition.");
+  }
+
   const nextValues: Partial<typeof pickupRequests.$inferInsert> = {
     status: nextStatus,
     updatedAt: new Date(),
@@ -419,6 +458,7 @@ export async function updatePickupStatus(formData: FormData) {
       and(
         eq(pickupRequests.id, pickupRequestId),
         eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
+        eq(pickupRequests.status, request.status),
       ),
     );
 
@@ -511,26 +551,40 @@ export async function verifyPickupRequest(formData: FormData) {
   const reason = String(formData.get("reason") ?? "").trim();
   const pointsValue = Number(formData.get("pointsValue") ?? 0);
 
-  const [request] = await database
-    .select()
-    .from(pickupRequests)
-    .where(eq(pickupRequests.id, pickupRequestId))
-    .limit(1);
-
-  if (!request) {
-    throw new Error("Pickup request not found.");
-  }
-
-  const items = await database
-    .select()
-    .from(pickupItems)
-    .where(eq(pickupItems.pickupRequestId, request.id));
-
-  if (!items.length) {
-    throw new Error("Pickup request has no items to verify.");
-  }
-
   await database.transaction(async (tx) => {
+    const lockedRequestResult = await tx.execute(
+      sql`select id, requester_profile_id, status from ${pickupRequests} where ${pickupRequests.id} = ${pickupRequestId} for update`,
+    );
+
+    const lockedRequest = lockedRequestResult.rows[0] as
+      | {
+          id: string;
+          requester_profile_id: string;
+          status: PickupStatus;
+        }
+      | undefined;
+
+    if (!lockedRequest) {
+      throw new Error("Pickup request not found.");
+    }
+
+    if (["verified", "rejected"].includes(lockedRequest.status)) {
+      throw new Error("Pickup request has already been reviewed.");
+    }
+
+    if (!["collected", "completed"].includes(lockedRequest.status)) {
+      throw new Error("Pickup request is not ready for verification.");
+    }
+
+    const items = await tx
+      .select()
+      .from(pickupItems)
+      .where(eq(pickupItems.pickupRequestId, lockedRequest.id));
+
+    if (!items.length) {
+      throw new Error("Pickup request has no items to verify.");
+    }
+
     if (decision === "verified") {
       await tx
         .update(pickupRequests)
@@ -539,7 +593,7 @@ export async function verifyPickupRequest(formData: FormData) {
           completedAt: new Date(),
           updatedAt: new Date(),
         })
-        .where(eq(pickupRequests.id, request.id));
+        .where(eq(pickupRequests.id, lockedRequest.id));
 
       for (const item of items) {
         const awardedPoints = pointsValue > 0 ? pointsValue : Math.max(item.quantity ?? 1, 1) * 10;
@@ -554,7 +608,7 @@ export async function verifyPickupRequest(formData: FormData) {
           .where(eq(pickupItems.id, item.id));
 
         await tx.insert(verificationRecords).values({
-          pickupRequestId: request.id,
+          pickupRequestId: lockedRequest.id,
           pickupItemId: item.id,
           reviewerProfileId: reviewer.id,
           status: "verified",
@@ -563,8 +617,8 @@ export async function verifyPickupRequest(formData: FormData) {
         });
 
         await tx.insert(pointsLedger).values({
-          profileId: request.requesterProfileId,
-          pickupRequestId: request.id,
+          profileId: lockedRequest.requester_profile_id,
+          pickupRequestId: lockedRequest.id,
           pickupItemId: item.id,
           direction: "credit",
           points: awardedPoints,
@@ -573,7 +627,7 @@ export async function verifyPickupRequest(formData: FormData) {
       }
 
       await tx.insert(notifications).values({
-        profileId: request.requesterProfileId,
+        profileId: lockedRequest.requester_profile_id,
         type: "verification",
         title: "Pickup verified",
         body: "Your latest recycling pickup has been verified and points were added to your balance.",
@@ -585,7 +639,7 @@ export async function verifyPickupRequest(formData: FormData) {
           status: "rejected",
           updatedAt: new Date(),
         })
-        .where(eq(pickupRequests.id, request.id));
+        .where(eq(pickupRequests.id, lockedRequest.id));
 
       for (const item of items) {
         await tx
@@ -597,7 +651,7 @@ export async function verifyPickupRequest(formData: FormData) {
           .where(eq(pickupItems.id, item.id));
 
         await tx.insert(verificationRecords).values({
-          pickupRequestId: request.id,
+          pickupRequestId: lockedRequest.id,
           pickupItemId: item.id,
           reviewerProfileId: reviewer.id,
           status: "rejected",
@@ -607,7 +661,7 @@ export async function verifyPickupRequest(formData: FormData) {
       }
 
       await tx.insert(notifications).values({
-        profileId: request.requesterProfileId,
+        profileId: lockedRequest.requester_profile_id,
         type: "verification",
         title: "Pickup rejected",
         body: reason || "Your latest recycling pickup did not pass verification.",
@@ -617,7 +671,7 @@ export async function verifyPickupRequest(formData: FormData) {
     await tx.insert(auditLogs).values({
       actorProfileId: reviewer.id,
       entityType: "pickup_request",
-      entityId: request.id,
+      entityId: lockedRequest.id,
       action: decision === "verified" ? "verify_pickup" : "reject_pickup",
       details: {
         reason: reason || null,
