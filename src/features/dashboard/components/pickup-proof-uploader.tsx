@@ -5,9 +5,9 @@ import { useState, useTransition } from "react";
 
 import { UploadButton } from "@/lib/uploadthing";
 
-type PickupProofUploaderProps = {
+interface PickupProofUploaderProps {
   pickupRequestId: string;
-};
+}
 
 export function PickupProofUploader({
   pickupRequestId,
@@ -17,10 +17,12 @@ export function PickupProofUploader({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-3 rounded-2xl border border-dashed border-border bg-background/70 p-4">
+    <div className="space-y-3 rounded-2xl border border-border border-dashed bg-background/70 p-4">
       <div>
-        <p className="text-sm font-medium text-foreground">Upload pickup proof</p>
-        <p className="text-xs leading-5 text-muted-foreground">
+        <p className="font-medium text-foreground text-sm">
+          Upload pickup proof
+        </p>
+        <p className="text-muted-foreground text-xs leading-5">
           Add photo evidence after collection so the request can move into staff
           review.
         </p>
@@ -67,7 +69,7 @@ export function PickupProofUploader({
       />
 
       {message ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {isPending ? "Saving proof..." : message}
         </p>
       ) : null}

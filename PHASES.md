@@ -65,7 +65,7 @@
 - Public and authenticated route groups exist.
 - Clerk is wired and ready for role-based access work.
 - The codebase no longer reflects the deleted legacy architecture.
-- Validation complete: `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
+- Validation complete: `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
@@ -93,7 +93,7 @@
 - Core tables/entities are represented in Drizzle.
 - Role-restricted access rules are enforceable in the app layer.
 - UploadThing is ready for operational file flows.
-- Validation complete: `pnpm db:generate`, `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
+- Validation complete: `pnpm db:generate`, `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
@@ -123,7 +123,7 @@
 - A user can create and track a pickup request.
 - An eligible collector can see, accept, and progress a nearby job.
 - Pickup states update correctly through the operational flow.
-- Validation complete: `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
+- Validation complete: `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
@@ -153,7 +153,7 @@
 - Users can submit redemption requests and see statuses.
 - Staff can process operational queues.
 - Super Admin can manage access and key reward settings.
-- Validation complete: `pnpm lint`, `pnpm typecheck`, and `pnpm build` all pass.
+- Validation complete: `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
@@ -162,7 +162,7 @@
 
 ## Phase 5: Marketing, Docs, And Launch Hardening
 
-- Status: `Not started`
+- Status: `In progress`
 - Objective: complete the public-facing product experience and harden the app for early launch.
 - Completion target: Recycly has a coherent landing experience, usable docs, and enough polish for a realistic MVP release.
 - Prerequisites: Phase 4 done.

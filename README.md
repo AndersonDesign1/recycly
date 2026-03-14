@@ -11,6 +11,13 @@ This repository is now in a fresh rebuild phase. The legacy implementation has b
 - [PRD.md](./PRD.md): product requirements and scope definition
 - [PHASES.md](./PHASES.md): step-by-step build tracker and milestone plan
 
+## Code Quality
+
+- Biome and Ultracite are the only code-quality tools used in this repo.
+- Run `pnpm lint` or `pnpm check` for read-only validation.
+- Run `pnpm fix` to apply safe automated fixes.
+- Generated Drizzle metadata under `drizzle/meta` is excluded from Biome checks.
+
 ## Intended Stack
 
 - Next.js App Router

@@ -1,29 +1,46 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
-import { savePickupProof } from "@/app/(app)/dashboard/actions";
+import { savePickupProof } from "@/features/dashboard/server/actions";
+
+const pickupProofPayloadSchema = z.object({
+  pickupRequestId: z.string().trim().min(1),
+  fileKey: z.string().trim().min(1),
+  fileUrl: z.url(),
+  fileName: z.string().trim().min(1).nullable().optional(),
+  fileSize: z.number().int().nonnegative().nullable().optional(),
+  mimeType: z.string().trim().min(1).nullable().optional(),
+});
 
 export async function POST(request: Request) {
   try {
-    const payload = await request.json();
+    const payload = pickupProofPayloadSchema.parse(await request.json());
 
     await savePickupProof({
-      pickupRequestId: String(payload.pickupRequestId),
-      fileKey: String(payload.fileKey),
-      fileUrl: String(payload.fileUrl),
-      fileName: payload.fileName ? String(payload.fileName) : null,
-      fileSize:
-        typeof payload.fileSize === "number" ? payload.fileSize : Number(payload.fileSize ?? 0),
-      mimeType: payload.mimeType ? String(payload.mimeType) : null,
+      pickupRequestId: payload.pickupRequestId,
+      fileKey: payload.fileKey,
+      fileUrl: payload.fileUrl,
+      fileName: payload.fileName ?? null,
+      fileSize: payload.fileSize ?? null,
+      mimeType: payload.mimeType ?? null,
     });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    let message = "Unable to save pickup proof.";
+    let status = 400;
+
+    if (error instanceof z.ZodError) {
+      message = "Invalid pickup proof payload.";
+      status = 422;
+    }
+
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : "Unable to save pickup proof.",
+        error: message,
       },
-      { status: 400 },
+      { status }
     );
   }
 }

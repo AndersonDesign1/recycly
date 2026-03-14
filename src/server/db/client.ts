@@ -1,26 +1,32 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-import * as schema from "@/server/db/schema";
-
 declare global {
   var recyclyPool: Pool | undefined;
 }
 
+const globalForDb = globalThis as typeof globalThis & {
+  recyclyPool?: Pool;
+};
+
 const connectionString = process.env.DATABASE_URL;
 
 const pool = connectionString
-  ? globalThis.recyclyPool ??
+  ? (globalForDb.recyclyPool ??
     new Pool({
       connectionString,
+      connectionTimeoutMillis: 5000,
+      idleTimeoutMillis: 30_000,
       max: 10,
-    })
+      maxUses: 7500,
+    }))
   : null;
 
 if (process.env.NODE_ENV !== "production" && pool) {
-  globalThis.recyclyPool = pool;
+  globalForDb.recyclyPool = pool;
 }
 
-export const db = pool ? drizzle(pool, { schema }) : null;
+export const db = pool ? drizzle(pool) : null;
+export const dbPool = pool;
 
 export type Db = typeof db;
