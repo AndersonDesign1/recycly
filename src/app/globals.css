@@ -93,7 +93,11 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(213, 245, 114, 0.45), transparent 30%),
+    radial-gradient(
+      circle at top left,
+      rgba(213, 245, 114, 0.45),
+      transparent 30%
+    ),
     linear-gradient(180deg, #f7f6f1 0%, #f1eee6 100%);
 }
 
@@ -111,7 +115,11 @@ select {
 
 .app-shell {
   background:
-    radial-gradient(circle at top right, rgba(52, 140, 97, 0.15), transparent 24%),
+    radial-gradient(
+      circle at top right,
+      rgba(52, 140, 97, 0.15),
+      transparent 24%
+    ),
     linear-gradient(180deg, #fcfbf7 0%, #f3efe5 100%);
 }
 

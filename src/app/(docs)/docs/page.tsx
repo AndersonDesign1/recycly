@@ -17,13 +17,13 @@ export default function DocsPage() {
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-16">
       <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+        <p className="font-semibold text-primary text-sm uppercase tracking-[0.25em]">
           Docs
         </p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight">
+        <h1 className="mt-4 font-semibold text-4xl tracking-tight">
           Recycly foundations
         </h1>
-        <p className="mt-4 text-lg leading-8 text-muted-foreground">
+        <p className="mt-4 text-lg text-muted-foreground leading-8">
           This docs surface lives inside the same Next.js application as the
           landing pages and authenticated app, matching the PRD direction for a
           single-codebase product.
@@ -33,11 +33,11 @@ export default function DocsPage() {
       <div className="mt-12 grid gap-5">
         {docsSections.map((section) => (
           <section
-            key={section.title}
             className="rounded-[1.75rem] border border-border bg-card p-6"
+            key={section.title}
           >
-            <h2 className="text-xl font-semibold">{section.title}</h2>
-            <p className="mt-3 text-sm leading-7 text-muted-foreground">
+            <h2 className="font-semibold text-xl">{section.title}</h2>
+            <p className="mt-3 text-muted-foreground text-sm leading-7">
               {section.body}
             </p>
           </section>

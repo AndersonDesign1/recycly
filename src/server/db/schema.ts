@@ -115,16 +115,22 @@ export const profiles = pgTable(
     avatarUrl: text("avatar_url"),
     role: appRoleEnum("role").notNull().default("user"),
     isActive: boolean("is_active").notNull().default(true),
-    onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
+    onboardingCompleted: boolean("onboarding_completed")
+      .notNull()
+      .default(false),
     city: text("city").default("Lagos"),
     metadata: jsonb("metadata").$type<Record<string, unknown> | null>(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     uniqueIndex("profiles_clerk_user_id_idx").on(table.clerkUserId),
     uniqueIndex("profiles_email_idx").on(table.email),
-  ],
+  ]
 );
 
 export const collectorProfiles = pgTable(
@@ -153,13 +159,17 @@ export const collectorProfiles = pgTable(
       scale: 8,
     }),
     verifiedAt: timestamp("verified_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     uniqueIndex("collector_profiles_profile_id_idx").on(table.profileId),
     index("collector_profiles_availability_idx").on(table.availability),
-  ],
+  ]
 );
 
 export const pickupRequests = pgTable(
@@ -169,10 +179,9 @@ export const pickupRequests = pgTable(
     requesterProfileId: uuid("requester_profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    assignedCollectorProfileId: uuid("assigned_collector_profile_id").references(
-      () => collectorProfiles.id,
-      { onDelete: "set null" },
-    ),
+    assignedCollectorProfileId: uuid(
+      "assigned_collector_profile_id"
+    ).references(() => collectorProfiles.id, { onDelete: "set null" }),
     status: pickupRequestStatusEnum("status").notNull().default("requested"),
     addressLine1: text("address_line_1").notNull(),
     addressLine2: text("address_line_2"),
@@ -192,14 +201,18 @@ export const pickupRequests = pgTable(
     collectedAt: timestamp("collected_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("pickup_requests_status_idx").on(table.status),
     index("pickup_requests_requester_idx").on(table.requesterProfileId),
     index("pickup_requests_collector_idx").on(table.assignedCollectorProfileId),
-  ],
+  ]
 );
 
 export const pickupItems = pgTable(
@@ -224,13 +237,17 @@ export const pickupItems = pgTable(
       .notNull()
       .default("pending"),
     pointsAwarded: integer("points_awarded").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("pickup_items_request_idx").on(table.pickupRequestId),
     index("pickup_items_type_idx").on(table.wasteType),
-  ],
+  ]
 );
 
 export const verificationRecords = pgTable(
@@ -249,12 +266,14 @@ export const verificationRecords = pgTable(
     status: verificationStatusEnum("status").notNull(),
     reason: text("reason"),
     verifiedPoints: integer("verified_points"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("verification_records_request_idx").on(table.pickupRequestId),
     index("verification_records_status_idx").on(table.status),
-  ],
+  ]
 );
 
 export const rewards = pgTable(
@@ -270,13 +289,17 @@ export const rewards = pgTable(
     isActive: boolean("is_active").notNull().default(true),
     stock: integer("stock"),
     metadata: jsonb("metadata").$type<Record<string, unknown> | null>(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     uniqueIndex("rewards_slug_idx").on(table.slug),
     index("rewards_active_idx").on(table.isActive),
-  ],
+  ]
 );
 
 export const redemptionRequests = pgTable(
@@ -292,22 +315,29 @@ export const redemptionRequests = pgTable(
     status: redemptionStatusEnum("status").notNull().default("pending"),
     pointsSpent: integer("points_spent").notNull(),
     payoutMethod: text("payout_method"),
-    payoutDestination: jsonb("payout_destination").$type<Record<string, unknown> | null>(),
+    payoutDestination: jsonb("payout_destination").$type<Record<
+      string,
+      unknown
+    > | null>(),
     notes: text("notes"),
     rejectionReason: text("rejection_reason"),
     reviewedByProfileId: uuid("reviewed_by_profile_id").references(
       () => profiles.id,
-      { onDelete: "set null" },
+      { onDelete: "set null" }
     ),
     reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
     fulfilledAt: timestamp("fulfilled_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("redemption_requests_requester_idx").on(table.requesterProfileId),
     index("redemption_requests_status_idx").on(table.status),
-  ],
+  ]
 );
 
 export const pointsLedger = pgTable(
@@ -317,25 +347,30 @@ export const pointsLedger = pgTable(
     profileId: uuid("profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    pickupRequestId: uuid("pickup_request_id").references(() => pickupRequests.id, {
-      onDelete: "set null",
-    }),
+    pickupRequestId: uuid("pickup_request_id").references(
+      () => pickupRequests.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     pickupItemId: uuid("pickup_item_id").references(() => pickupItems.id, {
       onDelete: "set null",
     }),
     redemptionRequestId: uuid("redemption_request_id").references(
       () => redemptionRequests.id,
-      { onDelete: "set null" },
+      { onDelete: "set null" }
     ),
     direction: pointsDirectionEnum("direction").notNull(),
     points: integer("points").notNull(),
     reason: text("reason").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("points_ledger_profile_idx").on(table.profileId),
     index("points_ledger_request_idx").on(table.pickupRequestId),
-  ],
+  ]
 );
 
 export const supportTickets = pgTable(
@@ -345,24 +380,34 @@ export const supportTickets = pgTable(
     requesterProfileId: uuid("requester_profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    pickupRequestId: uuid("pickup_request_id").references(() => pickupRequests.id, {
-      onDelete: "set null",
-    }),
+    pickupRequestId: uuid("pickup_request_id").references(
+      () => pickupRequests.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     subject: text("subject").notNull(),
     message: text("message").notNull(),
     status: supportStatusEnum("status").notNull().default("open"),
     priority: ticketPriorityEnum("priority").notNull().default("medium"),
-    assignedToProfileId: uuid("assigned_to_profile_id").references(() => profiles.id, {
-      onDelete: "set null",
-    }),
+    assignedToProfileId: uuid("assigned_to_profile_id").references(
+      () => profiles.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     closedAt: timestamp("closed_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("support_tickets_status_idx").on(table.status),
     index("support_tickets_requester_idx").on(table.requesterProfileId),
-  ],
+  ]
 );
 
 export const disputes = pgTable(
@@ -372,31 +417,44 @@ export const disputes = pgTable(
     requesterProfileId: uuid("requester_profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "restrict" }),
-    pickupRequestId: uuid("pickup_request_id").references(() => pickupRequests.id, {
-      onDelete: "set null",
-    }),
-    supportTicketId: uuid("support_ticket_id").references(() => supportTickets.id, {
-      onDelete: "set null",
-    }),
+    pickupRequestId: uuid("pickup_request_id").references(
+      () => pickupRequests.id,
+      {
+        onDelete: "set null",
+      }
+    ),
+    supportTicketId: uuid("support_ticket_id").references(
+      () => supportTickets.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     status: supportStatusEnum("status").notNull().default("open"),
     category: text("category").notNull(),
     description: text("description").notNull(),
     resolution: text("resolution"),
-    assignedToProfileId: uuid("assigned_to_profile_id").references(() => profiles.id, {
-      onDelete: "set null",
-    }),
+    assignedToProfileId: uuid("assigned_to_profile_id").references(
+      () => profiles.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     escalatedToProfileId: uuid("escalated_to_profile_id").references(
       () => profiles.id,
-      { onDelete: "set null" },
+      { onDelete: "set null" }
     ),
     resolvedAt: timestamp("resolved_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("disputes_status_idx").on(table.status),
     index("disputes_requester_idx").on(table.requesterProfileId),
-  ],
+  ]
 );
 
 export const notifications = pgTable(
@@ -411,12 +469,14 @@ export const notifications = pgTable(
     body: text("body").notNull(),
     data: jsonb("data").$type<Record<string, unknown> | null>(),
     readAt: timestamp("read_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index("notifications_profile_idx").on(table.profileId),
     index("notifications_type_idx").on(table.type),
-  ],
+  ]
 );
 
 export const attachments = pgTable(
@@ -426,15 +486,21 @@ export const attachments = pgTable(
     ownerProfileId: uuid("owner_profile_id").references(() => profiles.id, {
       onDelete: "set null",
     }),
-    pickupRequestId: uuid("pickup_request_id").references(() => pickupRequests.id, {
-      onDelete: "set null",
-    }),
+    pickupRequestId: uuid("pickup_request_id").references(
+      () => pickupRequests.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     pickupItemId: uuid("pickup_item_id").references(() => pickupItems.id, {
       onDelete: "set null",
     }),
-    supportTicketId: uuid("support_ticket_id").references(() => supportTickets.id, {
-      onDelete: "set null",
-    }),
+    supportTicketId: uuid("support_ticket_id").references(
+      () => supportTickets.id,
+      {
+        onDelete: "set null",
+      }
+    ),
     disputeId: uuid("dispute_id").references(() => disputes.id, {
       onDelete: "set null",
     }),
@@ -444,12 +510,14 @@ export const attachments = pgTable(
     fileName: text("file_name"),
     mimeType: text("mime_type"),
     fileSize: integer("file_size"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     uniqueIndex("attachments_file_key_idx").on(table.fileKey),
     index("attachments_kind_idx").on(table.kind),
-  ],
+  ]
 );
 
 export const auditLogs = pgTable(
@@ -463,9 +531,13 @@ export const auditLogs = pgTable(
     entityId: uuid("entity_id"),
     action: text("action").notNull(),
     details: jsonb("details").$type<Record<string, unknown> | null>(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (table) => [index("audit_logs_entity_idx").on(table.entityType, table.entityId)],
+  (table) => [
+    index("audit_logs_entity_idx").on(table.entityType, table.entityId),
+  ]
 );
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
@@ -492,24 +564,27 @@ export const collectorProfilesRelations = relations(
       references: [profiles.id],
     }),
     assignedRequests: many(pickupRequests),
-  }),
+  })
 );
 
-export const pickupRequestsRelations = relations(pickupRequests, ({ one, many }) => ({
-  requester: one(profiles, {
-    fields: [pickupRequests.requesterProfileId],
-    references: [profiles.id],
-  }),
-  assignedCollector: one(collectorProfiles, {
-    fields: [pickupRequests.assignedCollectorProfileId],
-    references: [collectorProfiles.id],
-  }),
-  items: many(pickupItems),
-  verificationRecords: many(verificationRecords),
-  supportTickets: many(supportTickets),
-  disputes: many(disputes),
-  attachments: many(attachments),
-}));
+export const pickupRequestsRelations = relations(
+  pickupRequests,
+  ({ one, many }) => ({
+    requester: one(profiles, {
+      fields: [pickupRequests.requesterProfileId],
+      references: [profiles.id],
+    }),
+    assignedCollector: one(collectorProfiles, {
+      fields: [pickupRequests.assignedCollectorProfileId],
+      references: [collectorProfiles.id],
+    }),
+    items: many(pickupItems),
+    verificationRecords: many(verificationRecords),
+    supportTickets: many(supportTickets),
+    disputes: many(disputes),
+    attachments: many(attachments),
+  })
+);
 
 export const pickupItemsRelations = relations(pickupItems, ({ one, many }) => ({
   pickupRequest: one(pickupRequests, {
@@ -535,7 +610,7 @@ export const verificationRecordsRelations = relations(
       fields: [verificationRecords.reviewerProfileId],
       references: [profiles.id],
     }),
-  }),
+  })
 );
 
 export const rewardsRelations = relations(rewards, ({ many }) => ({
@@ -558,7 +633,7 @@ export const redemptionRequestsRelations = relations(
       references: [rewards.id],
     }),
     ledgerEntries: many(pointsLedger),
-  }),
+  })
 );
 
 export const pointsLedgerRelations = relations(pointsLedger, ({ one }) => ({
@@ -597,7 +672,7 @@ export const supportTicketsRelations = relations(
     }),
     disputes: many(disputes),
     attachments: many(attachments),
-  }),
+  })
 );
 
 export const disputesRelations = relations(disputes, ({ one, many }) => ({

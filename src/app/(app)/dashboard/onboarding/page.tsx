@@ -16,13 +16,13 @@ export default async function OnboardingPage() {
   return (
     <main className="mx-auto w-full max-w-4xl space-y-8">
       <section className="rounded-[2rem] border border-border bg-background/70 p-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+        <p className="font-semibold text-primary text-sm uppercase tracking-[0.25em]">
           Onboarding
         </p>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight">
+        <h1 className="mt-4 font-semibold text-3xl tracking-tight">
           Complete your Recycly profile
         </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-muted-foreground text-sm leading-7">
           This sets the minimum profile details we need for either a recycling
           user account or a collector account. Staff and Super Admin flows will
           come later in a dedicated operations phase.
@@ -85,7 +85,9 @@ export default async function OnboardingPage() {
           </label>
 
           <label className="grid gap-2 text-sm">
-            <span className="font-medium">Coverage radius in km (collectors)</span>
+            <span className="font-medium">
+              Coverage radius in km (collectors)
+            </span>
             <input
               className="rounded-2xl border border-border bg-background px-4 py-3 outline-none ring-0"
               defaultValue="10"
@@ -96,11 +98,14 @@ export default async function OnboardingPage() {
             />
           </label>
 
-          <div className="md:col-span-2 flex flex-wrap gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2 md:col-span-2">
             <button className={buttonVariants()} type="submit">
               Save and continue
             </button>
-            <Link className={buttonVariants({ variant: "outline" })} href="/docs">
+            <Link
+              className={buttonVariants({ variant: "outline" })}
+              href="/docs"
+            >
               Review docs first
             </Link>
           </div>

@@ -1,12 +1,12 @@
 "use server";
 
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
-import { appRoles, type AppRole } from "@/lib/roles";
-import { db } from "@/server/db/client";
+import { type AppRole, appRoles } from "@/lib/roles";
 import { requireProfile, requireRole } from "@/server/auth/permissions";
+import { type Db, db } from "@/server/db/client";
 import {
   attachments,
   auditLogs,
@@ -14,6 +14,7 @@ import {
   disputes,
   notifications,
   pickupItems,
+  type pickupRequestStatusEnum,
   pickupRequests,
   pointsLedger,
   profiles,
@@ -21,10 +22,17 @@ import {
   rewards,
   supportTickets,
   verificationRecords,
-  type pickupRequestStatusEnum,
 } from "@/server/db/schema";
 
 type PickupStatus = (typeof pickupRequestStatusEnum.enumValues)[number];
+type VerificationDecision = "verified" | "rejected";
+type Transaction = Parameters<Parameters<NonNullable<Db>["transaction"]>[0]>[0];
+interface LockedPickupRequest {
+  id: string;
+  requester_profile_id: string;
+  status: PickupStatus;
+}
+type PickupReviewItem = typeof pickupItems.$inferSelect;
 
 function requireDb() {
   if (!db) {
@@ -44,7 +52,9 @@ function normalizeRole(value: FormDataEntryValue | null): AppRole {
   return role;
 }
 
-function normalizeOnboardingRole(value: FormDataEntryValue | null): "user" | "collector" {
+function normalizeOnboardingRole(
+  value: FormDataEntryValue | null
+): "user" | "collector" {
   const role = String(value ?? "").trim();
 
   return role === "collector" ? "collector" : "user";
@@ -67,7 +77,10 @@ function normalizePickupStatus(value: FormDataEntryValue | null): PickupStatus {
   return status;
 }
 
-function canTransitionPickupStatus(currentStatus: PickupStatus, nextStatus: PickupStatus) {
+function canTransitionPickupStatus(
+  currentStatus: PickupStatus,
+  nextStatus: PickupStatus
+) {
   const allowedTransitions: Record<PickupStatus, PickupStatus[]> = {
     draft: [],
     requested: [],
@@ -82,6 +95,129 @@ function canTransitionPickupStatus(currentStatus: PickupStatus, nextStatus: Pick
   };
 
   return allowedTransitions[currentStatus]?.includes(nextStatus) ?? false;
+}
+
+function normalizeVerificationDecision(
+  value: FormDataEntryValue | null
+): VerificationDecision {
+  return String(value ?? "").trim() === "verified" ? "verified" : "rejected";
+}
+
+function assertPickupReadyForVerification(
+  request: LockedPickupRequest | undefined
+): LockedPickupRequest {
+  if (!request) {
+    throw new Error("Pickup request not found.");
+  }
+
+  if (["verified", "rejected"].includes(request.status)) {
+    throw new Error("Pickup request has already been reviewed.");
+  }
+
+  if (!["collected", "completed"].includes(request.status)) {
+    throw new Error("Pickup request is not ready for verification.");
+  }
+
+  return request;
+}
+
+async function applyVerifiedPickupReview(
+  tx: Transaction,
+  request: LockedPickupRequest,
+  reviewerId: string,
+  items: PickupReviewItem[],
+  pointsValue: number,
+  reason: string
+) {
+  await tx
+    .update(pickupRequests)
+    .set({
+      status: "verified",
+      completedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(pickupRequests.id, request.id));
+
+  for (const item of items) {
+    const awardedPoints =
+      pointsValue > 0 ? pointsValue : Math.max(item.quantity ?? 1, 1) * 10;
+
+    await tx
+      .update(pickupItems)
+      .set({
+        verificationStatus: "verified",
+        pointsAwarded: awardedPoints,
+        updatedAt: new Date(),
+      })
+      .where(eq(pickupItems.id, item.id));
+
+    await tx.insert(verificationRecords).values({
+      pickupRequestId: request.id,
+      pickupItemId: item.id,
+      reviewerProfileId: reviewerId,
+      status: "verified",
+      reason: reason || null,
+      verifiedPoints: awardedPoints,
+    });
+
+    await tx.insert(pointsLedger).values({
+      profileId: request.requester_profile_id,
+      pickupRequestId: request.id,
+      pickupItemId: item.id,
+      direction: "credit",
+      points: awardedPoints,
+      reason: `Verified recycling: ${item.wasteType}`,
+    });
+  }
+
+  await tx.insert(notifications).values({
+    profileId: request.requester_profile_id,
+    type: "verification",
+    title: "Pickup verified",
+    body: "Your latest recycling pickup has been verified and points were added to your balance.",
+  });
+}
+
+async function applyRejectedPickupReview(
+  tx: Transaction,
+  request: LockedPickupRequest,
+  reviewerId: string,
+  items: PickupReviewItem[],
+  reason: string
+) {
+  await tx
+    .update(pickupRequests)
+    .set({
+      status: "rejected",
+      updatedAt: new Date(),
+    })
+    .where(eq(pickupRequests.id, request.id));
+
+  for (const item of items) {
+    await tx
+      .update(pickupItems)
+      .set({
+        verificationStatus: "rejected",
+        updatedAt: new Date(),
+      })
+      .where(eq(pickupItems.id, item.id));
+
+    await tx.insert(verificationRecords).values({
+      pickupRequestId: request.id,
+      pickupItemId: item.id,
+      reviewerProfileId: reviewerId,
+      status: "rejected",
+      reason: reason || "Rejected during verification",
+      verifiedPoints: 0,
+    });
+  }
+
+  await tx.insert(notifications).values({
+    profileId: request.requester_profile_id,
+    type: "verification",
+    title: "Pickup rejected",
+    body: reason || "Your latest recycling pickup did not pass verification.",
+  });
 }
 
 export async function saveOnboarding(formData: FormData) {
@@ -124,7 +260,9 @@ export async function saveOnboarding(formData: FormData) {
           .update(collectorProfiles)
           .set({
             vehicleType: vehicleType || existingCollector.vehicleType,
-            coverageRadiusKm: String(Number.isFinite(coverageRadiusKm) ? coverageRadiusKm : 10),
+            coverageRadiusKm: String(
+              Number.isFinite(coverageRadiusKm) ? coverageRadiusKm : 10
+            ),
             updatedAt: new Date(),
           })
           .where(eq(collectorProfiles.profileId, profile.id));
@@ -132,7 +270,9 @@ export async function saveOnboarding(formData: FormData) {
         await tx.insert(collectorProfiles).values({
           profileId: profile.id,
           vehicleType: vehicleType || null,
-          coverageRadiusKm: String(Number.isFinite(coverageRadiusKm) ? coverageRadiusKm : 10),
+          coverageRadiusKm: String(
+            Number.isFinite(coverageRadiusKm) ? coverageRadiusKm : 10
+          ),
         });
       }
     }
@@ -151,14 +291,19 @@ export async function createPickupRequest(formData: FormData) {
   const estimatedWeightKg = Number(formData.get("estimatedWeightKg") ?? 0);
   const addressLine1 = String(formData.get("addressLine1") ?? "").trim();
   const addressLine2 = String(formData.get("addressLine2") ?? "").trim();
-  const city = String(formData.get("city") ?? profile.city ?? "Lagos").trim() || "Lagos";
+  const city =
+    String(formData.get("city") ?? profile.city ?? "Lagos").trim() || "Lagos";
   const state = String(formData.get("state") ?? "Lagos").trim() || "Lagos";
-  const pickupWindowLabel = String(formData.get("pickupWindowLabel") ?? "").trim();
+  const pickupWindowLabel = String(
+    formData.get("pickupWindowLabel") ?? ""
+  ).trim();
   const notes = String(formData.get("notes") ?? "").trim();
   const scheduledForRaw = String(formData.get("scheduledFor") ?? "").trim();
 
-  if (!wasteType || !addressLine1 || !pickupWindowLabel || !scheduledForRaw) {
-    throw new Error("Waste type, address, pickup window, and schedule are required.");
+  if (!(wasteType && addressLine1 && pickupWindowLabel && scheduledForRaw)) {
+    throw new Error(
+      "Waste type, address, pickup window, and schedule are required."
+    );
   }
 
   const scheduledFor = new Date(scheduledForRaw);
@@ -179,8 +324,8 @@ export async function createPickupRequest(formData: FormData) {
           eq(profiles.role, "collector"),
           eq(profiles.isActive, true),
           eq(collectorProfiles.availability, "available"),
-          eq(profiles.city, city),
-        ),
+          eq(profiles.city, city)
+        )
       )
       .orderBy(asc(collectorProfiles.updatedAt))
       .limit(1);
@@ -222,7 +367,8 @@ export async function createRedemptionRequest(formData: FormData) {
   const profile = await requireRole("user");
 
   const rewardId = String(formData.get("rewardId") ?? "").trim();
-  const payoutMethod = String(formData.get("payoutMethod") ?? "").trim() || null;
+  const payoutMethod =
+    String(formData.get("payoutMethod") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim();
 
   const [reward] = await database
@@ -231,12 +377,14 @@ export async function createRedemptionRequest(formData: FormData) {
     .where(eq(rewards.id, rewardId))
     .limit(1);
 
-  if (!reward || !reward.isActive) {
+  if (!reward?.isActive) {
     throw new Error("Reward is not available.");
   }
 
   await database.transaction(async (tx) => {
-    await tx.execute(sql`select ${profiles.id} from ${profiles} where ${profiles.id} = ${profile.id} for update`);
+    await tx.execute(
+      sql`select ${profiles.id} from ${profiles} where ${profiles.id} = ${profile.id} for update`
+    );
 
     const [balanceResult] = await tx
       .select({
@@ -280,10 +428,11 @@ export async function createSupportTicket(formData: FormData) {
 
   const subject = String(formData.get("subject") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
-  const pickupRequestId = String(formData.get("pickupRequestId") ?? "").trim() || null;
+  const pickupRequestId =
+    String(formData.get("pickupRequestId") ?? "").trim() || null;
   const priority = String(formData.get("priority") ?? "medium").trim();
 
-  if (!subject || !message) {
+  if (!(subject && message)) {
     throw new Error("Support subject and message are required.");
   }
 
@@ -307,9 +456,10 @@ export async function createDispute(formData: FormData) {
 
   const category = String(formData.get("category") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  const pickupRequestId = String(formData.get("pickupRequestId") ?? "").trim() || null;
+  const pickupRequestId =
+    String(formData.get("pickupRequestId") ?? "").trim() || null;
 
-  if (!category || !description) {
+  if (!(category && description)) {
     throw new Error("Dispute category and description are required.");
   }
 
@@ -338,9 +488,12 @@ export async function updateCollectorAvailability(formData: FormData) {
   await database
     .update(collectorProfiles)
     .set({
-      availability: availability as typeof collectorProfiles.$inferInsert.availability,
+      availability:
+        availability as typeof collectorProfiles.$inferInsert.availability,
       vehicleType: vehicleType || null,
-      coverageRadiusKm: String(Number.isFinite(coverageRadiusKm) ? coverageRadiusKm : 10),
+      coverageRadiusKm: String(
+        Number.isFinite(coverageRadiusKm) ? coverageRadiusKm : 10
+      ),
       updatedAt: new Date(),
     })
     .where(eq(collectorProfiles.profileId, profile.id));
@@ -374,8 +527,8 @@ export async function acceptAssignedPickup(formData: FormData) {
       and(
         eq(pickupRequests.id, pickupRequestId),
         eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
-        eq(pickupRequests.status, "assigned"),
-      ),
+        eq(pickupRequests.status, "assigned")
+      )
     )
     .returning({ id: pickupRequests.id });
 
@@ -417,8 +570,8 @@ export async function updatePickupStatus(formData: FormData) {
     .where(
       and(
         eq(pickupRequests.id, pickupRequestId),
-        eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
-      ),
+        eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id)
+      )
     )
     .limit(1);
 
@@ -458,8 +611,8 @@ export async function updatePickupStatus(formData: FormData) {
       and(
         eq(pickupRequests.id, pickupRequestId),
         eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
-        eq(pickupRequests.status, request.status),
-      ),
+        eq(pickupRequests.status, request.status)
+      )
     );
 
   if (["completed", "cancelled"].includes(nextStatus)) {
@@ -502,8 +655,8 @@ export async function savePickupProof(input: {
     .where(
       and(
         eq(pickupRequests.id, input.pickupRequestId),
-        eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id),
-      ),
+        eq(pickupRequests.assignedCollectorProfileId, collectorProfile.id)
+      )
     )
     .limit(1);
 
@@ -547,34 +700,18 @@ export async function verifyPickupRequest(formData: FormData) {
   const database = requireDb();
   const reviewer = await requireRole(["staff", "super_admin"]);
   const pickupRequestId = String(formData.get("pickupRequestId") ?? "").trim();
-  const decision = String(formData.get("decision") ?? "").trim();
+  const decision = normalizeVerificationDecision(formData.get("decision"));
   const reason = String(formData.get("reason") ?? "").trim();
   const pointsValue = Number(formData.get("pointsValue") ?? 0);
 
   await database.transaction(async (tx) => {
     const lockedRequestResult = await tx.execute(
-      sql`select id, requester_profile_id, status from ${pickupRequests} where ${pickupRequests.id} = ${pickupRequestId} for update`,
+      sql`select id, requester_profile_id, status from ${pickupRequests} where ${pickupRequests.id} = ${pickupRequestId} for update`
     );
 
-    const lockedRequest = lockedRequestResult.rows[0] as
-      | {
-          id: string;
-          requester_profile_id: string;
-          status: PickupStatus;
-        }
-      | undefined;
-
-    if (!lockedRequest) {
-      throw new Error("Pickup request not found.");
-    }
-
-    if (["verified", "rejected"].includes(lockedRequest.status)) {
-      throw new Error("Pickup request has already been reviewed.");
-    }
-
-    if (!["collected", "completed"].includes(lockedRequest.status)) {
-      throw new Error("Pickup request is not ready for verification.");
-    }
+    const lockedRequest = assertPickupReadyForVerification(
+      lockedRequestResult.rows[0] as unknown as LockedPickupRequest | undefined
+    );
 
     const items = await tx
       .select()
@@ -586,86 +723,22 @@ export async function verifyPickupRequest(formData: FormData) {
     }
 
     if (decision === "verified") {
-      await tx
-        .update(pickupRequests)
-        .set({
-          status: "verified",
-          completedAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(pickupRequests.id, lockedRequest.id));
-
-      for (const item of items) {
-        const awardedPoints = pointsValue > 0 ? pointsValue : Math.max(item.quantity ?? 1, 1) * 10;
-
-        await tx
-          .update(pickupItems)
-          .set({
-            verificationStatus: "verified",
-            pointsAwarded: awardedPoints,
-            updatedAt: new Date(),
-          })
-          .where(eq(pickupItems.id, item.id));
-
-        await tx.insert(verificationRecords).values({
-          pickupRequestId: lockedRequest.id,
-          pickupItemId: item.id,
-          reviewerProfileId: reviewer.id,
-          status: "verified",
-          reason: reason || null,
-          verifiedPoints: awardedPoints,
-        });
-
-        await tx.insert(pointsLedger).values({
-          profileId: lockedRequest.requester_profile_id,
-          pickupRequestId: lockedRequest.id,
-          pickupItemId: item.id,
-          direction: "credit",
-          points: awardedPoints,
-          reason: `Verified recycling: ${item.wasteType}`,
-        });
-      }
-
-      await tx.insert(notifications).values({
-        profileId: lockedRequest.requester_profile_id,
-        type: "verification",
-        title: "Pickup verified",
-        body: "Your latest recycling pickup has been verified and points were added to your balance.",
-      });
+      await applyVerifiedPickupReview(
+        tx,
+        lockedRequest,
+        reviewer.id,
+        items,
+        pointsValue,
+        reason
+      );
     } else {
-      await tx
-        .update(pickupRequests)
-        .set({
-          status: "rejected",
-          updatedAt: new Date(),
-        })
-        .where(eq(pickupRequests.id, lockedRequest.id));
-
-      for (const item of items) {
-        await tx
-          .update(pickupItems)
-          .set({
-            verificationStatus: "rejected",
-            updatedAt: new Date(),
-          })
-          .where(eq(pickupItems.id, item.id));
-
-        await tx.insert(verificationRecords).values({
-          pickupRequestId: lockedRequest.id,
-          pickupItemId: item.id,
-          reviewerProfileId: reviewer.id,
-          status: "rejected",
-          reason: reason || "Rejected during verification",
-          verifiedPoints: 0,
-        });
-      }
-
-      await tx.insert(notifications).values({
-        profileId: lockedRequest.requester_profile_id,
-        type: "verification",
-        title: "Pickup rejected",
-        body: reason || "Your latest recycling pickup did not pass verification.",
-      });
+      await applyRejectedPickupReview(
+        tx,
+        lockedRequest,
+        reviewer.id,
+        items,
+        reason
+      );
     }
 
     await tx.insert(auditLogs).values({
@@ -685,7 +758,9 @@ export async function verifyPickupRequest(formData: FormData) {
 export async function reviewRedemptionRequest(formData: FormData) {
   const database = requireDb();
   const reviewer = await requireRole(["staff", "super_admin"]);
-  const redemptionRequestId = String(formData.get("redemptionRequestId") ?? "").trim();
+  const redemptionRequestId = String(
+    formData.get("redemptionRequestId") ?? ""
+  ).trim();
   const decision = String(formData.get("decision") ?? "").trim();
   const reason = String(formData.get("reason") ?? "").trim();
 
@@ -763,7 +838,9 @@ export async function updateSupportTicketStatus(formData: FormData) {
   const ticketId = String(formData.get("ticketId") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
 
-  if (!["open", "in_review", "escalated", "resolved", "closed"].includes(status)) {
+  if (
+    !["open", "in_review", "escalated", "resolved", "closed"].includes(status)
+  ) {
     throw new Error("Invalid support status.");
   }
 
@@ -772,7 +849,8 @@ export async function updateSupportTicketStatus(formData: FormData) {
     .set({
       status: status as typeof supportTickets.$inferInsert.status,
       assignedToProfileId: reviewer.id,
-      closedAt: status === "resolved" || status === "closed" ? new Date() : null,
+      closedAt:
+        status === "resolved" || status === "closed" ? new Date() : null,
       updatedAt: new Date(),
     })
     .where(eq(supportTickets.id, ticketId));
@@ -787,7 +865,9 @@ export async function updateDisputeStatus(formData: FormData) {
   const status = String(formData.get("status") ?? "").trim();
   const resolution = String(formData.get("resolution") ?? "").trim();
 
-  if (!["open", "in_review", "escalated", "resolved", "closed"].includes(status)) {
+  if (
+    !["open", "in_review", "escalated", "resolved", "closed"].includes(status)
+  ) {
     throw new Error("Invalid dispute status.");
   }
 
@@ -798,7 +878,8 @@ export async function updateDisputeStatus(formData: FormData) {
       assignedToProfileId: reviewer.id,
       escalatedToProfileId: status === "escalated" ? reviewer.id : null,
       resolution: resolution || null,
-      resolvedAt: status === "resolved" || status === "closed" ? new Date() : null,
+      resolvedAt:
+        status === "resolved" || status === "closed" ? new Date() : null,
       updatedAt: new Date(),
     })
     .where(eq(disputes.id, disputeId));
@@ -817,7 +898,7 @@ export async function createReward(formData: FormData) {
   const pointsCost = Number(formData.get("pointsCost") ?? 0);
   const cashValueMinor = Number(formData.get("cashValueMinor") ?? 0);
 
-  if (!title || !slug || pointsCost <= 0) {
+  if (!(title && slug) || pointsCost <= 0) {
     throw new Error("Reward title, slug, and points cost are required.");
   }
 
@@ -825,8 +906,7 @@ export async function createReward(formData: FormData) {
     title,
     slug,
     description: description || null,
-    type:
-      type === "voucher" || type === "partner_reward" ? type : "cashout",
+    type: type === "voucher" || type === "partner_reward" ? type : "cashout",
     pointsCost,
     cashValueMinor: cashValueMinor > 0 ? cashValueMinor : null,
   });
@@ -855,7 +935,7 @@ export async function updateProfileRole(formData: FormData) {
 export async function getUserPickupHistory(profileId: string) {
   const database = requireDb();
 
-  return database
+  return await database
     .select({
       id: pickupRequests.id,
       status: pickupRequests.status,
@@ -1036,7 +1116,10 @@ export async function getSuperAdminDashboardData() {
   const database = requireDb();
   await requireRole("super_admin");
 
-  const rewardList = await database.select().from(rewards).orderBy(desc(rewards.createdAt));
+  const rewardList = await database
+    .select()
+    .from(rewards)
+    .orderBy(desc(rewards.createdAt));
   const roleList = await database
     .select({
       id: profiles.id,
@@ -1052,8 +1135,7 @@ export async function getSuperAdminDashboardData() {
   const [opsSummary] = await database
     .select({
       pickupCount: sql<number>`count(*)`,
-      verifiedCount:
-        sql<number>`count(*) filter (where ${pickupRequests.status} = 'verified')`,
+      verifiedCount: sql<number>`count(*) filter (where ${pickupRequests.status} = 'verified')`,
     })
     .from(pickupRequests);
 

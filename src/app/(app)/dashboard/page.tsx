@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   CalendarClock,
   LifeBuoy,
@@ -10,11 +8,13 @@ import {
   Truck,
   Wallet,
 } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button-variants";
-import { roleLabels, type AppRole } from "@/lib/roles";
-import { db } from "@/server/db/client";
+import { type AppRole, roleLabels } from "@/lib/roles";
 import { ensureProfile } from "@/server/auth/permissions";
+import { db } from "@/server/db/client";
 
 import { PickupProofUploader } from "./_components/pickup-proof-uploader";
 import {
@@ -39,7 +39,9 @@ import {
 } from "./actions";
 
 function formatDate(value: Date | null) {
-  if (!value) return "Not scheduled";
+  if (!value) {
+    return "Not scheduled";
+  }
 
   return new Intl.DateTimeFormat("en-NG", {
     dateStyle: "medium",
@@ -87,21 +89,27 @@ function StatCard({
     <article className="rounded-[1.5rem] border border-border bg-card p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.22em]">
             {label}
           </p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
+          <p className="mt-3 font-semibold text-3xl tracking-tight">{value}</p>
         </div>
         <div className="rounded-full border border-border bg-background p-3">
           <Icon className="size-5 text-primary" />
         </div>
       </div>
-      <p className="mt-3 text-sm text-muted-foreground">{hint}</p>
+      <p className="mt-3 text-muted-foreground text-sm">{hint}</p>
     </article>
   );
 }
 
-async function UserDashboard({ profileId, city }: { profileId: string; city: string | null }) {
+async function UserDashboard({
+  profileId,
+  city,
+}: {
+  profileId: string;
+  city: string | null;
+}) {
   const [pickups, rewardsAndSupport] = await Promise.all([
     getUserPickupHistory(profileId),
     getUserRewardsAndSupport(profileId),
@@ -120,7 +128,10 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
           hint="Support and dispute records you can track from here."
           icon={Ticket}
           label="Open support items"
-          value={rewardsAndSupport.tickets.length + rewardsAndSupport.userDisputes.length}
+          value={
+            rewardsAndSupport.tickets.length +
+            rewardsAndSupport.userDisputes.length
+          }
         />
         <StatCard
           hint="Pickup history moving through collection and verification."
@@ -132,18 +143,23 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-[2rem] border border-border bg-background/70 p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+          <p className="font-semibold text-primary text-sm uppercase tracking-[0.25em]">
             Schedule a pickup
           </p>
-          <h2 className="mt-4 text-2xl font-semibold">Create your next recycling request</h2>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">
-            Pick a waste category, choose a collection window, and Recycly will try to
-            assign the nearest available collector in your city.
+          <h2 className="mt-4 font-semibold text-2xl">
+            Create your next recycling request
+          </h2>
+          <p className="mt-3 text-muted-foreground text-sm leading-7">
+            Pick a waste category, choose a collection window, and Recycly will
+            try to assign the nearest available collector in your city.
           </p>
         </div>
 
         <div className="rounded-[2rem] border border-border bg-card p-8">
-          <form action={createPickupRequest} className="grid gap-4 md:grid-cols-2">
+          <form
+            action={createPickupRequest}
+            className="grid gap-4 md:grid-cols-2"
+          >
             <label className="grid gap-2 text-sm">
               <span className="font-medium">Waste type</span>
               <select
@@ -192,8 +208,12 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
                 name="pickupWindowLabel"
                 required
               >
-                <option value="Morning (8am - 12pm)">Morning (8am - 12pm)</option>
-                <option value="Afternoon (12pm - 4pm)">Afternoon (12pm - 4pm)</option>
+                <option value="Morning (8am - 12pm)">
+                  Morning (8am - 12pm)
+                </option>
+                <option value="Afternoon (12pm - 4pm)">
+                  Afternoon (12pm - 4pm)
+                </option>
                 <option value="Evening (4pm - 7pm)">Evening (4pm - 7pm)</option>
               </select>
             </label>
@@ -267,12 +287,14 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
         <div className="rounded-[2rem] border border-border bg-card p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+              <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
                 Pickup history
               </p>
-              <h2 className="mt-2 text-2xl font-semibold">Track every request</h2>
+              <h2 className="mt-2 font-semibold text-2xl">
+                Track every request
+              </h2>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs text-muted-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-muted-foreground text-xs">
               <PackageCheck className="size-4" />
               {pickups.length} requests
             </div>
@@ -282,27 +304,27 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
             {pickups.length ? (
               pickups.map((pickup) => (
                 <article
-                  key={pickup.id}
                   className="rounded-[1.5rem] border border-border bg-background/70 p-5"
+                  key={pickup.id}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-lg font-semibold capitalize">
+                      <h3 className="font-semibold text-lg capitalize">
                         {pickup.wasteType} pickup
                       </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="mt-1 text-muted-foreground text-sm">
                         {pickup.addressLine1}, {pickup.city}
                       </p>
                     </div>
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                        pickup.status,
+                      className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                        pickup.status
                       )}`}
                     >
                       {pickup.status.replaceAll("_", " ")}
                     </span>
                   </div>
-                  <div className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
+                  <div className="mt-4 grid gap-3 text-muted-foreground text-sm md:grid-cols-3">
                     <div className="flex items-center gap-2">
                       <CalendarClock className="size-4" />
                       {formatDate(pickup.scheduledFor)}
@@ -314,14 +336,17 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
                     <div className="flex items-center gap-2">
                       <MapPinned className="size-4" />
                       Qty {pickup.quantity ?? 1}
-                      {pickup.estimatedWeightKg ? ` • ${pickup.estimatedWeightKg}kg` : ""}
+                      {pickup.estimatedWeightKg
+                        ? ` • ${pickup.estimatedWeightKg}kg`
+                        : ""}
                     </div>
                   </div>
                 </article>
               ))
             ) : (
-              <div className="rounded-[1.5rem] border border-dashed border-border bg-background/70 p-8 text-sm text-muted-foreground">
-                No pickups yet. Create your first request above to start the flow.
+              <div className="rounded-[1.5rem] border border-border border-dashed bg-background/70 p-8 text-muted-foreground text-sm">
+                No pickups yet. Create your first request above to start the
+                flow.
               </div>
             )}
           </div>
@@ -331,12 +356,14 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
           <section className="rounded-[2rem] border border-border bg-card p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+                <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
                   Rewards
                 </p>
-                <h2 className="mt-2 text-xl font-semibold">Redeem your points</h2>
+                <h2 className="mt-2 font-semibold text-xl">
+                  Redeem your points
+                </h2>
               </div>
-              <div className="rounded-full border border-border bg-background px-4 py-2 text-xs font-medium">
+              <div className="rounded-full border border-border bg-background px-4 py-2 font-medium text-xs">
                 {rewardsAndSupport.pointsBalance} pts
               </div>
             </div>
@@ -345,22 +372,25 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
               {rewardsAndSupport.rewardCatalog.length ? (
                 rewardsAndSupport.rewardCatalog.map((reward) => (
                   <article
-                    key={reward.id}
                     className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                    key={reward.id}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h3 className="font-semibold">{reward.title}</h3>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <p className="mt-1 text-muted-foreground text-sm">
                           {reward.description ?? "Reward ready for redemption."}
                         </p>
                       </div>
-                      <div className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium">
+                      <div className="rounded-full border border-border bg-card px-3 py-1 font-medium text-xs">
                         {reward.pointsCost} pts
                       </div>
                     </div>
 
-                    <form action={createRedemptionRequest} className="mt-4 grid gap-3">
+                    <form
+                      action={createRedemptionRequest}
+                      className="mt-4 grid gap-3"
+                    >
                       <input name="rewardId" type="hidden" value={reward.id} />
                       <input
                         className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
@@ -372,14 +402,17 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
                         name="notes"
                         placeholder="Optional payout note"
                       />
-                      <button className={buttonVariants({ variant: "outline" })} type="submit">
+                      <button
+                        className={buttonVariants({ variant: "outline" })}
+                        type="submit"
+                      >
                         Request redemption
                       </button>
                     </form>
                   </article>
                 ))
               ) : (
-                <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+                <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                   No rewards have been configured yet.
                 </div>
               )}
@@ -387,13 +420,16 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
           </section>
 
           <section className="rounded-[2rem] border border-border bg-card p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+            <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
               Help and disputes
             </p>
-            <h2 className="mt-2 text-xl font-semibold">Raise support fast</h2>
+            <h2 className="mt-2 font-semibold text-xl">Raise support fast</h2>
 
             <div className="mt-5 grid gap-4">
-              <form action={createSupportTicket} className="grid gap-3 rounded-[1.25rem] border border-border bg-background/70 p-4">
+              <form
+                action={createSupportTicket}
+                className="grid gap-3 rounded-[1.25rem] border border-border bg-background/70 p-4"
+              >
                 <h3 className="font-medium">Support ticket</h3>
                 <input
                   className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
@@ -422,12 +458,18 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
                   name="pickupRequestId"
                   placeholder="Optional pickup request ID"
                 />
-                <button className={buttonVariants({ variant: "outline" })} type="submit">
+                <button
+                  className={buttonVariants({ variant: "outline" })}
+                  type="submit"
+                >
                   Submit support ticket
                 </button>
               </form>
 
-              <form action={createDispute} className="grid gap-3 rounded-[1.25rem] border border-border bg-background/70 p-4">
+              <form
+                action={createDispute}
+                className="grid gap-3 rounded-[1.25rem] border border-border bg-background/70 p-4"
+              >
                 <h3 className="font-medium">Open dispute</h3>
                 <input
                   className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
@@ -446,7 +488,10 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
                   name="pickupRequestId"
                   placeholder="Optional pickup request ID"
                 />
-                <button className={buttonVariants({ variant: "outline" })} type="submit">
+                <button
+                  className={buttonVariants({ variant: "outline" })}
+                  type="submit"
+                >
                   Submit dispute
                 </button>
               </form>
@@ -457,29 +502,36 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
 
       <section className="grid gap-4 lg:grid-cols-3">
         <article className="rounded-[2rem] border border-border bg-card p-6 lg:col-span-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Redemption history
           </p>
-          <h2 className="mt-2 text-xl font-semibold">See every reward request</h2>
+          <h2 className="mt-2 font-semibold text-xl">
+            See every reward request
+          </h2>
           <div className="mt-5 space-y-3">
             {rewardsAndSupport.redemptions.length ? (
               rewardsAndSupport.redemptions.map((redemption) => (
                 <div
-                  key={redemption.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-border bg-background/70 p-4"
+                  key={redemption.id}
                 >
                   <div>
-                    <p className="font-medium">{redemption.rewardTitle ?? "Reward request"}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {redemption.pointsSpent} pts • {formatDate(redemption.createdAt)}
+                    <p className="font-medium">
+                      {redemption.rewardTitle ?? "Reward request"}
+                    </p>
+                    <p className="mt-1 text-muted-foreground text-sm">
+                      {redemption.pointsSpent} pts •{" "}
+                      {formatDate(redemption.createdAt)}
                     </p>
                     {redemption.rejectionReason ? (
-                      <p className="mt-1 text-sm text-rose-700">{redemption.rejectionReason}</p>
+                      <p className="mt-1 text-rose-700 text-sm">
+                        {redemption.rejectionReason}
+                      </p>
                     ) : null}
                   </div>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                      redemption.status,
+                    className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                      redemption.status
                     )}`}
                   >
                     {redemption.status.replaceAll("_", " ")}
@@ -487,7 +539,7 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
                 </div>
               ))
             ) : (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No redemption requests yet.
               </div>
             )}
@@ -495,27 +547,27 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
         </article>
 
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Case snapshots
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Support and disputes</h2>
+          <h2 className="mt-2 font-semibold text-xl">Support and disputes</h2>
           <div className="mt-5 space-y-3">
             {rewardsAndSupport.tickets.map((ticket) => (
               <div
-                key={ticket.id}
                 className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                key={ticket.id}
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">{ticket.subject}</p>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                      ticket.status,
+                    className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                      ticket.status
                     )}`}
                   >
                     {ticket.status.replaceAll("_", " ")}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-muted-foreground text-sm">
                   {ticket.priority} priority • {formatDate(ticket.createdAt)}
                 </p>
               </div>
@@ -523,33 +575,36 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
 
             {rewardsAndSupport.userDisputes.map((dispute) => (
               <div
-                key={dispute.id}
                 className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                key={dispute.id}
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">{dispute.category}</p>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                      dispute.status,
+                    className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                      dispute.status
                     )}`}
                   >
                     {dispute.status.replaceAll("_", " ")}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-muted-foreground text-sm">
                   {formatDate(dispute.createdAt)}
                 </p>
                 {dispute.resolution ? (
-                  <p className="mt-2 text-sm text-muted-foreground">{dispute.resolution}</p>
+                  <p className="mt-2 text-muted-foreground text-sm">
+                    {dispute.resolution}
+                  </p>
                 ) : null}
               </div>
             ))}
 
-            {!rewardsAndSupport.tickets.length && !rewardsAndSupport.userDisputes.length ? (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+            {rewardsAndSupport.tickets.length ||
+            rewardsAndSupport.userDisputes.length ? null : (
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No support tickets or disputes yet.
               </div>
-            ) : null}
+            )}
           </div>
         </article>
       </section>
@@ -558,7 +613,8 @@ async function UserDashboard({ profileId, city }: { profileId: string; city: str
 }
 
 async function CollectorDashboard({ profileId }: { profileId: string }) {
-  const { collectorProfile, assignedRequests } = await getCollectorDashboardData(profileId);
+  const { collectorProfile, assignedRequests } =
+    await getCollectorDashboardData(profileId);
 
   if (!collectorProfile) {
     redirect("/dashboard/onboarding");
@@ -589,18 +645,24 @@ async function CollectorDashboard({ profileId }: { profileId: string }) {
 
       <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="rounded-[2rem] border border-border bg-background/70 p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+          <p className="font-semibold text-primary text-sm uppercase tracking-[0.25em]">
             Collector control
           </p>
-          <h2 className="mt-4 text-2xl font-semibold">Manage availability and route load</h2>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">
-            Keep your availability current so new requests can be assigned to you. Assigned
-            jobs move through accept, en route, collected, and completed here.
+          <h2 className="mt-4 font-semibold text-2xl">
+            Manage availability and route load
+          </h2>
+          <p className="mt-3 text-muted-foreground text-sm leading-7">
+            Keep your availability current so new requests can be assigned to
+            you. Assigned jobs move through accept, en route, collected, and
+            completed here.
           </p>
         </div>
 
         <div className="rounded-[2rem] border border-border bg-card p-8">
-          <form action={updateCollectorAvailability} className="grid gap-4 md:grid-cols-3">
+          <form
+            action={updateCollectorAvailability}
+            className="grid gap-4 md:grid-cols-3"
+          >
             <label className="grid gap-2 text-sm">
               <span className="font-medium">Availability</span>
               <select
@@ -645,12 +707,14 @@ async function CollectorDashboard({ profileId }: { profileId: string }) {
       <section className="rounded-[2rem] border border-border bg-card p-8">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+            <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
               Assigned jobs
             </p>
-            <h2 className="mt-2 text-2xl font-semibold">Work through your current pickups</h2>
+            <h2 className="mt-2 font-semibold text-2xl">
+              Work through your current pickups
+            </h2>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs text-muted-foreground">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-muted-foreground text-xs">
             <Truck className="size-4" />
             {assignedRequests.length} assigned
           </div>
@@ -660,28 +724,29 @@ async function CollectorDashboard({ profileId }: { profileId: string }) {
           {assignedRequests.length ? (
             assignedRequests.map((pickup) => (
               <article
-                key={pickup.id}
                 className="space-y-4 rounded-[1.5rem] border border-border bg-background/70 p-5"
+                key={pickup.id}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-semibold capitalize">
-                      {pickup.wasteType} pickup for {pickup.requesterName ?? "user"}
+                    <h3 className="font-semibold text-lg capitalize">
+                      {pickup.wasteType} pickup for{" "}
+                      {pickup.requesterName ?? "user"}
                     </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-muted-foreground text-sm">
                       {pickup.addressLine1}, {pickup.city}
                     </p>
                   </div>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                      pickup.status,
+                    className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                      pickup.status
                     )}`}
                   >
                     {pickup.status.replaceAll("_", " ")}
                   </span>
                 </div>
 
-                <div className="grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
+                <div className="grid gap-3 text-muted-foreground text-sm md:grid-cols-3">
                   <div className="flex items-center gap-2">
                     <CalendarClock className="size-4" />
                     {formatDate(pickup.scheduledFor)}
@@ -699,16 +764,29 @@ async function CollectorDashboard({ profileId }: { profileId: string }) {
                 <div className="flex flex-wrap gap-3">
                   {pickup.status === "assigned" ? (
                     <form action={acceptAssignedPickup}>
-                      <input name="pickupRequestId" type="hidden" value={pickup.id} />
+                      <input
+                        name="pickupRequestId"
+                        type="hidden"
+                        value={pickup.id}
+                      />
                       <button className={buttonVariants()} type="submit">
                         Accept pickup
                       </button>
                     </form>
                   ) : null}
 
-                  {["accepted", "en_route", "collected"].includes(pickup.status) ? (
-                    <form action={updatePickupStatus} className="flex items-center gap-3">
-                      <input name="pickupRequestId" type="hidden" value={pickup.id} />
+                  {["accepted", "en_route", "collected"].includes(
+                    pickup.status
+                  ) ? (
+                    <form
+                      action={updatePickupStatus}
+                      className="flex items-center gap-3"
+                    >
+                      <input
+                        name="pickupRequestId"
+                        type="hidden"
+                        value={pickup.id}
+                      />
                       <select
                         className="rounded-full border border-border bg-card px-4 py-2 text-xs"
                         defaultValue={pickup.status}
@@ -720,22 +798,27 @@ async function CollectorDashboard({ profileId }: { profileId: string }) {
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
-                      <button className={buttonVariants({ variant: "outline" })} type="submit">
+                      <button
+                        className={buttonVariants({ variant: "outline" })}
+                        type="submit"
+                      >
                         Update status
                       </button>
                     </form>
                   ) : null}
                 </div>
 
-                {["accepted", "en_route", "collected"].includes(pickup.status) ? (
+                {["accepted", "en_route", "collected"].includes(
+                  pickup.status
+                ) ? (
                   <PickupProofUploader pickupRequestId={pickup.id} />
                 ) : null}
               </article>
             ))
           ) : (
-            <div className="rounded-[1.5rem] border border-dashed border-border bg-background/70 p-8 text-sm text-muted-foreground">
-              No assigned collector jobs yet. Set your availability to available and new
-              city-matched requests will start flowing here.
+            <div className="rounded-[1.5rem] border border-border border-dashed bg-background/70 p-8 text-muted-foreground text-sm">
+              No assigned collector jobs yet. Set your availability to available
+              and new city-matched requests will start flowing here.
             </div>
           )}
         </div>
@@ -779,37 +862,48 @@ async function StaffDashboard() {
 
       <section className="grid gap-4 xl:grid-cols-2">
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Verification queue
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Approve or reject pickups</h2>
+          <h2 className="mt-2 font-semibold text-xl">
+            Approve or reject pickups
+          </h2>
           <div className="mt-5 space-y-3">
             {verificationQueue.length ? (
               verificationQueue.map((pickup) => (
                 <div
-                  key={pickup.id}
                   className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                  key={pickup.id}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-medium capitalize">
-                        {pickup.wasteType} pickup for {pickup.requesterName ?? "user"}
+                        {pickup.wasteType} pickup for{" "}
+                        {pickup.requesterName ?? "user"}
                       </p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {pickup.city} • Qty {pickup.quantity ?? 1} • {formatDate(pickup.createdAt)}
+                      <p className="mt-1 text-muted-foreground text-sm">
+                        {pickup.city} • Qty {pickup.quantity ?? 1} •{" "}
+                        {formatDate(pickup.createdAt)}
                       </p>
                     </div>
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                        pickup.status,
+                      className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                        pickup.status
                       )}`}
                     >
                       {pickup.status.replaceAll("_", " ")}
                     </span>
                   </div>
 
-                  <form action={verifyPickupRequest} className="mt-4 grid gap-3">
-                    <input name="pickupRequestId" type="hidden" value={pickup.id} />
+                  <form
+                    action={verifyPickupRequest}
+                    className="mt-4 grid gap-3"
+                  >
+                    <input
+                      name="pickupRequestId"
+                      type="hidden"
+                      value={pickup.id}
+                    />
                     <select
                       className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
                       defaultValue="verified"
@@ -829,14 +923,17 @@ async function StaffDashboard() {
                       name="reason"
                       placeholder="Reason or verification note"
                     />
-                    <button className={buttonVariants({ variant: "outline" })} type="submit">
+                    <button
+                      className={buttonVariants({ variant: "outline" })}
+                      type="submit"
+                    >
                       Submit decision
                     </button>
                   </form>
                 </div>
               ))
             ) : (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No pickups are waiting for verification.
               </div>
             )}
@@ -844,40 +941,53 @@ async function StaffDashboard() {
         </article>
 
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Redemption queue
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Review reward requests</h2>
+          <h2 className="mt-2 font-semibold text-xl">Review reward requests</h2>
           <div className="mt-5 space-y-3">
             {pendingRedemptions.length ? (
               pendingRedemptions.map((redemption) => (
                 <div
-                  key={redemption.id}
                   className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                  key={redemption.id}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-medium">
-                        {redemption.rewardTitle ?? "Reward"} for {redemption.requesterName ?? "user"}
+                        {redemption.rewardTitle ?? "Reward"} for{" "}
+                        {redemption.requesterName ?? "user"}
                       </p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {redemption.pointsSpent} pts • {formatDate(redemption.createdAt)}
+                      <p className="mt-1 text-muted-foreground text-sm">
+                        {redemption.pointsSpent} pts •{" "}
+                        {formatDate(redemption.createdAt)}
                       </p>
                     </div>
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${statusTone(
-                        redemption.status,
+                      className={`rounded-full px-3 py-1 font-medium text-xs capitalize ${statusTone(
+                        redemption.status
                       )}`}
                     >
                       {redemption.status.replaceAll("_", " ")}
                     </span>
                   </div>
 
-                  <form action={reviewRedemptionRequest} className="mt-4 grid gap-3">
-                    <input name="redemptionRequestId" type="hidden" value={redemption.id} />
+                  <form
+                    action={reviewRedemptionRequest}
+                    className="mt-4 grid gap-3"
+                  >
+                    <input
+                      name="redemptionRequestId"
+                      type="hidden"
+                      value={redemption.id}
+                    />
                     <select
                       className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
-                      defaultValue={redemption.status === "approved" ? "fulfilled" : "approved"}
+                      defaultValue={
+                        redemption.status === "approved"
+                          ? "fulfilled"
+                          : "approved"
+                      }
                       name="decision"
                     >
                       <option value="approved">Approve</option>
@@ -889,14 +999,17 @@ async function StaffDashboard() {
                       name="reason"
                       placeholder="Optional review note"
                     />
-                    <button className={buttonVariants({ variant: "outline" })} type="submit">
+                    <button
+                      className={buttonVariants({ variant: "outline" })}
+                      type="submit"
+                    >
                       Update redemption
                     </button>
                   </form>
                 </div>
               ))
             ) : (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No redemption requests are waiting right now.
               </div>
             )}
@@ -906,23 +1019,30 @@ async function StaffDashboard() {
 
       <section className="grid gap-4 xl:grid-cols-2">
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Support queue
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Work through customer tickets</h2>
+          <h2 className="mt-2 font-semibold text-xl">
+            Work through customer tickets
+          </h2>
           <div className="mt-5 space-y-3">
             {ticketQueue.length ? (
               ticketQueue.map((ticket) => (
                 <div
-                  key={ticket.id}
                   className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                  key={ticket.id}
                 >
                   <p className="font-medium">{ticket.subject}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-muted-foreground text-sm">
                     {ticket.priority} priority • {formatDate(ticket.createdAt)}
                   </p>
-                  <p className="mt-2 text-sm text-muted-foreground">{ticket.message}</p>
-                  <form action={updateSupportTicketStatus} className="mt-4 grid gap-3">
+                  <p className="mt-2 text-muted-foreground text-sm">
+                    {ticket.message}
+                  </p>
+                  <form
+                    action={updateSupportTicketStatus}
+                    className="mt-4 grid gap-3"
+                  >
                     <input name="ticketId" type="hidden" value={ticket.id} />
                     <select
                       className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
@@ -935,14 +1055,17 @@ async function StaffDashboard() {
                       <option value="resolved">Resolved</option>
                       <option value="closed">Closed</option>
                     </select>
-                    <button className={buttonVariants({ variant: "outline" })} type="submit">
+                    <button
+                      className={buttonVariants({ variant: "outline" })}
+                      type="submit"
+                    >
                       Update ticket
                     </button>
                   </form>
                 </div>
               ))
             ) : (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No active support tickets.
               </div>
             )}
@@ -950,23 +1073,30 @@ async function StaffDashboard() {
         </article>
 
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Dispute queue
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Resolve or escalate disputes</h2>
+          <h2 className="mt-2 font-semibold text-xl">
+            Resolve or escalate disputes
+          </h2>
           <div className="mt-5 space-y-3">
             {disputeQueue.length ? (
               disputeQueue.map((dispute) => (
                 <div
-                  key={dispute.id}
                   className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                  key={dispute.id}
                 >
                   <p className="font-medium">{dispute.category}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-muted-foreground text-sm">
                     {formatDate(dispute.createdAt)}
                   </p>
-                  <p className="mt-2 text-sm text-muted-foreground">{dispute.description}</p>
-                  <form action={updateDisputeStatus} className="mt-4 grid gap-3">
+                  <p className="mt-2 text-muted-foreground text-sm">
+                    {dispute.description}
+                  </p>
+                  <form
+                    action={updateDisputeStatus}
+                    className="mt-4 grid gap-3"
+                  >
                     <input name="disputeId" type="hidden" value={dispute.id} />
                     <select
                       className="rounded-2xl border border-border bg-card px-4 py-3 text-sm"
@@ -984,14 +1114,17 @@ async function StaffDashboard() {
                       name="resolution"
                       placeholder="Resolution or escalation note"
                     />
-                    <button className={buttonVariants({ variant: "outline" })} type="submit">
+                    <button
+                      className={buttonVariants({ variant: "outline" })}
+                      type="submit"
+                    >
                       Update dispute
                     </button>
                   </form>
                 </div>
               ))
             ) : (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No active disputes.
               </div>
             )}
@@ -1003,7 +1136,8 @@ async function StaffDashboard() {
 }
 
 async function SuperAdminDashboard() {
-  const { opsSummary, rewardList, roleList } = await getSuperAdminDashboardData();
+  const { opsSummary, rewardList, roleList } =
+    await getSuperAdminDashboardData();
 
   return (
     <div className="space-y-8">
@@ -1030,10 +1164,12 @@ async function SuperAdminDashboard() {
 
       <section className="grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Reward controls
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Configure redemption options</h2>
+          <h2 className="mt-2 font-semibold text-xl">
+            Configure redemption options
+          </h2>
 
           <form action={createReward} className="mt-5 grid gap-3">
             <input
@@ -1085,59 +1221,68 @@ async function SuperAdminDashboard() {
           <div className="mt-5 space-y-3">
             {rewardList.map((reward) => (
               <div
-                key={reward.id}
                 className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                key={reward.id}
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">{reward.title}</p>
-                  <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium">
+                  <span className="rounded-full border border-border bg-card px-3 py-1 font-medium text-xs">
                     {reward.pointsCost} pts
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-muted-foreground text-sm">
                   {reward.description ?? "No description provided."}
                 </p>
               </div>
             ))}
 
-            {!rewardList.length ? (
-              <div className="rounded-[1.25rem] border border-dashed border-border bg-background/70 p-5 text-sm text-muted-foreground">
+            {rewardList.length ? null : (
+              <div className="rounded-[1.25rem] border border-border border-dashed bg-background/70 p-5 text-muted-foreground text-sm">
                 No rewards created yet.
               </div>
-            ) : null}
+            )}
           </div>
         </article>
 
         <article className="rounded-[2rem] border border-border bg-card p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.25em]">
             Access controls
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Manage roles and operational access</h2>
+          <h2 className="mt-2 font-semibold text-xl">
+            Manage roles and operational access
+          </h2>
 
           <div className="mt-5 space-y-3">
             {roleList.map((entry) => (
               <div
-                key={entry.id}
                 className="rounded-[1.25rem] border border-border bg-background/70 p-4"
+                key={entry.id}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-medium">{entry.fullName ?? "Unnamed profile"}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="font-medium">
+                      {entry.fullName ?? "Unnamed profile"}
+                    </p>
+                    <p className="mt-1 text-muted-foreground text-sm">
                       {entry.email} • {entry.city ?? "No city"} •{" "}
-                      {entry.onboardingCompleted ? "Onboarded" : "Not onboarded"}
+                      {entry.onboardingCompleted
+                        ? "Onboarded"
+                        : "Not onboarded"}
                     </p>
                   </div>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${statusTone(
-                      entry.onboardingCompleted ? "verified" : "pending",
+                    className={`rounded-full px-3 py-1 font-medium text-xs ${statusTone(
+                      entry.onboardingCompleted ? "verified" : "pending"
                     )}`}
                   >
                     {roleLabels[entry.role as AppRole]}
                   </span>
                 </div>
 
-                <form action={updateProfileRole} className="mt-4 flex flex-wrap items-center gap-3">
+                <form
+                  action={updateProfileRole}
+                  className="mt-4 flex flex-wrap items-center gap-3"
+                >
                   <input name="profileId" type="hidden" value={entry.id} />
                   <select
                     className="rounded-full border border-border bg-card px-4 py-2 text-xs"
@@ -1149,7 +1294,10 @@ async function SuperAdminDashboard() {
                     <option value="staff">Staff</option>
                     <option value="super_admin">Super admin</option>
                   </select>
-                  <button className={buttonVariants({ variant: "outline" })} type="submit">
+                  <button
+                    className={buttonVariants({ variant: "outline" })}
+                    type="submit"
+                  >
                     Update role
                   </button>
                 </form>
@@ -1173,7 +1321,10 @@ export default async function DashboardPage() {
     throw new Error("Database is not configured.");
   }
 
-  if (!profile.onboardingCompleted && (profile.role === "user" || profile.role === "collector")) {
+  if (
+    !profile.onboardingCompleted &&
+    (profile.role === "user" || profile.role === "collector")
+  ) {
     redirect("/dashboard/onboarding");
   }
 
@@ -1182,24 +1333,28 @@ export default async function DashboardPage() {
       <section className="rounded-[2rem] border border-border bg-background/70 p-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+            <p className="font-semibold text-primary text-sm uppercase tracking-[0.25em]">
               Dashboard
             </p>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight">
+            <h1 className="mt-4 font-semibold text-3xl tracking-tight">
               {profile.fullName ?? "Welcome"} is ready for Phase 4
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-              Recycly now has live support, verification, redemption, dispute, and admin
-              operations inside the MVP dashboard. This is the operational heart of the
-              product, not just a role switcher anymore.
+            <p className="mt-4 max-w-2xl text-muted-foreground text-sm leading-7">
+              Recycly now has live support, verification, redemption, dispute,
+              and admin operations inside the MVP dashboard. This is the
+              operational heart of the product, not just a role switcher
+              anymore.
             </p>
           </div>
           <div className="space-y-3">
-            <div className="inline-flex rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
+            <div className="inline-flex rounded-full border border-border bg-card px-4 py-2 font-medium text-muted-foreground text-xs">
               Current role: {roleLabels[profile.role]}
             </div>
             <div>
-              <Link className={buttonVariants({ variant: "outline" })} href="/docs">
+              <Link
+                className={buttonVariants({ variant: "outline" })}
+                href="/docs"
+              >
                 Read the docs
               </Link>
             </div>
@@ -1207,8 +1362,12 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {profile.role === "collector" ? <CollectorDashboard profileId={profile.id} /> : null}
-      {profile.role === "user" ? <UserDashboard city={profile.city} profileId={profile.id} /> : null}
+      {profile.role === "collector" ? (
+        <CollectorDashboard profileId={profile.id} />
+      ) : null}
+      {profile.role === "user" ? (
+        <UserDashboard city={profile.city} profileId={profile.id} />
+      ) : null}
       {profile.role === "staff" ? <StaffDashboard /> : null}
       {profile.role === "super_admin" ? <SuperAdminDashboard /> : null}
     </main>
