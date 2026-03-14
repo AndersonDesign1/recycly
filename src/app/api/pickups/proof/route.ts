@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { savePickupProof } from "@/app/(app)/dashboard/actions";
+import { savePickupProof } from "@/features/dashboard/server/actions";
 
 const pickupProofPayloadSchema = z.object({
   pickupRequestId: z.string().trim().min(1),

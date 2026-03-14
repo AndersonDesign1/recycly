@@ -162,7 +162,7 @@
 
 ## Phase 5: Marketing, Docs, And Launch Hardening
 
-- Status: `Not started`
+- Status: `In progress`
 - Objective: complete the public-facing product experience and harden the app for early launch.
 - Completion target: Recycly has a coherent landing experience, usable docs, and enough polish for a realistic MVP release.
 - Prerequisites: Phase 4 done.

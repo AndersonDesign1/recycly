@@ -2,9 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button-variants";
+import { saveOnboarding } from "@/features/dashboard/server/actions";
 import { requireProfile } from "@/server/auth/permissions";
-
-import { saveOnboarding } from "../actions";
 
 export default async function OnboardingPage() {
   const profile = await requireProfile();

@@ -33,6 +33,11 @@ interface LockedPickupRequest {
   status: PickupStatus;
 }
 type PickupReviewItem = typeof pickupItems.$inferSelect;
+type NotificationInsert = typeof notifications.$inferInsert;
+interface PickupAssignmentTarget {
+  collectorId: string;
+  collectorProfileId: string;
+}
 
 function requireDb() {
   if (!db) {
@@ -40,6 +45,126 @@ function requireDb() {
   }
 
   return db;
+}
+
+async function createNotificationEntry(
+  database: NonNullable<Db>,
+  input: NotificationInsert
+) {
+  await database.insert(notifications).values(input);
+}
+
+async function createPickupCreationNotifications(
+  tx: Transaction,
+  profileId: string,
+  requestId: string,
+  collector: PickupAssignmentTarget | undefined
+) {
+  await tx.insert(notifications).values({
+    profileId,
+    type: "pickup_update",
+    title: "Pickup request created",
+    body: collector
+      ? "Your pickup has been created and assigned to an available collector."
+      : "Your pickup has been created and is waiting for collector assignment.",
+    data: {
+      pickupRequestId: requestId,
+      status: collector ? "assigned" : "requested",
+    },
+  });
+
+  if (collector?.collectorProfileId) {
+    await tx.insert(notifications).values({
+      profileId: collector.collectorProfileId,
+      type: "pickup_update",
+      title: "New pickup assigned",
+      body: "A new city-matched pickup is waiting for you in your collector queue.",
+      data: {
+        pickupRequestId: requestId,
+        status: "assigned",
+      },
+    });
+  }
+}
+
+async function getOpsKpis(database: NonNullable<Db>) {
+  const [pickupSummary] = await database
+    .select({
+      totalPickups: sql<number>`count(*)`,
+      completedPickups: sql<number>`count(*) filter (where ${pickupRequests.status} in ('verified', 'completed'))`,
+      assignedPickups: sql<number>`count(*) filter (where ${pickupRequests.status} in ('assigned', 'accepted', 'en_route', 'collected', 'verified', 'completed'))`,
+      acceptedPickups: sql<number>`count(*) filter (where ${pickupRequests.status} in ('accepted', 'en_route', 'collected', 'verified', 'completed'))`,
+    })
+    .from(pickupRequests);
+
+  const verificationTurnaroundResult = await database.execute(sql<{
+    average_hours: string | number | null;
+  }>`
+    select round(avg(extract(epoch from (vr.created_at - pr.collected_at)) / 3600)::numeric, 1) as average_hours
+    from ${verificationRecords} vr
+    inner join ${pickupRequests} pr on pr.id = vr.pickup_request_id
+    where vr.status = 'verified' and pr.collected_at is not null
+  `);
+  const verificationTurnaround = verificationTurnaroundResult.rows[0] as
+    | {
+        average_hours: string | number | null;
+      }
+    | undefined;
+
+  const [redemptionSummary] = await database
+    .select({
+      totalRedemptions: sql<number>`count(*)`,
+      fulfilledRedemptions: sql<number>`count(*) filter (where ${redemptionRequests.status} = 'fulfilled')`,
+    })
+    .from(redemptionRequests);
+
+  const [supportSummary] = await database
+    .select({
+      openTickets: sql<number>`count(*)`,
+    })
+    .from(supportTickets)
+    .where(inArray(supportTickets.status, ["open", "in_review", "escalated"]));
+
+  const [disputeSummary] = await database
+    .select({
+      openDisputes: sql<number>`count(*)`,
+    })
+    .from(disputes)
+    .where(inArray(disputes.status, ["open", "in_review", "escalated"]));
+
+  const totalPickups = Number(pickupSummary?.totalPickups ?? 0);
+  const assignedPickups = Number(pickupSummary?.assignedPickups ?? 0);
+  const totalRedemptions = Number(redemptionSummary?.totalRedemptions ?? 0);
+
+  return {
+    pickupCompletionRate:
+      totalPickups > 0
+        ? Math.round(
+            (Number(pickupSummary?.completedPickups ?? 0) / totalPickups) * 100
+          )
+        : 0,
+    collectorAcceptanceRate:
+      assignedPickups > 0
+        ? Math.round(
+            (Number(pickupSummary?.acceptedPickups ?? 0) / assignedPickups) *
+              100
+          )
+        : 0,
+    verificationTurnaroundHours: Number(
+      verificationTurnaround?.average_hours ?? 0
+    ),
+    redemptionCompletionRate:
+      totalRedemptions > 0
+        ? Math.round(
+            (Number(redemptionSummary?.fulfilledRedemptions ?? 0) /
+              totalRedemptions) *
+              100
+          )
+        : 0,
+    openCaseCount:
+      Number(supportSummary?.openTickets ?? 0) +
+      Number(disputeSummary?.openDisputes ?? 0),
+  };
 }
 
 function normalizeRole(value: FormDataEntryValue | null): AppRole {
@@ -316,6 +441,7 @@ export async function createPickupRequest(formData: FormData) {
     const [collector] = await tx
       .select({
         collectorId: collectorProfiles.id,
+        collectorProfileId: collectorProfiles.profileId,
       })
       .from(collectorProfiles)
       .innerJoin(profiles, eq(collectorProfiles.profileId, profiles.id))
@@ -357,6 +483,13 @@ export async function createPickupRequest(formData: FormData) {
         estimatedWeightKg > 0 ? String(estimatedWeightKg.toFixed(2)) : null,
       notes: notes || null,
     });
+
+    await createPickupCreationNotifications(
+      tx,
+      profile.id,
+      request.id,
+      collector as PickupAssignmentTarget | undefined
+    );
   });
 
   revalidatePath("/dashboard");
@@ -417,6 +550,17 @@ export async function createRedemptionRequest(formData: FormData) {
       points: reward.pointsCost,
       reason: `Hold for redemption: ${reward.title}`,
     });
+
+    await tx.insert(notifications).values({
+      profileId: profile.id,
+      type: "reward",
+      title: "Redemption request submitted",
+      body: `Your request for ${reward.title} is now pending review.`,
+      data: {
+        rewardId: reward.id,
+        redemptionStatus: "pending",
+      },
+    });
   });
 
   revalidatePath("/dashboard");
@@ -447,6 +591,17 @@ export async function createSupportTicket(formData: FormData) {
         : "medium",
   });
 
+  await createNotificationEntry(database, {
+    profileId: profile.id,
+    type: "support",
+    title: "Support ticket received",
+    body: "Your support request has been logged and is now visible to staff.",
+    data: {
+      pickupRequestId,
+      supportStatus: "open",
+    },
+  });
+
   revalidatePath("/dashboard");
 }
 
@@ -468,6 +623,17 @@ export async function createDispute(formData: FormData) {
     pickupRequestId,
     category,
     description,
+  });
+
+  await createNotificationEntry(database, {
+    profileId: profile.id,
+    type: "support",
+    title: "Dispute opened",
+    body: "Your dispute has been submitted for review.",
+    data: {
+      pickupRequestId,
+      disputeStatus: "open",
+    },
   });
 
   revalidatePath("/dashboard");
@@ -540,6 +706,27 @@ export async function acceptAssignedPickup(formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(collectorProfiles.id, collectorProfile.id));
+
+    const [acceptedRequest] = await database
+      .select({
+        requesterProfileId: pickupRequests.requesterProfileId,
+      })
+      .from(pickupRequests)
+      .where(eq(pickupRequests.id, pickupRequestId))
+      .limit(1);
+
+    if (acceptedRequest) {
+      await createNotificationEntry(database, {
+        profileId: acceptedRequest.requesterProfileId,
+        type: "pickup_update",
+        title: "Collector accepted your pickup",
+        body: "Your assigned collector has accepted the job and will move it through the next status steps.",
+        data: {
+          pickupRequestId,
+          status: "accepted",
+        },
+      });
+    }
   }
 
   revalidatePath("/dashboard");
@@ -564,6 +751,7 @@ export async function updatePickupStatus(formData: FormData) {
   const [request] = await database
     .select({
       id: pickupRequests.id,
+      requesterProfileId: pickupRequests.requesterProfileId,
       status: pickupRequests.status,
     })
     .from(pickupRequests)
@@ -615,6 +803,17 @@ export async function updatePickupStatus(formData: FormData) {
       )
     );
 
+  await createNotificationEntry(database, {
+    profileId: request.requesterProfileId,
+    type: "pickup_update",
+    title: "Pickup status updated",
+    body: `Your pickup is now marked as ${nextStatus.replaceAll("_", " ")}.`,
+    data: {
+      pickupRequestId,
+      status: nextStatus,
+    },
+  });
+
   if (["completed", "cancelled"].includes(nextStatus)) {
     await database
       .update(collectorProfiles)
@@ -650,7 +849,11 @@ export async function savePickupProof(input: {
   }
 
   const [request] = await database
-    .select()
+    .select({
+      id: pickupRequests.id,
+      status: pickupRequests.status,
+      requesterProfileId: pickupRequests.requesterProfileId,
+    })
     .from(pickupRequests)
     .where(
       and(
@@ -692,6 +895,20 @@ export async function savePickupProof(input: {
       })
       .where(eq(pickupRequests.id, request.id));
   }
+
+  await createNotificationEntry(database, {
+    profileId: request.requesterProfileId,
+    type: "pickup_update",
+    title: "Collection proof uploaded",
+    body: "Your collector has uploaded proof, and the request is moving into review.",
+    data: {
+      pickupRequestId: request.id,
+      status:
+        request.status === "accepted" || request.status === "en_route"
+          ? "collected"
+          : request.status,
+    },
+  });
 
   revalidatePath("/dashboard");
 }
@@ -775,6 +992,8 @@ export async function reviewRedemptionRequest(formData: FormData) {
   }
 
   await database.transaction(async (tx) => {
+    let redemptionBody = "Your redemption request was rejected.";
+
     if (decision === "approved") {
       await tx
         .update(redemptionRequests)
@@ -786,6 +1005,8 @@ export async function reviewRedemptionRequest(formData: FormData) {
           updatedAt: new Date(),
         })
         .where(eq(redemptionRequests.id, request.id));
+      redemptionBody =
+        "Your redemption request was approved and is waiting for fulfillment.";
     } else if (decision === "fulfilled") {
       await tx
         .update(redemptionRequests)
@@ -797,6 +1018,7 @@ export async function reviewRedemptionRequest(formData: FormData) {
           updatedAt: new Date(),
         })
         .where(eq(redemptionRequests.id, request.id));
+      redemptionBody = "Your redemption request has been fulfilled.";
     } else {
       await tx
         .update(redemptionRequests)
@@ -816,7 +1038,22 @@ export async function reviewRedemptionRequest(formData: FormData) {
         points: request.pointsSpent,
         reason: `Refund for rejected redemption ${request.id}`,
       });
+
+      if (reason) {
+        redemptionBody = reason;
+      }
     }
+
+    await tx.insert(notifications).values({
+      profileId: request.requesterProfileId,
+      type: "reward",
+      title: `Redemption ${decision}`,
+      body: redemptionBody,
+      data: {
+        redemptionRequestId: request.id,
+        status: decision,
+      },
+    });
 
     await tx.insert(auditLogs).values({
       actorProfileId: reviewer.id,
@@ -855,6 +1092,28 @@ export async function updateSupportTicketStatus(formData: FormData) {
     })
     .where(eq(supportTickets.id, ticketId));
 
+  const [ticket] = await database
+    .select({
+      requesterProfileId: supportTickets.requesterProfileId,
+      subject: supportTickets.subject,
+    })
+    .from(supportTickets)
+    .where(eq(supportTickets.id, ticketId))
+    .limit(1);
+
+  if (ticket) {
+    await createNotificationEntry(database, {
+      profileId: ticket.requesterProfileId,
+      type: "support",
+      title: "Support ticket updated",
+      body: `${ticket.subject} is now marked as ${status.replaceAll("_", " ")}.`,
+      data: {
+        ticketId,
+        status,
+      },
+    });
+  }
+
   revalidatePath("/dashboard");
 }
 
@@ -883,6 +1142,30 @@ export async function updateDisputeStatus(formData: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(disputes.id, disputeId));
+
+  const [dispute] = await database
+    .select({
+      requesterProfileId: disputes.requesterProfileId,
+      category: disputes.category,
+    })
+    .from(disputes)
+    .where(eq(disputes.id, disputeId))
+    .limit(1);
+
+  if (dispute) {
+    await createNotificationEntry(database, {
+      profileId: dispute.requesterProfileId,
+      type: "support",
+      title: "Dispute updated",
+      body:
+        resolution ||
+        `${dispute.category} is now marked as ${status.replaceAll("_", " ")}.`,
+      data: {
+        disputeId,
+        status,
+      },
+    });
+  }
 
   revalidatePath("/dashboard");
 }
@@ -1017,6 +1300,36 @@ export async function getUserRewardsAndSupport(profileId: string) {
   };
 }
 
+export async function getRecentNotifications(profileId: string) {
+  const database = requireDb();
+
+  const [unreadSummary] = await database
+    .select({
+      unreadCount: sql<number>`count(*) filter (where ${notifications.readAt} is null)`,
+    })
+    .from(notifications)
+    .where(eq(notifications.profileId, profileId));
+
+  const items = await database
+    .select({
+      id: notifications.id,
+      type: notifications.type,
+      title: notifications.title,
+      body: notifications.body,
+      createdAt: notifications.createdAt,
+      readAt: notifications.readAt,
+    })
+    .from(notifications)
+    .where(eq(notifications.profileId, profileId))
+    .orderBy(desc(notifications.createdAt))
+    .limit(6);
+
+  return {
+    unreadCount: Number(unreadSummary?.unreadCount ?? 0),
+    items,
+  };
+}
+
 export async function getCollectorDashboardData(profileId: string) {
   const database = requireDb();
 
@@ -1104,7 +1417,10 @@ export async function getStaffDashboardData() {
     .where(inArray(disputes.status, ["open", "in_review", "escalated"]))
     .orderBy(desc(disputes.createdAt));
 
+  const opsKpis = await getOpsKpis(database);
+
   return {
+    opsKpis,
     verificationQueue,
     pendingRedemptions,
     ticketQueue,
@@ -1132,19 +1448,11 @@ export async function getSuperAdminDashboardData() {
     .from(profiles)
     .orderBy(asc(profiles.createdAt));
 
-  const [opsSummary] = await database
-    .select({
-      pickupCount: sql<number>`count(*)`,
-      verifiedCount: sql<number>`count(*) filter (where ${pickupRequests.status} = 'verified')`,
-    })
-    .from(pickupRequests);
+  const opsKpis = await getOpsKpis(database);
 
   return {
     rewardList,
     roleList,
-    opsSummary: {
-      pickupCount: Number(opsSummary?.pickupCount ?? 0),
-      verifiedCount: Number(opsSummary?.verifiedCount ?? 0),
-    },
+    opsKpis,
   };
 }

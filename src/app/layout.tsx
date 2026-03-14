@@ -1,11 +1,19 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { Manrope, Outfit } from "next/font/google";
 
 import "./globals.css";
-import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://recycly.app"),
@@ -14,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Recycly",
   },
   description:
-    "Pickup-first recycling rewards for urban households. Schedule collections, track progress, and earn points for verified recycling.",
+    "Pickup-first recycling for Lagos households. Book collections, follow each handoff, and earn points after verified recycling.",
 };
 
 export default function RootLayout({
@@ -23,7 +31,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={cn("font-sans", geist.variable)} lang="en">
+    <html
+      className={cn(
+        "grain-overlay font-sans",
+        manrope.variable,
+        outfit.variable
+      )}
+      lang="en"
+    >
       <body>
         <ClerkProvider
           afterSignOutUrl="/"
