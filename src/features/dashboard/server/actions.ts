@@ -792,9 +792,10 @@ export async function updatePickupStatus(formData: FormData) {
     nextValues.cancelledAt = new Date();
   }
 
-  await database
+  const updatedRequests = await database
     .update(pickupRequests)
     .set(nextValues)
+    .returning({ id: pickupRequests.id })
     .where(
       and(
         eq(pickupRequests.id, pickupRequestId),
@@ -803,18 +804,23 @@ export async function updatePickupStatus(formData: FormData) {
       )
     );
 
-  await createNotificationEntry(database, {
-    profileId: request.requesterProfileId,
-    type: "pickup_update",
-    title: "Pickup status updated",
-    body: `Your pickup is now marked as ${nextStatus.replaceAll("_", " ")}.`,
-    data: {
-      pickupRequestId,
-      status: nextStatus,
-    },
-  });
+  if (updatedRequests.length) {
+    await createNotificationEntry(database, {
+      profileId: request.requesterProfileId,
+      type: "pickup_update",
+      title: "Pickup status updated",
+      body: `Your pickup is now marked as ${nextStatus.replaceAll("_", " ")}.`,
+      data: {
+        pickupRequestId,
+        status: nextStatus,
+      },
+    });
+  }
 
-  if (["completed", "cancelled"].includes(nextStatus)) {
+  if (
+    updatedRequests.length &&
+    ["completed", "cancelled"].includes(nextStatus)
+  ) {
     await database
       .update(collectorProfiles)
       .set({

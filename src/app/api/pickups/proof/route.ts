@@ -33,8 +33,6 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       message = "Invalid pickup proof payload.";
       status = 422;
-    } else if (error instanceof Error) {
-      message = error.message;
     }
 
     return NextResponse.json(
