@@ -7,7 +7,7 @@
 - Stay inside MVP scope unless the PRD is explicitly updated first.
 - Complete phases in order unless a dependency-free task is clearly safe to parallelize.
 - Mark progress by updating status labels, not by adding ad hoc notes everywhere.
-- Do not introduce new stack decisions unless they support the PRD direction: Next.js, Clerk, Postgres, Drizzle, UploadThing, Zod, Tailwind.
+- Do not introduce new stack decisions unless they support the PRD direction: Next.js (frontend), Elysia.js (backend), Clerk, Postgres, Drizzle, UploadThing, Zod, Tailwind.
 
 ## Status Key
 
@@ -46,23 +46,26 @@
 
 - Status: `Done`
 - Objective: establish the new technical foundation for Recycly.
-- Completion target: a runnable Next.js app shell exists with the chosen core stack wired up.
+- Completion target: a runnable monorepo foundation exists with frontend app surfaces and an Elysia.js backend service scaffold.
 - Prerequisites: Phase 0 done.
 
 ### Checklist
 
 - Refresh `package.json` for the new stack and remove legacy dependencies.
-- Scaffold the fresh Next.js App Router structure.
+- Scaffold monorepo app/service layout (landing, dashboard, docs, backend).
+- Scaffold Next.js App Router structure for frontend surfaces.
+- Scaffold Elysia.js API service.
 - Set up TypeScript, Tailwind, and base linting conventions.
 - Integrate Clerk authentication.
-- Establish route groups for public, app, and docs surfaces.
+- Establish frontend app boundaries for public, dashboard, and docs surfaces.
+- Define frontend-to-backend API integration boundary.
 - Define the initial design system direction and layout shell.
 - Add environment variable templates and setup notes for the new stack.
 
 ### Definition Of Done
 
-- The app runs locally on the new stack.
-- Public and authenticated route groups exist.
+- Frontend apps and backend API service run locally in the monorepo.
+- Public, dashboard, and docs surfaces are clearly separated.
 - Clerk is wired and ready for role-based access work.
 - The codebase no longer reflects the deleted legacy architecture.
 - Validation complete: `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
@@ -85,13 +88,13 @@
 - Add Drizzle and define the initial schema for core entities.
 - Model the four MVP roles: User, Collector, Staff, Super Admin.
 - Define pickup, verification, redemption, support, and dispute status models.
-- Add server-side authorization guards and role checks.
+- Add backend authorization guards and role checks in Elysia middleware and service layer.
 - Add UploadThing foundations for proof uploads and attachments.
 
 ### Definition Of Done
 
 - Core tables/entities are represented in Drizzle.
-- Role-restricted access rules are enforceable in the app layer.
+- Role-restricted access rules are enforceable at backend API and frontend route access layers.
 - UploadThing is ready for operational file flows.
 - Validation complete: `pnpm db:generate`, `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
 
@@ -117,6 +120,7 @@
 - Implement location-based assignment logic.
 - Add collector job acceptance and status updates.
 - Add proof upload flow for completed pickups.
+- Ensure all workflow mutations are executed through Elysia backend endpoints (no Next.js API routes).
 
 ### Definition Of Done
 
@@ -170,7 +174,7 @@
 ### Checklist
 
 - Build the landing page and core public marketing sections.
-- Add docs/help content inside the main app codebase.
+- Add docs/help content in a separate docs app within the monorepo.
 - Add trust, FAQ, and how-it-works pages.
 - Improve empty states, errors, loading states, and mobile responsiveness.
 - Add notification flows for important user and staff events.
@@ -180,6 +184,7 @@
 ### Definition Of Done
 
 - Public and authenticated experiences both feel intentional and coherent.
+- Monorepo app separation (landing, dashboard, docs, backend) is production-ready and documented.
 - Core help and docs content exists.
 - MVP acceptance criteria from the PRD can be validated end to end.
 

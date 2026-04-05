@@ -20,7 +20,9 @@ This repository is now in a fresh rebuild phase. The legacy implementation has b
 
 ## Intended Stack
 
-- Next.js App Router
+- Monorepo architecture with separate apps/services
+- Next.js App Router (frontend apps)
+- Elysia.js (backend API service)
 - TypeScript
 - Clerk
 - Postgres
@@ -31,4 +33,4 @@ This repository is now in a fresh rebuild phase. The legacy implementation has b
 
 ## Next Step
 
-Begin with Phase 1 in [PHASES.md](./PHASES.md): refresh the app foundation, wire the new stack, and establish the route and auth architecture for the fresh build.
+Begin with Phase 1 in [PHASES.md](./PHASES.md): finalize monorepo app boundaries (landing, dashboard, docs, backend), wire frontend/backend contracts, and establish auth architecture for the fresh build.
