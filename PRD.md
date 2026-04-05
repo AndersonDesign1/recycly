@@ -5,7 +5,7 @@
 - Product: Recycly
 - Version: 1.0
 - Status: Draft for implementation
-- Last updated: 2026-03-13
+- Last updated: 2026-04-05
 - Product type: Production-style side project with real operational workflows
 
 ## Delivery Status Legend
@@ -68,7 +68,7 @@ The following are explicitly out of scope for MVP:
 - Municipality or enterprise portals
 - Advanced fraud detection systems beyond basic controls
 - Deep partnership management workflows
-- Astro or multi-app monorepo architecture
+- Astro framework usage for core product surfaces
 
 ## 6. Product Principles
 
@@ -85,7 +85,7 @@ The following are explicitly out of scope for MVP:
 
 - Geography: Nigeria
 - Launch context: urban operations
-- Initial city assumption: Lagos
+- Initial launch cities (phase 1 operations): Benin City, Lagos, Abuja, Ibadan, and Port Harcourt
 
 ### Target users
 
@@ -192,7 +192,7 @@ Suggested launch categories:
 - Super Admin access management
 - Reward rule management
 - Public marketing pages
-- Product documentation inside the main app
+- Product documentation as a dedicated docs app within the monorepo
 
 ### 10.2 Out of scope
 
@@ -306,7 +306,7 @@ Suggested launch categories:
 ### 12.9 Public product content
 
 - The app must include a marketing-facing landing experience.
-- The app must include basic docs/help content in the same codebase.
+- The monorepo must include basic docs/help content as a dedicated docs surface.
 - Docs should help users understand supported waste, pickup flow, rewards, and support.
 
 ## 13. Data Model Direction
@@ -434,6 +434,7 @@ Deferred channels:
 ### Scalability
 
 - MVP architecture must not block later growth into more cities, more staff, or more reward types.
+- Initial launch operations and reporting must support city-level filtering for Benin City, Lagos, Abuja, Ibadan, and Port Harcourt.
 
 ## 18. Recommended Technical Stack
 
@@ -441,7 +442,8 @@ Recycly should be rebuilt on a fresh stack using the latest stable versions at i
 
 ### Required stack decisions
 
-- Framework: Next.js App Router
+- Frontend framework: Next.js App Router
+- Backend framework: Elysia.js (TypeScript)
 - Language: TypeScript
 - Auth: Clerk
 - Database: Postgres
@@ -452,8 +454,13 @@ Recycly should be rebuilt on a fresh stack using the latest stable versions at i
 
 ### Architecture decisions
 
-- One Next.js codebase for landing pages, app, and docs
-- Route groups used to separate public and authenticated experiences
+- Monorepo architecture with separate apps/services for:
+  - landing page frontend
+  - dashboard frontend
+  - docs frontend
+  - Elysia.js backend API
+- No Next.js API routes for business logic (API responsibilities belong to the Elysia backend service)
+- Shared packages for domain types, validation schemas, UI primitives, and configuration where helpful
 - Server-first data patterns where appropriate
 - Background jobs used for notifications, assignment fanout, and redemption processing
 - Map and geocoding provider kept abstract so vendors can change later
@@ -487,11 +494,16 @@ Reference links:
 
 ### Authenticated app
 
-- User dashboard
-- Collector dashboard
-- Staff dashboard
-- Super Admin dashboard
+- User dashboard (separate frontend app)
+- Collector dashboard (separate frontend app or scoped dashboard module)
+- Staff dashboard (separate frontend app or scoped dashboard module)
+- Super Admin dashboard (separate frontend app or scoped dashboard module)
 - Shared settings and profile area
+
+### Backend API surface
+
+- Elysia.js service exposes endpoints for auth-integrated user workflows, pickup lifecycle, verification, rewards, disputes, and admin operations.
+- Frontend apps communicate with backend over HTTP APIs (or RPC-style wrappers), not Next.js inbuilt API routes.
 
 ## 20. MVP Acceptance Criteria
 
@@ -549,7 +561,7 @@ Mitigation:
 Mitigation:
 
 - keep collector matching simple
-- start with one city assumption
+- start with city-level scoping across the five defined launch cities
 - abstract map vendor decisions
 
 ### Risk: payout complexity
@@ -610,7 +622,7 @@ Mitigation:
 
 - Product name must be written as `Recycly`.
 - This is a full rebuild, not a migration.
-- MVP launch context is Lagos-first within Nigeria urban operations.
+- MVP launch context is a five-city Nigerian urban rollout: Benin City, Lagos, Abuja, Ibadan, and Port Harcourt.
 - Staff absorbs admin-like operational duties for MVP.
 - Rewards are points-first, with reviewed redemption.
 - UploadThing is the default upload and object handling solution.
