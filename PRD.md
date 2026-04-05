@@ -192,7 +192,7 @@ Suggested launch categories:
 - Super Admin access management
 - Reward rule management
 - Public marketing pages
-- Product documentation inside the main app
+- Product documentation as a dedicated docs app within the monorepo
 
 ### 10.2 Out of scope
 
@@ -561,7 +561,7 @@ Mitigation:
 Mitigation:
 
 - keep collector matching simple
-- start with one city assumption
+- start with city-level scoping across the five defined launch cities
 - abstract map vendor decisions
 
 ### Risk: payout complexity
@@ -622,7 +622,7 @@ Mitigation:
 
 - Product name must be written as `Recycly`.
 - This is a full rebuild, not a migration.
-- MVP launch context is Lagos-first within Nigeria urban operations.
+- MVP launch context is a five-city Nigerian urban rollout: Benin City, Lagos, Abuja, Ibadan, and Port Harcourt.
 - Staff absorbs admin-like operational duties for MVP.
 - Rewards are points-first, with reviewed redemption.
 - UploadThing is the default upload and object handling solution.
