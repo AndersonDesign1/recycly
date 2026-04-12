@@ -248,7 +248,7 @@ Suggested launch categories:
 
 ### 12.1 Authentication and access
 
-- Users must be able to authenticate with Clerk.
+- Users must be able to authenticate with WorkOS.
 - The application must support role-based access to app areas.
 - Role-restricted actions must be enforced at both UI and server layers.
 
@@ -445,7 +445,7 @@ Recycly should be rebuilt on a fresh stack using the latest stable versions at i
 - Frontend framework: Next.js App Router
 - Backend framework: Elysia.js (TypeScript)
 - Language: TypeScript
-- Auth: Clerk
+- Auth: WorkOS
 - Database: Postgres
 - ORM: Drizzle
 - Validation: Zod
@@ -469,14 +469,14 @@ Recycly should be rebuilt on a fresh stack using the latest stable versions at i
 
 - PlanetScale officially launched Postgres to general availability on September 22, 2025.
 - PlanetScale docs currently list Postgres 17 and 18 support.
-- Clerk provides current Next.js App Router quickstart support.
+- WorkOS provides the authentication foundation for the Next.js App Router implementation.
 - The current Next.js major upgrade guide is version 16, updated on February 27, 2026.
 
 Reference links:
 
 - PlanetScale Postgres GA: https://planetscale.com/changelog/postgres-ga
 - PlanetScale supported Postgres versions: https://planetscale.com/docs/postgres/cluster-configuration/versions
-- Clerk Next.js quickstart: https://clerk.com/docs/getting-started/quickstart
+- WorkOS Docs: https://workos.com/docs
 - Next.js version 16 upgrade guide: https://nextjs.org/docs/app/guides/upgrading/version-16
 
 ## 19. Information Architecture
@@ -580,7 +580,7 @@ Mitigation:
 - finalize PRD
 - define information architecture
 - set up fresh codebase
-- configure Clerk
+- configure WorkOS
 - define Drizzle schema
 - set up UploadThing
 - establish role model and route structure

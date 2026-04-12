@@ -7,7 +7,7 @@
 - Stay inside MVP scope unless the PRD is explicitly updated first.
 - Complete phases in order unless a dependency-free task is clearly safe to parallelize.
 - Mark progress by updating status labels, not by adding ad hoc notes everywhere.
-- Do not introduce new stack decisions unless they support the PRD direction: Next.js (frontend), Elysia.js (backend), Clerk, Postgres, Drizzle, UploadThing, Zod, Tailwind.
+- Do not introduce new stack decisions unless they support the PRD direction: Next.js (frontend), Elysia.js (backend), WorkOS, Postgres, Drizzle, UploadThing, Zod, Tailwind.
 
 ## Status Key
 
@@ -56,7 +56,7 @@
 - Scaffold Next.js App Router structure for frontend surfaces.
 - Scaffold Elysia.js API service.
 - Set up TypeScript, Tailwind, and base linting conventions.
-- Integrate Clerk authentication.
+- Integrate WorkOS authentication.
 - Establish frontend app boundaries for public, dashboard, and docs surfaces.
 - Define frontend-to-backend API integration boundary.
 - Define the initial design system direction and layout shell.
@@ -66,14 +66,14 @@
 
 - Frontend apps and backend API service run locally in the monorepo.
 - Public, dashboard, and docs surfaces are clearly separated.
-- Clerk is wired and ready for role-based access work.
+- WorkOS is wired and ready for role-based access work.
 - The codebase no longer reflects the deleted legacy architecture.
 - Validation complete: `pnpm check`, `pnpm typecheck`, and `pnpm build` all pass.
 
 ### Risks / Blockers
 
 - Dependency conflicts from retained config files.
-- Clerk integration details may affect route structure early.
+- WorkOS integration details may affect route structure early.
 
 ## Phase 2: Data Model And RBAC Foundation
 
