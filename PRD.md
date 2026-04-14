@@ -467,15 +467,16 @@ Recycly should be rebuilt on a fresh stack using the latest stable versions at i
 
 ### Current recommendation notes
 
-- PlanetScale officially launched Postgres to general availability on September 22, 2025.
-- PlanetScale docs currently list Postgres 17 and 18 support.
+- Neon Postgres is the current database recommendation for the rebuild.
+- The decision is intentional: Neon gives us serverless Postgres plus first-class branching, which fits our monorepo workflow, preview environments, and cautious schema iteration better than the earlier PlanetScale note.
+- Neon docs currently describe project branches, root/default branches, and per-branch compute endpoints as core platform primitives.
 - WorkOS provides the authentication foundation for the Next.js App Router implementation.
 - The current Next.js major upgrade guide is version 16, updated on February 27, 2026.
 
 Reference links:
 
-- PlanetScale Postgres GA: https://planetscale.com/changelog/postgres-ga
-- PlanetScale supported Postgres versions: https://planetscale.com/docs/postgres/cluster-configuration/versions
+- Neon branching API overview: https://console.neon.tech/api/v2/projects/%7Bproject_id%7D/branches
+- Neon branch details API: https://console.neon.tech/api/v2/projects/%7Bproject_id%7D/branches/%7Bbranch_id%7D
 - WorkOS Docs: https://workos.com/docs
 - Next.js version 16 upgrade guide: https://nextjs.org/docs/app/guides/upgrading/version-16
 

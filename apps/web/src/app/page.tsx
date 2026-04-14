@@ -1,7 +1,5 @@
-export default function Home() {
-  return (
-    <main>
-      <div>Hello world!</div>
-    </main>
-  );
+import RecyclyDashboard from "@/components/recycly-dashboard";
+
+export default function Page() {
+  return <RecyclyDashboard />;
 }

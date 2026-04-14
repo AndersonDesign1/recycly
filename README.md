@@ -5,7 +5,7 @@ Fresh Turborepo workspace for the Recycly rebuild.
 ## Workspace
 
 - `apps/web`: main Next.js application
-- `apps/docs`: docs/help Next.js application
+- `apps/docs`: docs/help app placeholder (Fumadocs planned)
 - `PRD.md`: product requirements
 - `PHASES.md`: execution tracker
 
