@@ -1,0 +1,21 @@
+{
+  "name": "@recycly/contracts",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "biome check src",
+    "typecheck": "tsc --noEmit",
+    "test": "bun -e \"console.log('No tests in @recycly/contracts')\""
+  },
+  "dependencies": {
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.11",
+    "typescript": "5.9.2"
+  }
+}

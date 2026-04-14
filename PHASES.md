@@ -49,17 +49,17 @@
 - [x] Create the first screenshot-ready recycler dashboard shell in `apps/web`.
 - [x] Define the first-pass design system direction with green primary tokens, warm neutrals, and a restrained accent.
 - [x] Verify the current scaffold with `pnpm check`, `pnpm lint`, `pnpm typecheck`, and `pnpm build`.
-- [ ] Add the Elysia.js backend app to the monorepo.
-- [ ] Add WorkOS authentication foundations.
-- [ ] Add environment variable templates and setup notes.
-- [ ] Define and document the frontend-to-backend integration boundary.
-- [ ] Establish shared package structure beyond the empty `packages` placeholder.
+- [x] Add the Elysia.js backend app to the monorepo.
+- [x] Add WorkOS authentication foundations.
+- [x] Add environment variable templates and setup notes.
+- [x] Define and document the frontend-to-backend integration boundary.
+- [x] Establish shared package structure beyond the empty `packages` placeholder.
 
 ### Reality Check
 
-- The repo contains a working root workspace, `apps/web`, and a placeholder `apps/docs`.
-- There is no backend service, auth integration, or environment setup yet.
-- The foundation exists, but the platform architecture is still incomplete.
+- The repo now contains a Bun-based root workspace, `apps/web`, `apps/api`, and a placeholder `apps/docs`.
+- Shared config/contracts packages exist and define the first explicit app boundary.
+- WorkOS foundations and backend env templates are in place, but the auth flow is still at the foundation stage rather than full product rollout.
 
 ## Phase 2: Data Model And RBAC Foundation
 
