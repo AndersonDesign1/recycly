@@ -1,6 +1,37 @@
 import { type ApiAuthContext, roleSchema } from "@recycly/contracts";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 
+export interface ViewerProfile {
+  email: string | null;
+  fullName: string;
+  initials: string;
+  userId: string;
+}
+
+const getStringField = (
+  value: unknown,
+  fieldName: string
+): string | undefined => {
+  if (!(typeof value === "object" && value !== null)) {
+    return undefined;
+  }
+
+  const fieldValue = value[fieldName as keyof typeof value];
+
+  return typeof fieldValue === "string" ? fieldValue : undefined;
+};
+
+const createInitials = (fullName: string): string => {
+  const initials = fullName
+    .split(" ")
+    .filter((part) => part.length > 0)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+  return initials || "RC";
+};
+
 const normalizeRoles = (roles: string[] | undefined, fallbackRole: string) => {
   const parsedRoles = (roles ?? [])
     .map((role) => roleSchema.safeParse(role))
@@ -13,6 +44,28 @@ const normalizeRoles = (roles: string[] | undefined, fallbackRole: string) => {
 
   const parsedFallbackRole = roleSchema.safeParse(fallbackRole);
   return [parsedFallbackRole.success ? parsedFallbackRole.data : "user"];
+};
+
+export const getViewerProfile = async (): Promise<ViewerProfile | null> => {
+  const session = await withAuth();
+
+  if (!session.user) {
+    return null;
+  }
+
+  const firstName = getStringField(session.user, "firstName");
+  const lastName = getStringField(session.user, "lastName");
+  const email = getStringField(session.user, "email") ?? null;
+  const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+  const fallbackName = email?.split("@")[0] ?? "Recycly member";
+  const resolvedName = fullName || fallbackName;
+
+  return {
+    userId: session.user.id,
+    email,
+    fullName: resolvedName,
+    initials: createInitials(resolvedName),
+  };
 };
 
 export const getApiAuthContext = async (): Promise<ApiAuthContext | null> => {

@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@workos-inc/authkit-nextjs/components";
+import Link from "next/link";
 import type React from "react";
 import { useEffect, useId, useRef, useState } from "react";
 import {
@@ -28,6 +30,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import type { ViewerProfile } from "@/lib/auth";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const HomeIcon = () => (
@@ -146,6 +149,38 @@ const ArrowRightIcon = () => (
     />
   </svg>
 );
+
+const createViewerProfile = (user: {
+  email?: string | null;
+  firstName?: string | null;
+  id: string;
+  lastName?: string | null;
+} | null): ViewerProfile | null => {
+  if (!user) {
+    return null;
+  }
+
+  const fullName = [user.firstName, user.lastName]
+    .filter((value): value is string => typeof value === "string" && value.length > 0)
+    .join(" ")
+    .trim();
+  const email = user.email ?? null;
+  const fallbackName = email?.split("@")[0] ?? "Recycly member";
+  const resolvedName = fullName || fallbackName;
+  const initials = resolvedName
+    .split(" ")
+    .filter((part) => part.length > 0)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+  return {
+    userId: user.id,
+    email,
+    fullName: resolvedName,
+    initials: initials || "RC",
+  };
+};
 
 // ── Count-up hook ──────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1800): number {
@@ -291,10 +326,16 @@ const CustomTooltip = ({
 function RecyclySidebar({
   activeNav,
   setActiveNav,
+  viewer,
 }: {
   activeNav: string;
   setActiveNav: (v: string) => void;
+  viewer: ViewerProfile | null;
 }) {
+  const accountName = viewer?.fullName ?? "Guest preview";
+  const accountSubtitle = viewer?.email ?? "Sign in to sync your account";
+  const accountInitials = viewer?.initials ?? "RC";
+
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader className="border-sidebar-border border-b px-4 py-4">
@@ -338,14 +379,14 @@ function RecyclySidebar({
       <SidebarFooter className="border-sidebar-border border-t p-3">
         <div className="flex items-center gap-2.5 px-1">
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/15 font-bold text-[11px] text-primary">
-            JO
+            {accountInitials}
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium text-[12.5px] text-sidebar-foreground leading-none">
-              Joshua O.
+              {accountName}
             </p>
             <p className="mt-1 truncate text-[11px] text-muted-foreground">
-              Premium tier
+              {accountSubtitle}
             </p>
           </div>
         </div>
@@ -356,6 +397,8 @@ function RecyclySidebar({
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────
 export default function RecyclyDashboard() {
+  const { loading, signOut, user } = useAuth();
+  const viewer = createViewerProfile(user);
   const gradientId = useId();
   const sparkGradientId = `${gradientId}-sg`;
   const historyGradientId = `${gradientId}-hg`;
@@ -364,6 +407,8 @@ export default function RecyclyDashboard() {
   const [progWidth, setProgWidth] = useState("0%");
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeNav, setActiveNav] = useState("Overview");
+  const displayName = viewer?.fullName ?? "there";
+  const isSignedIn = viewer !== null;
 
   useEffect(() => {
     const timeout = setTimeout(() => setProgWidth("64.8%"), 600);
@@ -381,7 +426,11 @@ export default function RecyclyDashboard() {
 
   return (
     <SidebarProvider>
-      <RecyclySidebar activeNav={activeNav} setActiveNav={setActiveNav} />
+      <RecyclySidebar
+        activeNav={activeNav}
+        setActiveNav={setActiveNav}
+        viewer={viewer}
+      />
 
       <main className="flex min-h-screen flex-1 flex-col overflow-hidden bg-background">
         {/* ── Topbar ────────────────────────────────────────────────── */}
@@ -391,27 +440,54 @@ export default function RecyclyDashboard() {
             <div className="h-4 w-px bg-border" />
             <div>
               <h1 className="font-semibold text-[14.5px] text-foreground leading-none tracking-tight">
-                Good afternoon, Joshua
+                {isSignedIn
+                  ? `Good afternoon, ${displayName}`
+                  : "Welcome to Recycly"}
               </h1>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
-                Next pickup confirmed · reward balance on track
+                {loading
+                  ? "Checking your WorkOS session..."
+                  : isSignedIn
+                  ? (viewer?.email ?? "Your account is connected with WorkOS")
+                  : "Create an account to sync pickups, rewards, and profile details"}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-medium text-[12.5px] text-foreground transition-colors hover:bg-secondary"
-              type="button"
-            >
-              View history
-            </button>
-            <button
-              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 font-medium text-[12.5px] text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-              type="button"
-            >
-              Schedule pickup
-              <ArrowRightIcon />
-            </button>
+            {isSignedIn ? (
+              <>
+                <button
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-medium text-[12.5px] text-foreground transition-colors hover:bg-secondary"
+                  onClick={() => void signOut({ returnTo: "/" })}
+                  type="button"
+                >
+                  Sign out
+                </button>
+                <button
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 font-medium text-[12.5px] text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                  type="button"
+                >
+                  Schedule pickup
+                  <ArrowRightIcon />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-medium text-[12.5px] text-foreground transition-colors hover:bg-secondary"
+                  href="/login"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 font-medium text-[12.5px] text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                  href="/signup"
+                >
+                  Create account
+                  <ArrowRightIcon />
+                </Link>
+              </>
+            )}
           </div>
         </header>
 

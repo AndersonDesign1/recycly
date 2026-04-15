@@ -43,4 +43,4 @@ bun run fix
 - Biome configuration is centralized at the repo root through `ultracite`.
 - `apps/web` owns WorkOS authentication UX and forwards trusted auth context to `apps/api`.
 - `apps/api` owns business logic, validation, RBAC, and database access.
-- WorkOS AuthKit expects `WORKOS_API_KEY`, `WORKOS_CLIENT_ID`, `WORKOS_COOKIE_PASSWORD`, and `NEXT_PUBLIC_WORKOS_REDIRECT_URI`.
+- WorkOS AuthKit expects `WORKOS_API_KEY`, `WORKOS_CLIENT_ID`, `WORKOS_COOKIE_PASSWORD`, and `NEXT_PUBLIC_WORKOS_REDIRECT_URI` (default local callback: `http://localhost:3000/auth/callback`).

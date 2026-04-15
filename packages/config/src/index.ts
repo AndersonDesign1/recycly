@@ -14,7 +14,7 @@ const apiEnvSchema = z.object({
   NEXT_PUBLIC_WORKOS_REDIRECT_URI: z
     .string()
     .url()
-    .default("http://127.0.0.1:3000/callback"),
+    .default("http://127.0.0.1:3000/auth/callback"),
 });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;
