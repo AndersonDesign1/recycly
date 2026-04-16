@@ -62,8 +62,9 @@ export const createPickupRequestModule = (
           getAuthContext(headers, options.internalApiToken),
           ["user"]
         );
+        const payload = createPickupRequestSchema.parse(body);
         set.status = 201;
-        return service.create(session.userId, body);
+        return service.create(session.userId, payload);
       },
       {
         detail: {
