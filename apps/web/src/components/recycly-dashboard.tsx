@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@workos-inc/authkit-nextjs/components";
 import Link from "next/link";
 import type React from "react";
 import { useEffect, useId, useRef, useState } from "react";
@@ -36,7 +35,7 @@ import type { ViewerProfile } from "@/lib/auth";
 const HomeIcon = () => (
   <svg
     aria-hidden="true"
-    className="size-4"
+    className="size-4.5"
     fill="none"
     focusable="false"
     stroke="currentColor"
@@ -53,7 +52,7 @@ const HomeIcon = () => (
 const CalendarIcon = () => (
   <svg
     aria-hidden="true"
-    className="size-4"
+    className="size-4.5"
     fill="none"
     focusable="false"
     stroke="currentColor"
@@ -70,7 +69,7 @@ const CalendarIcon = () => (
 const GiftIcon = () => (
   <svg
     aria-hidden="true"
-    className="size-4"
+    className="size-4.5"
     fill="none"
     focusable="false"
     stroke="currentColor"
@@ -87,7 +86,7 @@ const GiftIcon = () => (
 const LayersIcon = () => (
   <svg
     aria-hidden="true"
-    className="size-4"
+    className="size-4.5"
     fill="none"
     focusable="false"
     stroke="currentColor"
@@ -104,7 +103,7 @@ const LayersIcon = () => (
 const UserIcon = () => (
   <svg
     aria-hidden="true"
-    className="size-4"
+    className="size-4.5"
     fill="none"
     focusable="false"
     stroke="currentColor"
@@ -149,38 +148,6 @@ const ArrowRightIcon = () => (
     />
   </svg>
 );
-
-const createViewerProfile = (user: {
-  email?: string | null;
-  firstName?: string | null;
-  id: string;
-  lastName?: string | null;
-} | null): ViewerProfile | null => {
-  if (!user) {
-    return null;
-  }
-
-  const fullName = [user.firstName, user.lastName]
-    .filter((value): value is string => typeof value === "string" && value.length > 0)
-    .join(" ")
-    .trim();
-  const email = user.email ?? null;
-  const fallbackName = email?.split("@")[0] ?? "Recycly member";
-  const resolvedName = fullName || fallbackName;
-  const initials = resolvedName
-    .split(" ")
-    .filter((part) => part.length > 0)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
-  return {
-    userId: user.id,
-    email,
-    fullName: resolvedName,
-    initials: initials || "RC",
-  };
-};
 
 // ── Count-up hook ──────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1800): number {
@@ -338,18 +305,19 @@ function RecyclySidebar({
 
   return (
     <Sidebar collapsible="icon" variant="inset">
-      <SidebarHeader className="border-sidebar-border border-b px-4 py-4">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-            <span className="relative inline-flex size-2 rounded-full bg-primary" />
-          </span>
-          <span className="font-semibold text-[13.5px] text-sidebar-foreground tracking-tight">
-            Recycly
-          </span>
-          <span className="ml-auto rounded border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-data font-medium text-[10px] text-primary leading-none">
-            Live
-          </span>
+      <SidebarHeader className="border-sidebar-border border-b px-3 py-3 group-data-[collapsible=icon]:px-2">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-border bg-card font-data font-semibold text-[12px] tracking-[0.2em] text-primary shadow-[inset_0_1px_0_oklch(1_0_0/0.45)] group-data-[collapsible=icon]:size-10">
+            RC
+          </div>
+          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+            <p className="font-semibold text-[13.5px] text-sidebar-foreground tracking-tight">
+              Recycly
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Pickup rewards
+            </p>
+          </div>
         </div>
       </SidebarHeader>
 
@@ -362,7 +330,6 @@ function RecyclySidebar({
                 <SidebarMenuButton
                   isActive={activeNav === item.label}
                   onClick={() => setActiveNav(item.label)}
-                  tooltip={item.label}
                 >
                   {item.icon}
                   <span>{item.label}</span>
@@ -376,12 +343,12 @@ function RecyclySidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-sidebar-border border-t p-3">
-        <div className="flex items-center gap-2.5 px-1">
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/15 font-bold text-[11px] text-primary">
+      <SidebarFooter className="border-sidebar-border border-t p-3 group-data-[collapsible=icon]:px-2">
+        <div className="flex items-center gap-2.5 px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 font-bold text-[11px] text-primary shadow-[inset_0_1px_0_oklch(1_0_0/0.45)]">
             {accountInitials}
           </div>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <p className="truncate font-medium text-[12.5px] text-sidebar-foreground leading-none">
               {accountName}
             </p>
@@ -396,9 +363,13 @@ function RecyclySidebar({
 }
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────
-export default function RecyclyDashboard() {
-  const { loading, signOut, user } = useAuth();
-  const viewer = createViewerProfile(user);
+export default function RecyclyDashboard({
+  onSignOut,
+  viewer,
+}: {
+  onSignOut: () => Promise<void>;
+  viewer: ViewerProfile | null;
+}) {
   const gradientId = useId();
   const sparkGradientId = `${gradientId}-sg`;
   const historyGradientId = `${gradientId}-hg`;
@@ -407,12 +378,47 @@ export default function RecyclyDashboard() {
   const [progWidth, setProgWidth] = useState("0%");
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeNav, setActiveNav] = useState("Overview");
+  const [greeting, setGreeting] = useState("Welcome back");
   const displayName = viewer?.fullName ?? "there";
   const isSignedIn = viewer !== null;
 
   useEffect(() => {
     const timeout = setTimeout(() => setProgWidth("64.8%"), 600);
     return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const hourPart = new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        hour12: false,
+      })
+        .formatToParts(new Date())
+        .find((part) => part.type === "hour")?.value;
+      const hour = Number(hourPart);
+
+      if (Number.isNaN(hour)) {
+        setGreeting("Welcome back");
+        return;
+      }
+
+      if (hour < 12) {
+        setGreeting("Good morning");
+        return;
+      }
+
+      if (hour < 18) {
+        setGreeting("Good afternoon");
+        return;
+      }
+
+      setGreeting("Good evening");
+    };
+
+    updateGreeting();
+    const interval = window.setInterval(updateGreeting, 60_000);
+
+    return () => window.clearInterval(interval);
   }, []);
 
   const toggleTask = (id: number) =>
@@ -434,21 +440,19 @@ export default function RecyclyDashboard() {
 
       <main className="flex min-h-screen flex-1 flex-col overflow-hidden bg-background">
         {/* ── Topbar ────────────────────────────────────────────────── */}
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-border border-b bg-card/80 px-6 py-3.5 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="text-muted-foreground transition-colors hover:text-foreground" />
-            <div className="h-4 w-px bg-border" />
-            <div>
-              <h1 className="font-semibold text-[14.5px] text-foreground leading-none tracking-tight">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-border border-b bg-card/80 px-6 py-4 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-background hover:text-foreground" />
+            <div className="h-10 w-px self-stretch bg-border" />
+            <div className="pl-1">
+              <h1 className="font-semibold text-[15px] text-foreground leading-none tracking-tight">
                 {isSignedIn
-                  ? `Good afternoon, ${displayName}`
+                  ? `${greeting}, ${displayName}`
                   : "Welcome to Recycly"}
               </h1>
-              <p className="mt-0.5 text-[12px] text-muted-foreground">
-                {loading
-                  ? "Checking your WorkOS session..."
-                  : isSignedIn
-                  ? (viewer?.email ?? "Your account is connected with WorkOS")
+              <p className="mt-1 text-[12px] text-muted-foreground">
+                {isSignedIn
+                  ? "Your dashboard is synced and ready for today's pickups."
                   : "Create an account to sync pickups, rewards, and profile details"}
               </p>
             </div>
@@ -456,13 +460,14 @@ export default function RecyclyDashboard() {
           <div className="flex items-center gap-2">
             {isSignedIn ? (
               <>
-                <button
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-medium text-[12.5px] text-foreground transition-colors hover:bg-secondary"
-                  onClick={() => void signOut({ returnTo: "/" })}
-                  type="button"
-                >
-                  Sign out
-                </button>
+                <form action={onSignOut}>
+                  <button
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-medium text-[12.5px] text-foreground transition-colors hover:bg-secondary"
+                    type="submit"
+                  >
+                    Sign out
+                  </button>
+                </form>
                 <button
                   className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 font-medium text-[12.5px] text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                   type="button"

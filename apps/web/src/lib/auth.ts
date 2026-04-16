@@ -8,7 +8,7 @@ export interface ViewerProfile {
   userId: string;
 }
 
-const getStringField = (
+export const getStringField = (
   value: unknown,
   fieldName: string
 ): string | undefined => {
@@ -21,7 +21,7 @@ const getStringField = (
   return typeof fieldValue === "string" ? fieldValue : undefined;
 };
 
-const createInitials = (fullName: string): string => {
+export const createInitials = (fullName: string): string => {
   const initials = fullName
     .split(" ")
     .filter((part) => part.length > 0)
@@ -46,26 +46,35 @@ const normalizeRoles = (roles: string[] | undefined, fallbackRole: string) => {
   return [parsedFallbackRole.success ? parsedFallbackRole.data : "user"];
 };
 
-export const getViewerProfile = async (): Promise<ViewerProfile | null> => {
-  const session = await withAuth();
-
-  if (!session.user) {
+export const createViewerProfile = (user: unknown): ViewerProfile | null => {
+  if (!(typeof user === "object" && user !== null)) {
     return null;
   }
 
-  const firstName = getStringField(session.user, "firstName");
-  const lastName = getStringField(session.user, "lastName");
-  const email = getStringField(session.user, "email") ?? null;
+  const userId = getStringField(user, "id");
+
+  if (!userId) {
+    return null;
+  }
+
+  const firstName = getStringField(user, "firstName");
+  const lastName = getStringField(user, "lastName");
+  const email = getStringField(user, "email") ?? null;
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
   const fallbackName = email?.split("@")[0] ?? "Recycly member";
   const resolvedName = fullName || fallbackName;
 
   return {
-    userId: session.user.id,
+    userId,
     email,
     fullName: resolvedName,
     initials: createInitials(resolvedName),
   };
+};
+
+export const getViewerProfile = async (): Promise<ViewerProfile | null> => {
+  const session = await withAuth();
+  return createViewerProfile(session.user);
 };
 
 export const getApiAuthContext = async (): Promise<ApiAuthContext | null> => {
