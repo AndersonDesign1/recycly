@@ -6,7 +6,7 @@ import {
 } from "./modules/pickup-requests";
 import { getAuthContext, requireAuth } from "./plugins/auth-context";
 import { createCorsPlugin } from "./plugins/cors";
-import { errorPlugin } from "./plugins/errors";
+import { formatApiError } from "./plugins/errors";
 import { openApiPlugin } from "./plugins/openapi";
 
 export interface CreateAppOptions {
@@ -17,9 +17,8 @@ export interface CreateAppOptions {
 export const createApp = (options: CreateAppOptions = {}) => {
   const env = options.env ?? loadApiEnv(process.env);
 
-  return new Elysia({ name: "recycly-api" })
+  const app = new Elysia({ name: "recycly-api" })
     .decorate("env", env)
-    .use(errorPlugin)
     .use(createCorsPlugin(env))
     .use(openApiPlugin)
     .get(
@@ -39,14 +38,31 @@ export const createApp = (options: CreateAppOptions = {}) => {
     )
     .group("/v1", (app) =>
       app
-        .get("/me", ({ headers }) => requireAuth(getAuthContext(headers)), {
+        .get(
+          "/me",
+          ({ env, headers }) => requireAuth(getAuthContext(headers, env.RECYCLY_INTERNAL_API_TOKEN)),
+          {
           detail: {
             tags: ["Auth"],
             summary: "Inspect the authenticated session",
           },
-        })
-        .use(createPickupRequestModule(options.pickupRequests))
+          }
+        )
+        .use(
+          createPickupRequestModule({
+            ...options.pickupRequests,
+            internalApiToken: env.RECYCLY_INTERNAL_API_TOKEN,
+          })
+        )
     );
+
+  app.onError(({ code, error, set }) => {
+    const { body, status } = formatApiError(code, error);
+    set.status = status;
+    return body;
+  });
+
+  return app;
 };
 
 export type RecyclyApi = ReturnType<typeof createApp>;

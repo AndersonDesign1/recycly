@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
-    "build": "bun build src/index.ts --target bun --outdir dist --sourcemap",
+    "dev": "bun --watch src/server.ts",
+    "start": "bun src/server.ts",
+    "build": "bun build src/server.ts --target bun --outdir dist --sourcemap",
     "lint": "biome check .",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
@@ -14,19 +14,19 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@elysiajs/cors": "latest",
-    "@elysiajs/openapi": "latest",
+    "@elysiajs/cors": "1.4.1",
+    "@elysiajs/openapi": "1.4.14",
     "@recycly/config": "workspace:*",
     "@recycly/contracts": "workspace:*",
-    "drizzle-orm": "latest",
-    "elysia": "latest",
-    "postgres": "latest",
-    "zod": "latest"
+    "drizzle-orm": "0.45.2",
+    "elysia": "1.4.28",
+    "postgres": "3.4.9",
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.11",
-    "@types/bun": "latest",
-    "drizzle-kit": "latest",
+    "@types/bun": "1.3.12",
+    "drizzle-kit": "0.31.10",
     "typescript": "5.9.2"
   }
 }

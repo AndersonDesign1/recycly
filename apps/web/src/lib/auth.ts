@@ -1,4 +1,4 @@
-import { type ApiAuthContext, roleSchema } from "@recycly/contracts";
+import { type ApiAuthContext, type Role, roleSchema } from "@recycly/contracts";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 
 export interface ViewerProfile {
@@ -32,7 +32,10 @@ export const createInitials = (fullName: string): string => {
   return initials || "RC";
 };
 
-const normalizeRoles = (roles: string[] | undefined, fallbackRole: string) => {
+const normalizeRoles = (
+  roles: string[] | undefined,
+  fallbackRole: string
+): Role[] => {
   const parsedRoles = (roles ?? [])
     .map((role) => roleSchema.safeParse(role))
     .filter((result) => result.success)
@@ -44,6 +47,85 @@ const normalizeRoles = (roles: string[] | undefined, fallbackRole: string) => {
 
   const parsedFallbackRole = roleSchema.safeParse(fallbackRole);
   return [parsedFallbackRole.success ? parsedFallbackRole.data : "user"];
+};
+
+const normalizeRole = (value: string | undefined): Role => {
+  const parsedRole = roleSchema.safeParse(value);
+  return parsedRole.success ? parsedRole.data : "user";
+};
+
+const getNestedValue = (
+  value: unknown,
+  path: readonly string[]
+): unknown | undefined => {
+  let current: unknown = value;
+
+  for (const segment of path) {
+    if (!(typeof current === "object" && current !== null)) {
+      return undefined;
+    }
+
+    current = current[segment as keyof typeof current];
+  }
+
+  return current;
+};
+
+const getRoleListField = (
+  value: unknown,
+  path: readonly string[]
+): string[] | undefined => {
+  const nestedValue = getNestedValue(value, path);
+
+  if (Array.isArray(nestedValue)) {
+    return nestedValue.filter(
+      (item): item is string => typeof item === "string" && item.length > 0
+    );
+  }
+
+  if (typeof nestedValue === "string" && nestedValue.length > 0) {
+    return nestedValue
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+
+  return undefined;
+};
+
+const getRoleField = (
+  value: unknown,
+  path: readonly string[]
+): string | undefined => {
+  const nestedValue = getNestedValue(value, path);
+  return typeof nestedValue === "string" ? nestedValue : undefined;
+};
+
+const resolveUserRoles = (user: unknown) => {
+  const roleCandidates = [
+    ["role"],
+    ["metadata", "role"],
+    ["customAttributes", "role"],
+  ] as const;
+  const roleListCandidates = [
+    ["roles"],
+    ["metadata", "roles"],
+    ["customAttributes", "roles"],
+  ] as const;
+
+  const activeRole =
+    roleCandidates
+      .map((path) => getRoleField(user, path))
+      .find((value) => value !== undefined);
+  const roles =
+    roleListCandidates
+      .map((path) => getRoleListField(user, path))
+      .find((value) => value !== undefined) ?? undefined;
+
+  return {
+    activeRole: normalizeRole(activeRole),
+    roles: normalizeRoles(roles, activeRole ?? "user"),
+  };
 };
 
 export const createViewerProfile = (user: unknown): ViewerProfile | null => {
@@ -84,8 +166,7 @@ export const getApiAuthContext = async (): Promise<ApiAuthContext | null> => {
     return null;
   }
 
-  const activeRole = "user";
-  const roles = normalizeRoles(undefined, activeRole);
+  const { activeRole, roles } = resolveUserRoles(session.user);
 
   return {
     userId: session.user.id,
@@ -102,10 +183,15 @@ export const getApiAuthHeaders = async (): Promise<HeadersInit> => {
     return {};
   }
 
+  const internalApiToken = process.env.RECYCLY_INTERNAL_API_TOKEN;
+
   return {
     "x-recycly-user-id": auth.userId,
     "x-recycly-active-role": auth.activeRole,
     "x-recycly-roles": auth.roles.join(","),
+    ...(internalApiToken
+      ? { "x-recycly-internal-token": internalApiToken }
+      : {}),
     ...(auth.sessionId ? { "x-workos-session-id": auth.sessionId } : {}),
   };
 };

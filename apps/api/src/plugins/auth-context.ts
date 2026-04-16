@@ -19,9 +19,19 @@ const splitRoles = (value: string | undefined): Role[] => {
 
 type HeaderRecord = Record<string, string | undefined>;
 
+const INTERNAL_TOKEN_HEADER = "x-recycly-internal-token";
+
 export const getAuthContext = (
-  headers: HeaderRecord
+  headers: HeaderRecord,
+  expectedInternalToken?: string
 ): ApiAuthContext | null => {
+  if (
+    expectedInternalToken &&
+    headers[INTERNAL_TOKEN_HEADER] !== expectedInternalToken
+  ) {
+    return null;
+  }
+
   const userId = headers["x-recycly-user-id"];
 
   if (!userId) {

@@ -8,6 +8,7 @@ import { Elysia } from "elysia";
 import { z } from "zod";
 import { ApiError } from "../../errors";
 import { getAuthContext, requireRole } from "../../plugins/auth-context";
+import { formatApiError } from "../../plugins/errors";
 import {
   InMemoryPickupRequestStore,
   PickupRequestService,
@@ -16,6 +17,7 @@ import {
 
 export interface PickupRequestModuleOptions {
   store?: PickupRequestStore;
+  internalApiToken?: string;
 }
 
 export const createPickupRequestModule = (
@@ -32,7 +34,10 @@ export const createPickupRequestModule = (
     .get(
       "/",
       ({ headers, query }) => {
-        const session = requireRole(getAuthContext(headers), ["user"]);
+        const session = requireRole(
+          getAuthContext(headers, options.internalApiToken),
+          ["user"]
+        );
 
         return service.list({
           ...query,
@@ -53,7 +58,10 @@ export const createPickupRequestModule = (
     .post(
       "/",
       ({ body, headers, set }) => {
-        const session = requireRole(getAuthContext(headers), ["user"]);
+        const session = requireRole(
+          getAuthContext(headers, options.internalApiToken),
+          ["user"]
+        );
         set.status = 201;
         return service.create(session.userId, body);
       },
@@ -71,7 +79,10 @@ export const createPickupRequestModule = (
     .get(
       "/:id",
       async ({ headers, params }) => {
-        const session = requireRole(getAuthContext(headers), ["user"]);
+        const session = requireRole(
+          getAuthContext(headers, options.internalApiToken),
+          ["user"]
+        );
         const pickupRequest = await service.getById(params.id);
 
         if (pickupRequest.requesterId !== session.userId) {
@@ -94,5 +105,10 @@ export const createPickupRequestModule = (
           200: pickupRequestDetailSchema,
         },
       }
-    );
+    )
+    .onError(({ code, error, set }) => {
+      const { body, status } = formatApiError(code, error);
+      set.status = status;
+      return body;
+    });
 };

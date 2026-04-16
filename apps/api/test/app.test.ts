@@ -8,6 +8,7 @@ const env = {
   API_BASE_URL: "http://127.0.0.1:4001",
   WEB_APP_URL: "http://127.0.0.1:3000",
   DATABASE_URL: "postgres://user:pass@localhost:5432/recycly",
+  RECYCLY_INTERNAL_API_TOKEN: "recycly-internal-token-12345",
   WORKOS_CLIENT_ID: "client_123",
   WORKOS_API_KEY: "sk_test_123",
   WORKOS_COOKIE_PASSWORD: "recycly-cookie-password-1234567890",
@@ -19,6 +20,7 @@ const createHeaders = (overrides?: Record<string, string>) => ({
   "x-recycly-user-id": "user_123",
   "x-recycly-active-role": "user",
   "x-recycly-roles": "user",
+  "x-recycly-internal-token": env.RECYCLY_INTERNAL_API_TOKEN,
   ...overrides,
 });
 
