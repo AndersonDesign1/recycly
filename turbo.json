@@ -5,6 +5,16 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": [
+        "API_BASE_URL",
+        "DATABASE_URL",
+        "NEXT_PUBLIC_WORKOS_REDIRECT_URI",
+        "RECYCLY_INTERNAL_API_TOKEN",
+        "WEB_APP_URL",
+        "WORKOS_API_KEY",
+        "WORKOS_CLIENT_ID",
+        "WORKOS_COOKIE_PASSWORD"
+      ],
       "outputs": [".next/**", "dist/**", "!.next/cache/**"]
     },
     "lint": {
