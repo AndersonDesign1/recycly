@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthKitProvider } from "@workos-inc/authkit-nextjs/components";
 import { DM_Mono, Geist, Geist_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,9 @@ export default function RootLayout({
       )}
       lang="en"
     >
-      <body>{children}</body>
+      <body>
+        <AuthKitProvider>{children}</AuthKitProvider>
+      </body>
     </html>
   );
 }
