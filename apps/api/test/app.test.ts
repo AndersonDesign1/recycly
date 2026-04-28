@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createApp } from "../src/app";
+import { createApp } from "../src/application";
 import { InMemoryPickupRequestStore } from "../src/modules/pickup-requests/service";
 
 const env = {
