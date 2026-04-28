@@ -5,22 +5,22 @@ const apiEnvSchema = z.object({
   API_PORT: z.coerce.number().int().positive().default(4000),
   API_BASE_URL: z.string().url().default("http://127.0.0.1:4000"),
   WEB_APP_URL: z.string().url().default("http://127.0.0.1:3000"),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required."),
   RECYCLY_INTERNAL_API_TOKEN: z
     .string()
-    .min(16, "RECYCLY_INTERNAL_API_TOKEN must be at least 16 characters."),
-  WORKOS_CLIENT_ID: z.string().min(1, "WORKOS_CLIENT_ID is required."),
-  WORKOS_API_KEY: z.string().min(1, "WORKOS_API_KEY is required."),
-  WORKOS_COOKIE_PASSWORD: z
-    .string()
-    .min(32, "WORKOS_COOKIE_PASSWORD must be at least 32 characters."),
-  NEXT_PUBLIC_WORKOS_REDIRECT_URI: z
-    .string()
-    .url()
-    .default("http://127.0.0.1:3000/auth/callback"),
+    .min(16, "RECYCLY_INTERNAL_API_TOKEN must be at least 16 characters.")
+    .optional(),
+});
+
+const databaseEnvSchema = z.object({
+  DATABASE_URL: z.string().min(1, "DATABASE_URL is required."),
 });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;
+export type DatabaseEnv = z.infer<typeof databaseEnvSchema>;
 
 export const loadApiEnv = (input: Record<string, string | undefined>): ApiEnv =>
   apiEnvSchema.parse(input);
+
+export const loadDatabaseEnv = (
+  input: Record<string, string | undefined>
+): DatabaseEnv => databaseEnvSchema.parse(input);

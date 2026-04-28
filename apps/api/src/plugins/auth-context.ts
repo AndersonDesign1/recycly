@@ -25,10 +25,11 @@ export const getAuthContext = (
   headers: HeaderRecord,
   expectedInternalToken?: string
 ): ApiAuthContext | null => {
-  if (
-    expectedInternalToken &&
-    headers[INTERNAL_TOKEN_HEADER] !== expectedInternalToken
-  ) {
+  if (!expectedInternalToken) {
+    return null;
+  }
+
+  if (headers[INTERNAL_TOKEN_HEADER] !== expectedInternalToken) {
     return null;
   }
 

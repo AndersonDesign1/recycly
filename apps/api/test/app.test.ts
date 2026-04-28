@@ -7,12 +7,7 @@ const env = {
   API_PORT: 4001,
   API_BASE_URL: "http://127.0.0.1:4001",
   WEB_APP_URL: "http://127.0.0.1:3000",
-  DATABASE_URL: "postgres://user:pass@localhost:5432/recycly",
   RECYCLY_INTERNAL_API_TOKEN: "recycly-internal-token-12345",
-  WORKOS_CLIENT_ID: "client_123",
-  WORKOS_API_KEY: "sk_test_123",
-  WORKOS_COOKIE_PASSWORD: "recycly-cookie-password-1234567890",
-  NEXT_PUBLIC_WORKOS_REDIRECT_URI: "http://127.0.0.1:3000/callback",
 };
 
 const createHeaders = (overrides?: Record<string, string>) => ({
@@ -25,6 +20,26 @@ const createHeaders = (overrides?: Record<string, string>) => ({
 });
 
 describe("recycly api", () => {
+  it("boots with serverless-safe defaults for public routes", async () => {
+    const app = createApp();
+    const response = await app.handle(new Request("http://localhost/health"));
+
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects protected routes when the internal token is not configured", async () => {
+    const app = createApp();
+    const response = await app.handle(
+      new Request("http://localhost/v1/me", {
+        headers: {
+          "x-recycly-user-id": "user_123",
+        },
+      })
+    );
+
+    expect(response.status).toBe(401);
+  });
+
   it("returns a healthy status", async () => {
     const app = createApp({ env });
     const response = await app.handle(new Request("http://localhost/health"));

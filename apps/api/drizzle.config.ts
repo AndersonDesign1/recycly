@@ -1,7 +1,7 @@
-import { loadApiEnv } from "@recycly/config";
+import { loadDatabaseEnv } from "@recycly/config";
 import { defineConfig } from "drizzle-kit";
 
-const env = loadApiEnv(process.env);
+const env = loadDatabaseEnv(process.env);
 
 export default defineConfig({
   dialect: "postgresql",
