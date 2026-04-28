@@ -1,11 +1,11 @@
+import { Elysia } from "elysia";
+import { z } from "zod";
 import {
   createPickupRequestSchema,
   pickupRequestDetailSchema,
   pickupRequestListFiltersSchema,
   pickupRequestSummarySchema,
-} from "@recycly/contracts";
-import { Elysia } from "elysia";
-import { z } from "zod";
+} from "../../../../../packages/contracts/src/index";
 import { ApiError } from "../../errors";
 import { getAuthContext, requireRole } from "../../plugins/auth-context";
 import { formatApiError } from "../../plugins/errors";
@@ -16,8 +16,8 @@ import {
 } from "./service";
 
 export interface PickupRequestModuleOptions {
-  store?: PickupRequestStore;
   internalApiToken?: string;
+  store?: PickupRequestStore;
 }
 
 export const createPickupRequestModule = (

@@ -1,4 +1,8 @@
-import { type ApiAuthContext, type Role, roleSchema } from "@recycly/contracts";
+import {
+  type ApiAuthContext,
+  type Role,
+  roleSchema,
+} from "../../../../packages/contracts/src/index";
 import { ApiError } from "../errors";
 
 const splitRoles = (value: string | undefined): Role[] => {

@@ -4,7 +4,7 @@ import type {
   PickupRequestDetail,
   PickupRequestListFilters,
   PickupRequestSummary,
-} from "@recycly/contracts";
+} from "../../../../../packages/contracts/src/index";
 import { ApiError } from "../../errors";
 
 export interface PickupRequestStore {

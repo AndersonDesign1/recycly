@@ -1,5 +1,5 @@
-import { loadDatabaseEnv } from "@recycly/config";
 import { defineConfig } from "drizzle-kit";
+import { loadDatabaseEnv } from "../../packages/config/src/index";
 
 const env = loadDatabaseEnv(process.env);
 

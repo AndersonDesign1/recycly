@@ -1,5 +1,5 @@
-import { type ApiEnv, loadApiEnv } from "@recycly/config";
 import { Elysia } from "elysia";
+import { type ApiEnv, loadApiEnv } from "../../../packages/config/src/index";
 import {
   createPickupRequestModule,
   type PickupRequestModuleOptions,
@@ -40,12 +40,15 @@ export const createApp = (options: CreateAppOptions = {}) => {
       app
         .get(
           "/me",
-          ({ env, headers }) => requireAuth(getAuthContext(headers, env.RECYCLY_INTERNAL_API_TOKEN)),
+          ({ env, headers }) =>
+            requireAuth(
+              getAuthContext(headers, env.RECYCLY_INTERNAL_API_TOKEN)
+            ),
           {
-          detail: {
-            tags: ["Auth"],
-            summary: "Inspect the authenticated session",
-          },
+            detail: {
+              tags: ["Auth"],
+              summary: "Inspect the authenticated session",
+            },
           }
         )
         .use(

@@ -1,5 +1,5 @@
 import { cors } from "@elysiajs/cors";
-import type { ApiEnv } from "@recycly/config";
+import type { ApiEnv } from "../../../../packages/config/src/index";
 
 export const createCorsPlugin = (env: ApiEnv) =>
   cors({

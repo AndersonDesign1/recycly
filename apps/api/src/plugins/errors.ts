@@ -1,5 +1,5 @@
-import { apiErrorSchema } from "@recycly/contracts";
 import { ZodError } from "zod";
+import { apiErrorSchema } from "../../../../packages/contracts/src/index";
 import { ApiError } from "../errors";
 
 export const formatApiError = (code: string | number, error: unknown) => {
